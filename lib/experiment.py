@@ -25,7 +25,7 @@ class Genome:
         self.genome_ref_id = gi
         self.genome_type = gt
         if not self.genome_type in self.valid_genome_types:
-            print("{0} is not a valid genome type:\n{1}".format(self.genome_type, ",".join(valid_genome_types))) 
+            print("{0} is not a valid genome type:\n{1}".format(self.genome_type, ",".join(self.valid_genome_types))) 
             return None
         self.sample_path_dict = {}
         self.genome_data = {}
