@@ -329,7 +329,7 @@ if __name__ == "__main__":
                 sys.exit(-1)
 
     # TODO: tool parameters
-    tool_params = json.load(map_args.p)
+    tool_params = json.loads(map_args.p)
     print('tool_params = {0}'.format(tool_params))
     
     # TODO:
