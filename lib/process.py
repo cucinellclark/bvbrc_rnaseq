@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 
 #library modules
 import sys, os, subprocess
