@@ -21,7 +21,7 @@ class Genome:
     sample_path_dict = None
 
     def __init__(self, gi, gt, session):
-        #self.genome_id = gi
+        self.genome_id = gi
         self.genome_ref_id = gi
         self.genome_type = gt
         if not self.genome_type in self.valid_genome_types:
@@ -36,7 +36,7 @@ class Genome:
         response = session.send(prepared)
         #res['response']['docs'][0]['common_name']
         response_data = json.load(io.StringIO(response.text))['response']['docs'][0]
-        self.genome_id = response_data['common_name']
+        self.genome_name = response_data['common_name']
 
     def add_genome_data(self,key,data):
         # TODO: (maybe not)check if key is valid

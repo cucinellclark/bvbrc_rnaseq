@@ -229,9 +229,7 @@ if __name__ == "__main__":
     # Note: not making the assumption the genome directories supplied will be in the same order
     #       as the genomes in reference_genome_id
     genome_dir_list = map_args.g.strip().split(',')
-    print('genome_dir_list is {0}'.format(genome_dir_list))
     for genome_dir in genome_dir_list:
-    print('genome dir is {0}'.format(genome_dir))
         if genome_dir.endswith("/"):
             genome_key = os.path.basename(os.path.dirname(genome_dir))
         else:
@@ -250,7 +248,6 @@ if __name__ == "__main__":
                     else:
                         continue
                     # TODO: any file linking?
-                    print('--- Setting genome dir: {0}'.format(genome_dir))
                     genome.set_genome_dir(genome_dir)
                     genome.add_genome_data(data_key,os.path.abspath(os.path.join(genome_dir,f)))
 
