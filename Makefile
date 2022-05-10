@@ -14,6 +14,10 @@ SRC_SERVICE_PERL = $(wildcard service-scripts/*.pl)
 BIN_SERVICE_PERL = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_SERVICE_PERL))))
 DEPLOY_SERVICE_PERL = $(addprefix $(SERVICE_DIR)/bin/,$(basename $(notdir $(SRC_SERVICE_PERL))))
 
+SRC_R = $(wildcard scripts/*.R)
+BIN_R = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_R))))
+DEPLOY_R = $(addprefix $(TARGET)/bin/,$(basename $(notdir $(SRC_R))))
+
 CLIENT_TESTS = $(wildcard t/client-tests/*.t)
 SERVER_TESTS = $(wildcard t/server-tests/*.t)
 PROD_TESTS = $(wildcard t/prod-tests/*.t)
@@ -29,7 +33,7 @@ TPAGE_ARGS = --define kb_top=$(TARGET) --define kb_runtime=$(DEPLOY_RUNTIME) --d
 
 all: bin 
 
-bin: $(BIN_PERL) $(BIN_SERVICE_PERL)
+bin: $(BIN_PERL) $(BIN_SERVICE_PERL) $(BIN_R)
 
 deploy: deploy-all
 deploy-all: deploy-client 
