@@ -42,7 +42,7 @@ class DifferentialExpression:
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
         
-        deseq_cmd = ['run_deseq2.R',gene_counts,meta_file,self.genome.get_genome_data('report_img_path'),genome_type]
+        deseq_cmd = ['run_deseq2',gene_counts,meta_file,self.genome.get_genome_data('report_img_path'),genome_type]
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
 
@@ -50,7 +50,7 @@ class DifferentialExpression:
             print('Running Command:\n{0}'.format(' '.join(deseq_cmd)))
             subprocess.check_call(deseq_cmd)
         except Exception as e:
-            sys.stderr.write('Error running run_deseq2.R:\n{0}'.format(e))
+            sys.stderr.write('Error running run_deseq2:\n{0}'.format(e))
             return -1
          
         # TODO: run transcript counts
@@ -80,8 +80,8 @@ class GenomeData:
         metadata = self.genome.get_genome_data('sample_metadata_file')
         superclass_figure = os.path.join(output_dir,self.genome.get_id()+"_Superclass_Distribution")
         pathway_figure = os.path.join(output_dir,self.genome.get_id()+"_PathwayClass_Distribution")
-        superclass_cmd = ["Rscript","grid_violin_plots.R",superclass_mapping,genome_counts,metadata,superclass_figure]
-        pathway_cmd = ["Rscript","grid_violin_plots.R",pathway_mapping,genome_counts,metadata,pathway_figure]
+        superclass_cmd = ["grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
+        pathway_cmd = ["grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
 
         try:
             print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
