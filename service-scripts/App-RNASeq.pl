@@ -259,9 +259,9 @@ sub run_rna_rocket {
     verify_cmd($rocket);
     
     my @cmd = ($rocket);
-    if ($host) {
-        push @cmd, ("--index");
-    }
+    #if ($host) {
+    #    push @cmd, ("--index");
+    #}
     push @cmd, ("-p", $pstring);
     push @cmd, ("-o", $outdir);
     push @cmd, ("-g", $ref_dir);

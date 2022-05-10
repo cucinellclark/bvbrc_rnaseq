@@ -188,8 +188,9 @@ if __name__ == "__main__":
                     "read2": "/anwarren@patricbrc.org/home/rnaseq_test/MERO_75_R2.fq.gz", "condition": 2}], "contrasts": [[1, 2]]}', required=True)
     parser.add_argument('-o', help='output directory. defaults to current directory.', required=False, default=None)
     parser.add_argument('-g', help='csv list of directories each containing all genome data: fna, gff, and hisat indices', required=True)
-    # differential expression folder will just add a '.' to the output folder
     parser.add_argument('--sstring', help='json server string specifying api {"data_api":"url"}', required=False, default=None)
+    parser.add_argument('-p', help='tool parameters', required=False, default='{}')
+    parser.add_argument('-d', help='differential expression folder', required=False, default='.diff_exp')
     # TODO:
     # link to genome files (gff, fa)??? 
     # link to hisat2 index
@@ -327,7 +328,8 @@ if __name__ == "__main__":
                 sys.exit(-1)
 
     # TODO: tool parameters
-    tool_params = {}
+    tool_params = json.parse(map_args.p)
+    print('tool_params = {0}'.format(tool_params))
     
     # TODO:
     # finish samples object list
