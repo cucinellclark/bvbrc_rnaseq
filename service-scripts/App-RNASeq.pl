@@ -255,7 +255,7 @@ sub run_rna_rocket {
     print "Run rna_rocket ", Dumper($exps, $labels, $tmpdir);
     
     # my $rocket = "/home/fangfang/programs/Prok-tuxedo/prok_tuxedo.py";
-    my $rocket = "prok_tuxedo.py";
+    my $rocket = "run_rnaseq.py";
     verify_cmd($rocket);
     
     my @cmd = ($rocket);
@@ -268,9 +268,9 @@ sub run_rna_rocket {
     push @cmd, ("-d", $diffexp_name);
     push @cmd, ("--jfile", $jdesc);
     push @cmd, ("--sstring", $sstring);
-    if ($unit_test) {
-        push @cmd, ("--unit_test",$params->{unit_test});
-    }
+    #if ($unit_test) {
+    #    push @cmd, ("--unit_test",$params->{unit_test});
+    #}
     
     #push @cmd, ("-L", join(",", map { s/^\W+//; s/\W+$//; s/\W+/_/g; $_ } @$labels)) if $labels && @$labels;
     #push @cmd, map { my @s = @$_; join(",", map { join("%", @$_) } @s) } @$exps;
