@@ -117,8 +117,8 @@ sub process_rnaseq {
     print STDERR "$tmpdir\n";
     ###localize_params for regular script
     #localize_params_local for testing: will not download files
-    $params = localize_params($tmpdir, $params);
-    #$params = localize_params_local($tmpdir, $params);
+    #$params = localize_params($tmpdir, $params);
+    $params = localize_params_local($tmpdir, $params);
     
     my @outputs;
     my $prefix = $recipe;
@@ -255,7 +255,7 @@ sub run_rna_rocket {
     print "Run rna_rocket ", Dumper($exps, $labels, $tmpdir);
     
     # my $rocket = "/home/fangfang/programs/Prok-tuxedo/prok_tuxedo.py";
-    my $rocket = "run_rnaseq.py";
+    my $rocket = "run_rnaseq";
     verify_cmd($rocket);
     
     my @cmd = ($rocket);
