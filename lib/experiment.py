@@ -95,8 +95,16 @@ class Genome:
                 return False
         elif self.genome_type == "host":
             print(self.genome_data)
-            # TODO: change to unpack hisat index in perl script, use ht2.tar prefix for base prefix
             index_prefix = os.path.join(self.get_genome_dir(),os.path.basename(self.get_genome_data('hisat_index').replace('.ht2.tar','')))
+            tar_cmd = ["tar","-xvf",self.get_genome_data('hisat_index'),'-C',os.path.dirname(self.get_genome_data('hisat_index'))]
+            try:
+                print('unpacking hisat2 index:\n{0}'.format(' '.join(tar_cmd)))
+                subprocess.check_call(tar_cmd)
+                print('finished unpcking hisat2 index')
+            except Exception as e:
+                sys.stderr.write('Error unpacking hisat2 index: exiting')
+                print('error: {0}'.format(e))
+                sys.exit(-1)
             self.add_genome_data('hisat_prefix',index_prefix)
         # setup bed file
         bed_file = self.get_genome_data("annotation").replace(".gff",".bed")
