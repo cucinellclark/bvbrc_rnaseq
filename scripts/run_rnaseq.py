@@ -265,14 +265,14 @@ if __name__ == "__main__":
     if 'paired_end_libs' in job_data:
         for paired_sample in job_data['paired_end_libs']:
             sample_reads = [paired_sample['read1'],paired_sample['read2']]
-            new_sample = experiment.Sample(paired_sample['id'],'paired',sample_reads,None,paired_sample['condition'])
+            new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,paired_sample['condition'])
             experiment_dict[new_sample.condition].add_sample(new_sample)
 
     # single_end_libs
     if 'single_end_libs' in job_data:
         for single_sample in job_data['single_end_libs']:
             sample_read = [single_sample['read']]
-            new_sample = experiment.Sample(single_sample['id'],'single',sample_read,None,single_sample['condition'])
+            new_sample = experiment.Sample(single_sample['sample_id'],'single',sample_read,None,single_sample['condition'])
             experiment_dict[new_sample.condition].add_sample(new_sample)
 
     # TODO: test this
