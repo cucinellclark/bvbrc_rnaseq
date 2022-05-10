@@ -13,7 +13,7 @@ from bvbrc_api import authenticateByEnv
 
 #https://www.nature.com/articles/s41598-020-76881-x
 
-def main(genome_list, experiment_dict, tool_params, output_dir, comparisons):
+def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, session):
     # setup folder structure and genome databases
     setup(output_dir, experiment_dict, genome_list)
     diffexp_flag = comparisons.check_diffexp() 
@@ -89,7 +89,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons):
     for genome in genome_list:
         if genome.get_genome_type() == 'bacteria':
             genome_data.set_genome(genome)
-            genome_data.run_queries(output_dir)
+            genome_data.run_queries(output_dir,session)
             genome_data.create_system_figures(output_dir)
     
     # TODO: for now assuming one genome for statistics and report
@@ -221,8 +221,6 @@ if __name__ == "__main__":
     genome_list = []
     for i in range(0,len(job_data["reference_genome_id"])):
         genome_list.append(experiment.Genome(job_data["reference_genome_id"][i],job_data["genome_type"][i],s))
-    import pdb
-    pdb.set_trace()
 
     # TODO: DOWNLOAD GENOME DATA: remove from perl side
 
@@ -346,4 +344,4 @@ if __name__ == "__main__":
     os.chdir(output_dir)
 
     # If not cufflinks, run pipeline
-    main(genome_list, experiment_dict, tool_params, output_dir, comparisons)
+    main(genome_list, experiment_dict, tool_params, output_dir, comparisons, s)

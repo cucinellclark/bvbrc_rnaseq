@@ -7,8 +7,7 @@ import glob
 import pandas as pd
 import numpy as np
 
-# TODO: replce these with bvbrc_api functions
-from bvbrc_api import get_subsystems_df, get_kegg_df
+from bvbrc_api import getSubsystemsDf,getPathwayDf
 
 class DifferentialExpression:
 
@@ -69,19 +68,19 @@ class GenomeData:
     def set_genome(self,g):
         self.genome = g
 
-    def run_queries(self, output_dir):
-        self.run_subsystems(output_dir)
-        self.run_kegg(output_dir)
+    def run_queries(self, output_dir, session):
+        self.run_subsystems(output_dir, session)
+        self.run_pathway(output_dir, session)
 
     def create_system_figures(self, output_dir):
         superclass_mapping = self.genome.get_genome_data('superclass_mapping')
-        kegg_mapping = self.genome.get_genome_data('kegg_mapping')
+        pathway_mapping = self.genome.get_genome_data('pathway_mapping')
         genome_counts = self.genome.get_genome_data("tpm")
         metadata = self.genome.get_genome_data('sample_metadata_file')
         superclass_figure = os.path.join(output_dir,self.genome.get_id()+"_Superclass_Distribution")
-        kegg_figure = os.path.join(output_dir,self.genome.get_id()+"_Kegg_Distribution")
+        pathway_figure = os.path.join(output_dir,self.genome.get_id()+"_PathwayClass_Distribution")
         superclass_cmd = ["Rscript","grid_violin_plots.R",superclass_mapping,genome_counts,metadata,superclass_figure]
-        kegg_cmd = ["Rscript","grid_violin_plots.R",kegg_mapping,genome_counts,metadata,kegg_figure]
+        pathway_cmd = ["Rscript","grid_violin_plots.R",pathway_mapping,genome_counts,metadata,pathway_figure]
 
         try:
             print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
@@ -91,32 +90,25 @@ class GenomeData:
             sys.stderr.write('Error creating superclass violin plots:\n{0}\n'.format(e))
 
         try:
-            print('Running command:\n{0}'.format(' '.join(kegg_cmd)))
-            subprocess.check_call(kegg_cmd) 
-            self.genome.add_genome_data('kegg_figure',kegg_figure+'.svg')
+            print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
+            subprocess.check_call(pathway_cmd) 
+            self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
         except Exception as e:
-            sys.stderr.write('Error creating kegg violin plots:\n{0}\n'.format(e))
+            sys.stderr.write('Error creating pathway violin plots:\n{0}\n'.format(e))
 
-    def run_kegg(self, output_dir):
-        kegg_df = None
-        for genome_id in [self.genome.get_id()]:
-            for table in get_kegg_df([genome_id]):
-                kegg_df = table
-        if not kegg_df is None:
-            mapping_table = kegg_df[['patric_id','pathway_class']]
-            mapping_output = os.path.join(output_dir,self.genome.get_id()+"_kegg_mapping.tsv")
+    def run_pathway(self, output_dir, session):
+        pathway_df = getPathwayDf([genome_id], session)
+        if not pathway_df is None:
+            mapping_table = pathway_df[['patric_id','pathway_class']]
+            mapping_output = os.path.join(output_dir,self.genome.get_id()+"_pathway_mapping.tsv")
             mapping_table.to_csv(mapping_output,sep='\t',index=False)
-            self.genome.add_genome_data('kegg_mapping',mapping_output)
+            self.genome.add_genome_data('pathway_mapping',mapping_output)
         else:
-            sys.stderr.write('Error, kegg_df is None')
+            sys.stderr.write('Error, pathway_df is None')
             return -1
 
-    def run_subsystems(self, output_dir):
-        subsystem_df = None
-        #get_subsystems_df is an interator
-        for genome_id in [self.genome.get_id()]:
-            for table in get_subsystems_df([genome_id]): #should only be one at a time
-                subsystem_df = table
+    def run_subsystems(self, output_dir, session):
+        subsystem_df = getSubsystemsDf([genome_id],session)
         if not subsystem_df is None:
             mapping_table = subsystem_df[['patric_id','superclass']]
             mapping_output = os.path.join(output_dir,self.genome.get_id()+"_superclass_mapping.tsv")
