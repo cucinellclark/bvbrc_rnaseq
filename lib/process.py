@@ -189,7 +189,6 @@ class Quantify:
             return -1
         return 0
 
-    # TODO: run TPMCalculator afterwards, put that into vln plots 
     def run_htseq(self, sample_list, threads):
         # TODO: add strandedness parameter: -s
         # featurey_type: CDS or Gene
