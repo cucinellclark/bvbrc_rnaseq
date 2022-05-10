@@ -7,6 +7,7 @@ import glob
 import pandas as pd
 import numpy as np
 
+# TODO: replce these with bvbrc_api functions
 from bvbrc_api import get_subsystems_df, get_kegg_df
 
 class DifferentialExpression:
@@ -41,7 +42,7 @@ class DifferentialExpression:
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
         
-        deseq_cmd = ['Rscript','../rnaseq_app/run_deseq2.R',gene_counts,meta_file,self.genome.get_genome_data('report_img_path'),genome_type]
+        deseq_cmd = ['Rscript','run_deseq2.R',gene_counts,meta_file,self.genome.get_genome_data('report_img_path'),genome_type]
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
 
@@ -79,8 +80,8 @@ class GenomeData:
         metadata = self.genome.get_genome_data('sample_metadata_file')
         superclass_figure = os.path.join(output_dir,self.genome.get_id()+"_Superclass_Distribution")
         kegg_figure = os.path.join(output_dir,self.genome.get_id()+"_Kegg_Distribution")
-        superclass_cmd = ["Rscript","../rnaseq_app/grid_violin_plots.R",superclass_mapping,genome_counts,metadata,superclass_figure]
-        kegg_cmd = ["Rscript","../rnaseq_app/grid_violin_plots.R",kegg_mapping,genome_counts,metadata,kegg_figure]
+        superclass_cmd = ["Rscript","grid_violin_plots.R",superclass_mapping,genome_counts,metadata,superclass_figure]
+        kegg_cmd = ["Rscript","grid_violin_plots.R",kegg_mapping,genome_counts,metadata,kegg_figure]
 
         try:
             print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
@@ -265,7 +266,7 @@ class Quantify:
         transcript_matrix_file = os.path.join(output_dir,self.genome.get_id()+"_transcript_counts.csv")
         avg_read_length = str(int(np.average(avg_len_list))) 
         # TODO: set path or import or something
-        prepde_cmd = ['python3','../rnaseq_app/prepDE.py3','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
+        prepde_cmd = ['python3','prepDE.py3','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
         try:
             print(' '.join(prepde_cmd))
             #subprocess.check_call(prepde_cmd)

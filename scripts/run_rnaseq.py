@@ -220,7 +220,7 @@ if __name__ == "__main__":
     # load genome ids
     genome_list = []
     for i in range(0,len(job_data["reference_genome_id"])):
-        genome_list.append(experiment.Genome(job_data["reference_genome_id"][i],job_data["genome_type"][i]))
+        genome_list.append(experiment.Genome(job_data["reference_genome_id"][i],job_data["genome_type"][i],s))
     import pdb
     pdb.set_trace()
 

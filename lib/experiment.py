@@ -18,7 +18,7 @@ class Genome:
     genome_data = None # Dictionary that holds fasta, annotation, hisat index, etc
     sample_path_dict = None
 
-    def __init__(self, gi, gt):
+    def __init__(self, gi, gt, session):
         #self.genome_id = gi
         self.genome_ref_id = gi
         self.genome_type = gt
@@ -31,8 +31,7 @@ class Genome:
         base_query = f'https://www.patricbrc.org/api/genome/?eq(genome_id,{gi})&http_accept=application/solr+json'
         req = requests.Request('GET',base_query)
         prepared = req.prepare() 
-        s = requests.Session()
-        response = s.send(prepared)
+        response = session.send(prepared)
         #res['response']['docs'][0]['common_name']
         response_data = json.load(io.StringIO(response.text))['response']['docs'][0]
         self.genome_id = response_data['common_name']
