@@ -223,7 +223,7 @@ if __name__ == "__main__":
     for i in range(0,len(job_data["reference_genome_id"])):
         genome_list.append(experiment.Genome(job_data["reference_genome_id"][i],job_data["genome_type"][i],s))
 
-    # TODO: DOWNLOAD GENOME DATA: remove from perl side
+    # DOWNLOAD GENOME DATA: remove from perl side
 
     # Load genome data
     # Note: not making the assumption the genome directories supplied will be in the same order
