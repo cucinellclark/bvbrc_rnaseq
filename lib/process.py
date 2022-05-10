@@ -261,7 +261,7 @@ class Quantify:
         prepde_cmd = ['prepDE.py3','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
         try:
             print(' '.join(prepde_cmd))
-            #subprocess.check_call(prepde_cmd)
+            subprocess.check_call(prepde_cmd)
             self.genome.add_genome_data(self.genome.get_id()+"_gene_counts",gene_matrix_file)
             self.genome.add_genome_data(self.genome.get_id()+"_transcript_counts",transcript_matrix_file)
         except Exception as e:
@@ -338,7 +338,7 @@ class Quantify:
                 sample.add_command("stringtie_"+self.genome.get_id(),quant_cmd,"running")
                 print('Running command:\n{0}\n'.format(' '.join(quant_cmd))) 
                 try:
-                    #subprocess.check_call(quant_cmd)
+                    subprocess.check_call(quant_cmd)
                     sample.set_command_status('stringtie_'+self.genome.get_id(),'finished')
                     sample.add_sample_data(self.genome.get_id()+'_gene_counts',gene_output)
                     sample.add_sample_data(self.genome.get_id()+'_transcripts',gtf_output)
@@ -354,7 +354,7 @@ class Quantify:
             merge_cmd = ['stringtie','--merge','-G',annotation_file,'-o',merge_file] + gtf_list
             try:
                 print('Running command:\n{0}\n'.format(' '.join(merge_cmd)))
-                #subprocess.check_call(merge_cmd)
+                subprocess.check_call(merge_cmd)
             except Exception as e:
                 sys.stderr.write('ERROR running stringtie-merge:\n{0}'.format(e))
                 return -1
@@ -372,7 +372,7 @@ class Quantify:
                 sample.add_command('stringtie_merged_'+self.genome.get_id(),quant_cmd,'running')
                 print('Running command:\n{0}\n'.format(' '.join(quant_cmd)))
                 try:
-                    #subprocess.check_call(quant_cmd)
+                    subprocess.check_call(quant_cmd)
                     sample.set_command_status('stringtie_merged_'+self.genome.get_id(),'finished')
                     sample.add_sample_data(self.genome.get_id()+'_merged_transcripts',gtf_output)
                     sample.add_sample_data(self.genome.get_id()+'_merged_gene_counts',gene_output)
@@ -518,7 +518,7 @@ class Alignment:
         sample.add_command("sample_align",sample_align_cmd,"running") 
         print("Running command:\n{0}".format(" ".join(sample_align_cmd))) 
         try:
-            #subprocess.check_call(sample_align_cmd)
+            subprocess.check_call(sample_align_cmd)
             sample.set_command_status("sample_align","finished")
         except Exception as e:
             sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
@@ -619,7 +619,7 @@ class Preprocess:
         sample.add_command("trim",trim_cmd,"running")
         print("Running command:\n{0}".format(" ".join(trim_cmd)))
         try:
-            #subprocess.check_call(trim_cmd)
+            subprocess.check_call(trim_cmd)
             sample.set_command_status("trim","finished")
             sample.set_reads_list(trimmed_reads)
             for cutadapt_file in glob.glob('./*cutadapt.log'):
