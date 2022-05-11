@@ -3,7 +3,7 @@
 #library modules
 import sys, os, subprocess
 import concurrent.futures
-import glob
+import glob, json
 
 import pandas as pd
 import numpy as np
@@ -36,19 +36,24 @@ class DifferentialExpression:
         return meta_file
 
     # TODO: don't let colons exist in the condition names on UI
-    def run_differential_expression(self,output_dir): 
+    def run_differential_expression(self,output_prefix): 
         contrast_list = self.comparisons.get_contrast_list() 
         gene_counts = self.genome.get_genome_data(self.genome.get_id()+"_gene_counts")
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
         
-        deseq_cmd = ['run_deseq2',gene_counts,meta_file,output_dir,self.genome.get_genome_data('report_img_path'),genome_type]
+        deseq_cmd = ['run_deseq2',gene_counts,meta_file,output_prefix,self.genome.get_genome_data('report_img_path'),genome_type]
+        contrast_file_list = []
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
-
+            cond1 = contrast.split(':')[0]
+            cond2 = contrast.split(':')[1]
+            diffexp_file = output_prefix + '_' + cond1 + '_vs_' + cond2 + '.' + genome_type + '.deseq2.tsv' 
+            contrast_file_list.append(diffexp_file)
         try:
             print('Running Command:\n{0}'.format(' '.join(deseq_cmd)))
             subprocess.check_call(deseq_cmd)
+            self.genome.add_genome_data('contrast_file_list',contrast_file_list)
         except Exception as e:
             sys.stderr.write('Error running run_deseq2:\n{0}'.format(e))
             return -1
@@ -581,10 +586,140 @@ class Alignment:
 
 class DiffExpImport:
 
+    genome = None
+
     def __init__(self):
         print('Creating differential expression import manager')
 
-    #def write_gmx_file():    
+    def set_genome(self,g):
+        self.genome = g
+
+    def write_gmx_file(self,output_dir):    
+        contrast_file_list = self.genome.get_genome_data('contrast_file_list') 
+        for contrast_file in contrast_file_list:
+            contrast_name = os.path.basename(contrast_file).replace(".tsv","")
+            contrast_list.append(contrast_name)
+            gene_count_dict[contrast_name] = {}
+            with open(contrast_file,"r") as cf:
+                next(cf)
+                for line in cf:
+                    gene,baseMean,log2FC,lfcSE,stat,pvalue,padj = line.strip().split("\t")
+                    # strip 'gene-' from identifiers for host
+                    gene_set.add(gene.replace("gene-",""))
+                    gene_count_dict[contrast_name][gene] = log2FC
+            gmx_output = os.path.join(output_dir,'gene_exp.gmx')
+            self.genome.add_genome_data('gmx',gmx_output)
+            # TODO: rewrite this?
+            with open(gmx_output,'w') as o:
+                o.write("Gene_ID\t%s\n"%"\t".join(contrast_list))
+                for gene in gene_set:
+                    o.write(gene)
+                    for contrast in contrast_list:
+                        if gene in gene_count_dict[contrast]:
+                            o.write("\t%s"%gene_count_dict[contrast][gene])
+                        else:
+                            o.write("\t0")
+                    o.write("\n")
+
+    def run_diff_exp_import(self,output_dir,map_args):
+        gmx_file = self.genome.get_genome_data('gmx') 
+        transform_script = 'expression_transform.py'
+        if os.path.exists(gmx_file):
+            experiment_path=os.path.join(output_dir, map_args.d)
+            subprocess.call(["mkdir","-p",experiment_path])
+            transform_params = {"output_path":experiment_path, "xfile":gmx_file, "xformat":"tsv",\
+                    "xsetup":"gene_matrix", "source_id_type":"patric_id",\
+                    "data_type":"Transcriptomics", "experiment_title":"RNA-Seq", "experiment_description":"RNA-Seq",\
+                    "organism":self.genome.get_id()}
+            diffexp_json = self.setup_diffexp_json()
+            params_file=os.path.join(output_dir, "diff_exp_params.json")
+            with open(params_file, 'w') as params_handle:
+                params_handle.write(json.dumps(transform_params))
+            convert_cmd=[transform_script, "--ufile", params_file, "--sstring", map_args.sstring, "--output_path",experiment_path,"--xfile",gmx_file]
+            print (" ".join(convert_cmd))
+            try:
+               subprocess.check_call(convert_cmd)
+            except(subprocess.CalledProcessError):
+               sys.stderr.write("Running differential expression import failed.\n")
+               #subprocess.call(["rm","-rf",experiment_path])
+               return
+            diffexp_obj_file=os.path.join(output_dir, os.path.basename(map_args.d.lstrip(".")))
+            with open(diffexp_obj_file, 'w') as diffexp_job:
+                diffexp_job.write(json.dumps(diffexp_json))
+            
+    def setup_diffexp_json():
+        #job template for differential expression object
+        diffexp_json = json.loads("""                    {
+                        "app": {
+                            "description": "Parses and transforms users differential expression data",
+                            "id": "DifferentialExpression",
+                            "label": "Transform expression data",
+                            "parameters": [
+                                {
+                                    "default": null,
+                                    "desc": "Comparison values between samples",
+                                    "id": "xfile",
+                                    "label": "Experiment Data File",
+                                    "required": 1,
+                                    "type": "wstype",
+                                    "wstype": "ExpList"
+                                },
+                                {
+                                    "default": null,
+                                    "desc": "Metadata template filled out by the user",
+                                    "id": "mfile",
+                                    "label": "Metadata File",
+                                    "required": 0,
+                                    "type": "wstype",
+                                    "wstype": "ExpMetadata"
+                                },
+                                {
+                                    "default": null,
+                                    "desc": "User information (JSON string)",
+                                    "id": "ustring",
+                                    "label": "User string",
+                                    "required": 1,
+                                    "type": "string"
+                                },
+                                {
+                                    "default": null,
+                                    "desc": "Path to which the output will be written. Defaults to the directory containing the input data. ",
+                                    "id": "output_path",
+                                    "label": "Output Folder",
+                                    "required": 0,
+                                    "type": "folder"
+                                },
+                                {
+                                    "default": null,
+                                    "desc": "Basename for the generated output files. Defaults to the basename of the input data.",
+                                    "id": "output_file",
+                                    "label": "File Basename",
+                                    "required": 0,
+                                    "type": "wsid"
+                                }
+                            ],
+                            "script": "App-DifferentialExpression"
+                        },
+                        "elapsed_time": null,
+                        "end_time": null,
+                        "hostname": "",
+                        "id": "",
+                        "is_folder": 0,
+                        "job_output": "",
+                        "output_files": [
+                        ],
+                        "parameters": {
+                            "mfile": "",
+                            "output_file": "",
+                            "output_path": "",
+                            "ustring": "",
+                            "xfile": ""
+                        },
+                        "start_time": ""
+                    }
+        """)
+    return diffexp_json
+
 
 # Preprocessing: fastqc, trimming, sampled alignment(alignment?), strandedness(alignment?)  
 class Preprocess:

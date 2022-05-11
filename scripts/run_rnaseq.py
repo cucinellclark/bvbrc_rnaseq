@@ -14,7 +14,7 @@ from bvbrc_api import authenticateByEnv
 
 #https://www.nature.com/articles/s41598-020-76881-x
 
-def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, session):
+def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, session, map_args):
     # setup folder structure and genome databases
     setup(output_dir, experiment_dict, genome_list)
     diffexp_flag = comparisons.check_diffexp() 
@@ -78,11 +78,16 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
     if diffexp_flag:
         diff_exp = process.DifferentialExpression(comparisons) 
         meta_file = diff_exp.create_metadata_file(sample_list, output_dir)
+        diffexp_import = process.DiffExpImport()
         for genome in genome_list:
             genome.add_genome_data('sample_metadata_file',meta_file)
             diff_exp.set_genome(genome)
             output_prefix = os.path.join(output_dir,genome.get_id()+"_")
             diff_exp.run_differential_expression(output_prefix)
+            if genome.get_genome_type() == 'bacteria':
+                diffexp_import.set_genome(genome)
+                diffexp_import.write_gmx_file(output_dir)
+                diffexp_import.run_diff_exp_import(output_dir,map_args)
 
     # Queries: subsystems, kegg
     # output files are used in creating figures
@@ -356,4 +361,4 @@ if __name__ == "__main__":
     os.chdir(output_dir)
 
     # If not cufflinks, run pipeline
-    main(genome_list, experiment_dict, tool_params, output_dir, comparisons, s)
+    main(genome_list, experiment_dict, tool_params, output_dir, comparisons, s, map_args)
