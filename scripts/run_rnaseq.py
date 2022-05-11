@@ -202,6 +202,8 @@ if __name__ == "__main__":
 
     # set path to use correct version of samtools
     os.environ['PATH'] = "/disks/patric-common/runtime/samtools-1.9/bin:"+os.environ['PATH']
+    os.environ['R_LIBS'] = "/disks/patric-common/runtime/lib/R/library:"+os.environ['R_LIBS']
+    print('R_LIBS path = {0}'.format(os.environ['R_LIBS']))
 
     # output directory
     output_dir = map_args.o
