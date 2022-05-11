@@ -1,5 +1,7 @@
 #!/opt/patric-common/runtime/bin/Rscript
 
+Sys.setenv(R_LIBS = paste('/disks/patric-common/runtime/lib/R/library',':',Sys.getenv('R_LIBS'),sep=''))
+
 #parameter format: 
 #RunDESeq2.R <counts_file.txt> <metadata_file.txt> <output_prefix> <htseq|stringtiet> <contrast 1> <contrast 2> ... <contrast n>
 #contrasts should be a csv pair and list all the contrasts to make in this dataset
