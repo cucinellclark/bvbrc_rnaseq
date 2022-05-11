@@ -717,8 +717,8 @@ class DiffExpImport:
                         },
                         "start_time": ""
                     }
-    """)
-    return diffexp_json
+        """)
+        return diffexp_json
 
 
 # Preprocessing: fastqc, trimming, sampled alignment(alignment?), strandedness(alignment?)  
