@@ -202,6 +202,9 @@ if __name__ == "__main__":
 
     # output directory
     output_dir = map_args.o
+    output_dir = os.path.abspath(output_dir)
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
 
     # load library
     job_data = None
@@ -344,9 +347,7 @@ if __name__ == "__main__":
 
     # TODO: Check if job_data contains 'cufflinks' flag: if true, run old pipeline
 
-    output_dir = os.path.abspath(output_dir)
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
+    # change into output directory
     os.chdir(output_dir)
 
     # If not cufflinks, run pipeline
