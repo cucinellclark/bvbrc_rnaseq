@@ -200,6 +200,9 @@ if __name__ == "__main__":
     map_args = parser.parse_args()
     print("map_args:\n{0}".format(map_args))
 
+    # set path to use correct version of samtools
+    os.environ["PATH"] = "/disks/patric-common/runtime/samtools-1.9/bin:$PATH"
+
     # output directory
     output_dir = map_args.o
     output_dir = os.path.abspath(output_dir)
