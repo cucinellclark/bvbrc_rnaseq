@@ -120,7 +120,7 @@ def fix_headers(cur_table, parameter_type, die):
     if parameter_type=="xfile":
         target_setup= "gene_list" if all([(fix_name(x,all_columns) in list_columns) for x in cur_table.columns]) else "gene_matrix"
     else:
-	target_setup="template"
+	    target_setup="template"
     limit_columns=True
     if target_setup == 'gene_matrix':
         check_columns=matrix_columns

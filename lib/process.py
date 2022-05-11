@@ -636,6 +636,7 @@ class DiffExpImport:
                     "organism":self.genome.get_id()}
             diffexp_json = self.setup_diffexp_json()
             params_file=os.path.join(output_dir, "diff_exp_params.json")
+            # TODO: incorporate check for sstring
             with open(params_file, 'w') as params_handle:
                 params_handle.write(json.dumps(transform_params))
             convert_cmd=[transform_script, "--ufile", params_file, "--sstring", map_args.sstring, "--output_path",experiment_path,"--xfile",gmx_file]
