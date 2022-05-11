@@ -1,8 +1,5 @@
 #!/opt/patric-common/runtime/bin/Rscript
 
-Sys.setenv(R_LIBS = paste('/disks/patric-common/runtime/lib/R/library',':',Sys.getenv('R_LIBS'),sep=''))
-print(Sys.getenv('R_LIBS'))
-
 #load libraries quietly
 library(ggplot2,quietly=TRUE)
 library(gridExtra,quietly=TRUE)
