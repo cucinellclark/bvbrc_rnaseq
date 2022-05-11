@@ -10,6 +10,8 @@ WRAP_PYTHON_TOOL = wrap_python3
 WRAP_PYTHON_SCRIPT = bash $(TOOLS_DIR)/$(WRAP_PYTHON3_TOOL).sh
 
 SRC_PYTHON = $(wildcard scripts/*.py)
+BIN_SERVICE_PYTHON = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_SERVICE_PYTHON))))
+DEPLOY_SERVICE_PYTHON = $(addprefix $(SERVICE_DIR)/bin/,$(basename $(notdir $(SRC_SERVICE_PYTHON))))
 
 SRC_SERVICE_PERL = $(wildcard service-scripts/*.pl)
 BIN_SERVICE_PERL = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_SERVICE_PERL))))
@@ -31,7 +33,7 @@ TPAGE_ARGS = --define kb_top=$(TARGET) --define kb_runtime=$(DEPLOY_RUNTIME) --d
 
 all: bin 
 
-bin: $(BIN_PERL) $(BIN_SERVICE_PERL) $(BIN_R)
+bin: $(BIN_PERL) $(BIN_SERVICE_PERL) $(BIN_R) $(BIN_SERVICE_PYTHON)
 
 deploy: deploy-all
 deploy-all: deploy-client 
