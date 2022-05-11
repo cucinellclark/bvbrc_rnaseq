@@ -258,7 +258,7 @@ class Quantify:
         transcript_matrix_file = os.path.join(output_dir,self.genome.get_id()+"_transcript_counts.csv")
         avg_read_length = str(int(np.average(avg_len_list))) 
         # TODO: set path or import or something
-        prepde_cmd = ['prepDE.py3','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
+        prepde_cmd = ['prepDE','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
         try:
             print(' '.join(prepde_cmd))
             subprocess.check_call(prepde_cmd)
