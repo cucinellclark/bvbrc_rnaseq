@@ -623,7 +623,7 @@ class DiffExpImport:
 
     def run_diff_exp_import(self,output_dir,map_args):
         gmx_file = self.genome.get_genome_data('gmx') 
-        transform_script = 'expression_transform.py'
+        transform_script = 'expression_transform'
         if os.path.exists(gmx_file):
             experiment_path=os.path.join(output_dir, map_args.d)
             subprocess.call(["mkdir","-p",experiment_path])
