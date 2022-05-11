@@ -64,6 +64,12 @@ class Genome:
     def get_id(self):
         return self.genome_id
 
+    def get_genome_name(self):
+        if self.genome_name:
+            return self.genome_name
+        else:
+            return self.genome_id
+
     def get_path_dict(self):
         return self.sample_path_dict
 

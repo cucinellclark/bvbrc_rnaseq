@@ -147,7 +147,7 @@ def setup(output_dir, experiment_dict, genome_list):
             print("Subfolder already exists: {0}".format(folder))
 
     # create report images folder
-    report_img_folder = os.path.join(output_dir,'report_images')
+    report_img_folder = os.path.join(output_dir,'report_images/')
     if not os.path.exists(report_img_folder):
         os.mkdir(report_img_folder)
     # TODO: assuming 1 genome
