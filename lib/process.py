@@ -598,6 +598,7 @@ class DiffExpImport:
         contrast_file_list = self.genome.get_genome_data('contrast_file_list') 
         contrast_list = []
         gene_count_dict = {}
+        gene_set = set()
         for contrast_file in contrast_file_list:
             contrast_name = os.path.basename(contrast_file).replace(".tsv","")
             contrast_list.append(contrast_name)
