@@ -579,6 +579,13 @@ class Alignment:
                 strand = "FR" if fr_stranded > rf_stranded else "RF"  
         return strand
 
+class DiffExpImport:
+
+    def __init__(self):
+        print('Creating differential expression import manager')
+
+    #def write_gmx_file():    
+
 # Preprocessing: fastqc, trimming, sampled alignment(alignment?), strandedness(alignment?)  
 class Preprocess:
     
