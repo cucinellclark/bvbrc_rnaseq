@@ -9,7 +9,7 @@ APP_SERVICE = app_service
 WRAP_PYTHON_TOOL = wrap_python3
 WRAP_PYTHON_SCRIPT = bash $(TOOLS_DIR)/$(WRAP_PYTHON3_TOOL).sh
 
-SRC_PYTHON = $(wildcard scripts/*.py)
+SRC_SERVICE_PYTHON = $(wildcard scripts/*.py)
 BIN_SERVICE_PYTHON = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_SERVICE_PYTHON))))
 DEPLOY_SERVICE_PYTHON = $(addprefix $(SERVICE_DIR)/bin/,$(basename $(notdir $(SRC_SERVICE_PYTHON))))
 
