@@ -650,7 +650,7 @@ class DiffExpImport:
             with open(diffexp_obj_file, 'w') as diffexp_job:
                 diffexp_job.write(json.dumps(diffexp_json))
             
-    def setup_diffexp_json():
+    def setup_diffexp_json(self):
         #job template for differential expression object
         diffexp_json = json.loads("""                    {
                         "app": {
