@@ -42,7 +42,7 @@ class DifferentialExpression:
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
         
-        deseq_cmd = ['run_deseq2',gene_counts,meta_file,self.genome.get_genome_data('report_img_path'),genome_type]
+        deseq_cmd = ['run_deseq2',gene_counts,meta_file,output_dir,self.genome.get_genome_data('report_img_path'),genome_type]
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
 

@@ -8,12 +8,13 @@ args = commandArgs(trailingOnly=TRUE)
 numContrasts = length(args) - 4
 
 if (numContrasts < 1) {
-    stop("Not enough parameters: RunDESeq2.R <counts_file> <metadata_file> <output_prefix> <bacteria|host> <contrast 1> ... <contrast n>")
+    stop("Not enough parameters: RunDESeq2.R <counts_file> <metadata_file> <output_prefix> <report_img_path> <bacteria|host> <contrast 1> ... <contrast n>")
 }
 counts.file = args[1]
 metadata.file = args[2]
 output_prefix = args[3]
-genome_type = args[4]
+report_prefix = args[4]
+genome_type = args[5]
 
 #Check file extensions
 if ("bacteria" == genome_type) {
@@ -103,7 +104,7 @@ for (i in 5:length(args))
 
 ###Output SVG
 #grid_svg = paste("Volcano_Plots_mqc.svg",sep="")
-grid_svg = paste(output_prefix,"Volcano_Plots.svg",sep="")
+grid_svg = paste(report_prefix,"Volcano_Plots.svg",sep="")
 #svg(grid_svg,width=svg_width,height=svg_height)
 svglite(grid_svg,width=svg_width,height=svg_height)
 do.call("grid.arrange",c(plot_list,ncol=2))
