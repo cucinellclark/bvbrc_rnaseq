@@ -61,7 +61,7 @@ svg_height = ceiling((numContrasts/2)) * 5
 #index 5 in args is where the contrasts currently start
 plot_list = vector("list",numContrasts)
 contrast.index <- 0
-for (i in 5:length(args)) 
+for (i in 6:length(args)) 
 {
     contrast.index <- contrast.index + 1
     #Subset data on current contrast
