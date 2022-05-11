@@ -78,10 +78,10 @@ class GenomeData:
         pathway_mapping = self.genome.get_genome_data('pathway_mapping')
         genome_counts = self.genome.get_genome_data("tpm")
         metadata = self.genome.get_genome_data('sample_metadata_file')
-        superclass_figure = os.path.join(output_dir,self.genome.get_id()+"_Superclass_Distribution")
-        pathway_figure = os.path.join(output_dir,self.genome.get_id()+"_PathwayClass_Distribution")
-        superclass_cmd = ["grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure,self.genome.get_genome_data('report_img_path')]
-        pathway_cmd = ["grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure,self.genome.get_genome_data('report_img_path')]
+        superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_Superclass_Distribution")
+        pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_PathwayClass_Distribution")
+        superclass_cmd = ["grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
+        pathway_cmd = ["grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
 
         try:
             print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
