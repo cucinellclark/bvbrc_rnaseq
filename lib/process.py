@@ -596,6 +596,7 @@ class DiffExpImport:
 
     def write_gmx_file(self,output_dir):    
         contrast_file_list = self.genome.get_genome_data('contrast_file_list') 
+        contrast_list = []
         for contrast_file in contrast_file_list:
             contrast_name = os.path.basename(contrast_file).replace(".tsv","")
             contrast_list.append(contrast_name)
@@ -607,19 +608,19 @@ class DiffExpImport:
                     # strip 'gene-' from identifiers for host
                     gene_set.add(gene.replace("gene-",""))
                     gene_count_dict[contrast_name][gene] = log2FC
-            gmx_output = os.path.join(output_dir,'gene_exp.gmx')
-            self.genome.add_genome_data('gmx',gmx_output)
-            # TODO: rewrite this?
-            with open(gmx_output,'w') as o:
-                o.write("Gene_ID\t%s\n"%"\t".join(contrast_list))
-                for gene in gene_set:
-                    o.write(gene)
-                    for contrast in contrast_list:
-                        if gene in gene_count_dict[contrast]:
-                            o.write("\t%s"%gene_count_dict[contrast][gene])
-                        else:
-                            o.write("\t0")
-                    o.write("\n")
+        gmx_output = os.path.join(output_dir,'gene_exp.gmx')
+        self.genome.add_genome_data('gmx',gmx_output)
+        # TODO: rewrite this?
+        with open(gmx_output,'w') as o:
+            o.write("Gene_ID\t%s\n"%"\t".join(contrast_list))
+            for gene in gene_set:
+                o.write(gene)
+                for contrast in contrast_list:
+                    if gene in gene_count_dict[contrast]:
+                        o.write("\t%s"%gene_count_dict[contrast][gene])
+                    else:
+                        o.write("\t0")
+                o.write("\n")
 
     def run_diff_exp_import(self,output_dir,map_args):
         gmx_file = self.genome.get_genome_data('gmx') 
