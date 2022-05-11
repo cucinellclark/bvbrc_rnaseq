@@ -5,7 +5,7 @@
 #contrasts should be a csv pair and list all the contrasts to make in this dataset
 args = commandArgs(trailingOnly=TRUE)
 
-numContrasts = length(args) - 4
+numContrasts = length(args) - 5
 
 if (numContrasts < 1) {
     stop("Not enough parameters: RunDESeq2.R <counts_file> <metadata_file> <output_prefix> <report_img_path> <bacteria|host> <contrast 1> ... <contrast n>")
