@@ -191,10 +191,10 @@ def process_table(target_file, param_type, die, target_format="start", tries=0):
         if param_type=="xfile":
             cur_table=cur_table.rename(columns={cur_table.columns[0]:'gene_id'})            
         target_setup, cur_table=fix_headers(cur_table, param_type, die)
-    except: 
+    except Exception as e: 
         sys.stdout.write("failed at reading "+target_format+" format\n")
         if tries > 5:
-            raise
+            raise Exception(e)
 	    else:
             sys.stdout.write("guessing "+next_up+" format\n")
             return process_table(target_file, param_type, die, next_up, tries)
