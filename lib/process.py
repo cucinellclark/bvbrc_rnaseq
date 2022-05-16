@@ -639,7 +639,7 @@ class DiffExpImport:
             # TODO: incorporate check for sstring
             with open(params_file, 'w') as params_handle:
                 params_handle.write(json.dumps(transform_params))
-            convert_cmd=[transform_script, "--ufile", params_file, "--sstring",io.StringIO(map_args.sstring), "--output_path",experiment_path,"--xfile",gmx_file]
+            convert_cmd=[transform_script, "--ufile", params_file, "--sstring",'\''+map_args.sstring+'\'', "--output_path",experiment_path,"--xfile",gmx_file]
             print (" ".join(convert_cmd))
             try:
                subprocess.check_call(convert_cmd)
