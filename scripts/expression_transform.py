@@ -195,7 +195,7 @@ def process_table(target_file, param_type, die, target_format="start", tries=0):
         sys.stdout.write("failed at reading "+target_format+" format\n")
         if tries > 5:
             raise Exception(e)
-	    else:
+        else:
             sys.stdout.write("guessing "+next_up+" format\n")
             return process_table(target_file, param_type, die, next_up, tries)
     return (target_setup, cur_table)
