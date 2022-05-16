@@ -11,10 +11,7 @@ import uuid
 import csv
 from scipy import stats
 from itertools import islice
-try:
-    from lib import diffexp_api
-except ImportError:
-    import diffexp_api
+from bvbrc_api import authenticateByEnv
 
 #requires 2.7.9 or greater to deal with https comodo intermediate certs
 if sys.version_info < (2, 7):
@@ -368,7 +365,7 @@ def make_map_query(id_list, form_data, server_setup, chunk_size):
     #print "switch THE HEADER BACK!"
     #headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'}
     req = requests.Request('POST', server_setup["data_api"], headers=headers, data=current_query)
-    diffexp_api.authenticateByEnv(req)
+    authenticateByEnv(req)
     prepared = req.prepare()
     #pretty_print_POST(prepared)
     s = requests.Session()
