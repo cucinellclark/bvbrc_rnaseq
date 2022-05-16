@@ -390,8 +390,8 @@ def map_gene_ids(cur_table, form_data, server_setup, host=False):
             cur_table["feature_id"][source_id]=source_id
     else:
         for i in chunker(cur_table['exp_locus_tag'], chunk_size):
-	    mapping_results=make_map_query(i, form_data, server_setup, chunk_size)
-	    place_ids(mapping_results, cur_table, form_data)
+            mapping_results=make_map_query(i, form_data, server_setup, chunk_size)
+            place_ids(mapping_results, cur_table, form_data)
           
 
 
