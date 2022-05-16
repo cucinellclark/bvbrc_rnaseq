@@ -161,15 +161,15 @@ def process_table(target_file, param_type, die, target_format="start", tries=0):
         fileName, fileExtension = os.path.splitext(target_file)
         target_format=fileExtension.replace('.','').lower()
     if starting and not target_format in set(["csv","tsv","xls","xlsx"]):
-	temp_handle=open(target_file, 'rb')
-	target_sep=csv.Sniffer().sniff("\n".join(list(islice(temp_handle,10))))
+	    temp_handle=open(target_file, 'rb')
+	    target_sep=csv.Sniffer().sniff("\n".join(list(islice(temp_handle,10))))
         temp_handle.close()
 	if target_sep.delimiter=="\t":
 		target_format="tsv"
-                sys.stdout.write("guessing "+target_format+" format\n")
+        sys.stdout.write("guessing "+target_format+" format\n")
 	elif target_sep.delimiter==",":
 		target_format="csv"
-                sys.stdout.write("guessing "+target_format+" format\n")
+        sys.stdout.write("guessing "+target_format+" format\n")
 		
     cur_table=None
     next_up="tsv"
@@ -184,7 +184,8 @@ def process_table(target_file, param_type, die, target_format="start", tries=0):
             cur_table=pd.io.excel.read_excel(target_file, 0, index_col=None)
         else:
             sys.stderr.write("unrecognized format "+target_format+" for "+target_setup+"\n")
-            if die: sys.exit(2)
+            if die: 
+                sys.exit(2)
             
         #assume the first column is "gene_id" for the comparison table and rename it as "gene_id" to handle user misspelled column name for gene_id                                                                                         
         if param_type=="xfile":
