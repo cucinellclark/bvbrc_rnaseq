@@ -158,7 +158,8 @@ def process_table(target_file, param_type, die, target_format="start", tries=0):
         fileName, fileExtension = os.path.splitext(target_file)
         target_format=fileExtension.replace('.','').lower()
     if starting and not target_format in set(["csv","tsv","xls","xlsx"]):
-        temp_handle=open(target_file, 'rb')
+        #temp_handle=open(target_file, 'rb')
+        temp_handle=open(target_file, 'r')
         target_sep=csv.Sniffer().sniff("\n".join(list(islice(temp_handle,10))))
         temp_handle.close()
     if target_sep.delimiter=="\t":
