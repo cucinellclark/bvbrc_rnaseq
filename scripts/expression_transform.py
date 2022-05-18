@@ -466,8 +466,8 @@ def main():
         comparisons_table=gene_matrix_to_list(comparisons_table)
 
     #limit log ratios
-    comparisons_table.ix[comparisons_table["log_ratio"] > 1000000, 'log_ratio']=1000000
-    comparisons_table.ix[comparisons_table["log_ratio"] < -1000000, 'log_ratio']=-1000000
+    comparisons_table.loc[comparisons_table["log_ratio"] > 1000000, 'log_ratio']=1000000
+    comparisons_table.loc[comparisons_table["log_ratio"] < -1000000, 'log_ratio']=-1000000
     comparisons_table=comparisons_table.dropna()
     comparisons_table=comparisons_table[comparisons_table.exp_locus_tag != "-"]
 
