@@ -228,6 +228,7 @@ def create_comparison_files(output_path, comparisons_table, mfile, form_data, ex
     #create stats table for sample.json
     grouped=comparisons_table.groupby(["sampleUserGivenId"], sort=False)
     sample_stats=grouped.agg([np.mean, np.std])['log_ratio']
+    sample_stats=sample_stats.rename_axis('contrast') # rename index column title
     sample_stats=sample_stats.rename(columns={'mean':'expmean','std':'expstddev'})
     sample_stats["genes"]=grouped.count()["exp_locus_tag"]
     sample_stats["pid"]=[str(experiment_id)+"S"+str(i) for i in range(0,len(sample_stats))]
