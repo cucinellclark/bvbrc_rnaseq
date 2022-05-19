@@ -449,7 +449,7 @@ class Quantify:
             if bam_tmp != None:
                 sys.stderr.write("remove temp %s\n" % (bam_tmp))
                 os.unlink(bam_tmp)
-    return True
+        return True
 
 class Alignment: 
 
