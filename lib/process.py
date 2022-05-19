@@ -426,7 +426,7 @@ class Quantify:
         threads = 8
         gtf_list = []
         for sample in sample_list:
-            sample_bam = sample.get_sample_data('sam')
+            sample_bam = sample.get_sample_data('bam')
             cufflinks_cmd = ['cufflinks','--quiet','-p',str(threads),'-G',annotation,'-b',reference,'-I','50','-o',self.genome.get_sample_path(sample.get_id())]
             # Review: Memory mapped location on each system
             # Attempt to copy to /dev/shm. cufflinks seeks a lot in the file.
