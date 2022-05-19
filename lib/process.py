@@ -407,7 +407,7 @@ class Quantify:
             try:
                 tmpfd, bam_tmp = tempfile.mkstemp(prefix="CUFFL.",dir="/dev/shm")
                 os.close(tmpfd)
-                shutil.copy(sample_bam, bamp_tmp)
+                shutil.copy(sample_bam, bam_tmp)
                 print ("Copy succeeded to %s" % (bam_tmp))
                 bam_to_use = bam_tmp
             except IOError as err:
