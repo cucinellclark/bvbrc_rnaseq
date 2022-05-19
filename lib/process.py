@@ -284,6 +284,29 @@ class Quantify:
             return None
 
     def create_genome_counts_table_cufflinks(self,output_dir,sample_list,threads):
+        gtf_list = []
+        for sample in sample_list:
+            gtf_list.append(sample.get_sample_data('cuff_gtf'))            
+        # run cuffmerge to produce a top-level transcripts.gtf file
+        cuffmerge_cmd = ['cuffmerge','-p',str(threads)]
+        ref_gtf = self.genome.get_genome_data('gtf')
+        if ref_gtf is not None:
+            cuffmerge_cmd += ['-g',ref_gtf]
+        ref_fasta = self.genome.get_genome_data('fasta')
+        if ref_fasta is not None:
+            cuffmerge_cmd += ['-s',ref_fasta]
+        with open('assembly_list.txt','w') as o:
+            o.write('{0}\n'.format('\n'.join(gtf_list)))
+        cuffmerge_cmd.append('assembly_list.txt')
+        print("Running command:\n{0}".format(" ".join(cuffmerge_cmd)))
+        merged_gtf = os.path.join(output_dir,'merged_asm/merged.gtf')
+        try: 
+            subprocess.check_call(cuffmerge_cmd) 
+            self.genome.add_genome_data('merge_gtf',merged_gtf)
+        except Exception as e:
+            sys.stderr.write('Error running cuffmerge:\n{0}\n'.format(e))
+            return False
+
         #cuffquant [options] <transcripts.gtf> <sample1_hits.sam> <sample2_hits.sam> [... sampleN_hits.sam]
         cuffquant_cmd = ['cuffquant','-o',output_dir,'-p',str(threads),self.genome.get_genome_data('annotation')]
         # TODO: add strandedness to command
@@ -449,7 +472,6 @@ class Quantify:
         reference = self.genome.get_genome_data('fasta')
         annotation = self.genome.get_genome_data('annotation')
         threads = 8
-        gtf_list = []
         for sample in sample_list:
             sample_bam = sample.get_sample_data('bam')
             cufflinks_cmd = ['cufflinks','--quiet','-p',str(threads),'-G',annotation,'-b',reference,'-I','50','-o',self.genome.get_sample_path(sample.get_id())]
@@ -493,7 +515,6 @@ class Quantify:
 
             cufflinks_cmd += [bam_to_use]
             cuff_gtf = os.path.join(self.genome.get_sample_path(sample.get_id()),'transcripts.gtf')
-            gtf_list.append(cuff_gtf)
 
             print("Running command:\n{0}".format(" ".join(cufflinks_cmd)))
             try:
@@ -506,26 +527,6 @@ class Quantify:
             if bam_tmp != None:
                 sys.stderr.write("remove temp %s\n" % (bam_tmp))
                 os.unlink(bam_tmp)
-
-        # run cuffmerge to produce a top-level transcripts.gtf file
-        cuffmerge_cmd = ['cuffmerge','-p',str(threads)]
-        ref_gtf = self.genome.get_genome_data('gtf')
-        if ref_gtf is not None:
-            cuffmerge_cmd += ['-g',ref_gtf]
-        ref_fasta = self.genome.get_genome_data('fasta')
-        if ref_fasta is not None:
-            cuffmerge_cmd += ['-s',ref_fasta]
-        with open('assembly_list.txt','w') as o:
-            o.write('{0}\n'.format('\n'.join(gtf_list)))
-        cuffmerge_cmd.append('assembly_list.txt')
-        print("Running command:\n{0}".format(" ".join(cuffmerge_cmd)))
-        merged_gtf = os.path.join(output_dir,'merged_asm/merged.gtf')
-        try: 
-            subprocess.check_call(cuffmerge_cmd) 
-            self.genome.add_genome_data('merge_gtf',merged_gtf)
-        except Exception as e:
-            sys.stderr.write('Error running cuffmerge:\n{0}\n'.format(e))
-            return False
         return True
 
 class Alignment: 
