@@ -40,7 +40,7 @@ class DifferentialExpression:
 
     def run_cuffdiff(self):
         threads = 8
-        merged_gtf = self.genome.get_genome_data('merged_gtf')
+        merged_gtf = self.genome.get_genome_data('merge_gtf')
         cxb_file = self.genome.get_genome_data('cxb') 
         cuffdiff_cmd = ['cuffdiff','-p',str(threads),merged_gtf,cxb_file]
         print('Running Command:\n{0}'.format(' '.join(cuffdiff_cmd)))
