@@ -363,5 +363,8 @@ if __name__ == "__main__":
     # change into output directory
     os.chdir(output_dir)
 
+    # set recipe in map_args
+    map_args.recipe = job_data['recipe'] 
+
     # If not cufflinks, run pipeline
     main(genome_list, experiment_dict, tool_params, output_dir, comparisons, s, map_args)
