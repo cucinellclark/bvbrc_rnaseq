@@ -60,12 +60,13 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
     quantifier = process.Quantify()
     for genome in genome_list:
         quantifier.set_genome(genome)
+        quantifier.set_recipe(map_args.recipe)
         sample_list = []
         for condition in experiment_dict:
             samples = experiment_dict[condition].get_sample_list()
             sample_list = sample_list + samples 
         print('sample_list = {0}'.format(sample_list))
-        condition_output_list = quantifier.run_quantification(sample_list, map_args.recipe,8)
+        condition_output_list = quantifier.run_quantification(sample_list,8)
         genome_quant_file = quantifier.create_genome_counts_table(output_dir, sample_list)
         genome.add_genome_data('counts_table', genome_quant_file)
         # TODO: test host

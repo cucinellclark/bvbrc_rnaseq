@@ -128,6 +128,7 @@ class GenomeData:
 class Quantify:
 
     genome = None
+    recipe = None
 
     def __init__(self):
         print("Creating Quantify manager") 
@@ -135,18 +136,24 @@ class Quantify:
     def set_genome(self,g):
         self.genome = g
 
-    def run_quantification(self, sample_list, recipe, threads):
-        if recipe == 'HTSeq-DESeq':
+    def set_recipe(self,r):
+        self.recipe = r
+
+    def run_quantification(self, sample_list, threads):
+        if self.recipe is None:
+            sys.stderr.write('Recipe is None: set recipe with set_recipe()')
+            return False
+        if self.recipe == 'HTSeq-DESeq':
             htseq_ret = self.run_htseq(sample_list, threads)
             if htseq_ret != 0:
                 return htseq_ret
             return self.run_tpmcalc(sample_list, threads)
-        elif recipe == 'Host':
+        elif self.recipe == 'Host':
             self.run_stringtie(sample_list, threads)
-        elif recipe == 'cufflinks':
+        elif self.recipe == 'cufflinks':
             self.run_cufflinks(sample_list, threads)            
         else:
-            sys.stderr.write("Invalid recipe: {0}".format(recipe))
+            sys.stderr.write("Invalid recipe: {0}".format(self.recipe))
             return -1 
 
     def run_tpmcalc(self, sample_list, threads):
@@ -241,10 +248,18 @@ class Quantify:
         return 0
     
     def create_genome_counts_table(self,output_dir,sample_list):
-        if self.genome.get_genome_type() == 'bacteria':
+        if self.recipe == 'HTSeq-DESeq':
             return self.create_genome_counts_table_htseq(output_dir,sample_list)
-        elif self.genome.get_genome_type() == 'host':
+        elif self.recipe == 'Host':
             return self.create_genome_counts_table_stringtie(output_dir,sample_list)
+        elif self.recipe == 'cufflinks':
+            return self.create_genome_counts_table_cufflinks(output_dir,sample_list)
+        else:
+            sys.stderr.write('No counts table method found for recipe {0}\n'.format(self.recipe))
+            return None
+
+    def create_genome_counts_table_cufflinks(self,output_dir,sample_list):
+        print('testing')
 
     # Call prepDE.py script which formats data in the gtf files as a table
     # https://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
@@ -397,7 +412,7 @@ class Quantify:
         threads = 8
         for sample in sample_list:
             sample_bam = sample.get_sample_data('bam')
-            cufflinks_cmd = ['cufflinks','--quiet','-G',annotation,'-b',reference,'-I','50']
+            cufflinks_cmd = ['cufflinks','--quiet','-G',annotation,'-b',reference,'-I','50','-o',self.genome.get_sample_path(sample.get_id())]
             # Review: Memory mapped location on each system
             # Attempt to copy to /dev/shm. cufflinks seeks a lot in the file.
             # If that fails, try tmp.
@@ -437,7 +452,8 @@ class Quantify:
                 bam_tmp = None
 
             cufflinks_cmd += [bam_to_use]
-            cuff_gtf = sample.get_sample_data('bam').replace('.bam','_transcripts.gtf')
+            cuff_gtf = os.path.join(self.genome.get_sample_path(sample.get_id()),'transcripts.gtf')
+
             print("Running command:\n{0}".format(" ".join(cufflinks_cmd)))
             try:
                 subprocess.check_call(cufflinks_cmd) 
