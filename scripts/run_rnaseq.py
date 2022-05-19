@@ -70,7 +70,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
         genome_quant_file = quantifier.create_genome_counts_table(output_dir, sample_list)
         genome.add_genome_data('counts_table', genome_quant_file)
         # TODO: test host
-        genome_tpm_file = quantifier.create_genome_tpm_table(output_dir, sample_list)
+        genome_quant_file = quantifier.create_genome_quant_table(output_dir, sample_list)
 
     # sample_list used in function below
     sample_list = []
