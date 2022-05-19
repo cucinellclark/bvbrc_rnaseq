@@ -372,18 +372,21 @@ class Quantify:
         elif self.recipe == 'Host':
             return self.create_tpm_table_stringtie(output_dir,sample_list)
         elif self.recipe == 'cufflinks':
-            return self.create_fpkm_table_cufflinks()
+            return self.create_fpkm_table_cufflinks(sample_list)
 
     # outputs to directory 'cuffnorm_output'
-    def create_fpkm_table_cufflinks(self):
+    def create_fpkm_table_cufflinks(self,sample_list):
         threads = 8
         merged_gtf = self.genome.get_genome_data('merge_gtf')
-        cxb_file = self.genome.get_genome_data('cxb')
         cuffnorm_outdir = 'cuffnorm_output'
         if not os.path.exists(cuffnorm_outdir):
             os.mkdir(cuffnorm_outdir)
         # TODO: add library-type
-        cuffnorm_cmd = ['cuffnorm','-p',str(threads),'-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf,cxb_file]
+        cuffnorm_cmd = ['cuffnorm','-p',str(threads),'-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf]
+        sam_list = []
+        for sample in sample_list:
+            sam_list.append(sample.get_sample_data('sam'))
+        cuffnorm_cmd += [','.join(sam_list)]
         print('Running command:\n{0}\n'.format(' '.join(cuffnorm_cmd)))
         try:
             subprocess.check_call(cuffnorm_cmd)

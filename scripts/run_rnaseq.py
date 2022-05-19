@@ -81,9 +81,9 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
     # Differential expression 
     if diffexp_flag:
         diff_exp = process.DifferentialExpression(comparisons) 
+        diffexp.set_recipe(map_args.recipe)
         meta_file = diff_exp.create_metadata_file(sample_list, output_dir)
         diffexp_import = process.DiffExpImport()
-        diffexp_import.set_recipe(map_args.recipe)
         for genome in genome_list:
             genome.add_genome_data('sample_metadata_file',meta_file)
             diff_exp.set_genome(genome)
