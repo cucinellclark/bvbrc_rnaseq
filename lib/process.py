@@ -260,7 +260,7 @@ class Quantify:
 
     def create_genome_counts_table_cufflinks(self,output_dir,sample_list,threads):
         #cuffquant [options] <transcripts.gtf> <sample1_hits.sam> <sample2_hits.sam> [... sampleN_hits.sam]
-        cuffquant_cmd = ['cuffquant','-o',output_dir,'-p',str(threads)]
+        cuffquant_cmd = ['cuffquant','-o',output_dir,'-p',str(threads),self.genome.get_genome_data('annotation')]
         # TODO: add strandedness to command
         for sample in sample_list:
             cuffquant_cmd += [sample.get_sample_data('bam')] 
@@ -423,8 +423,8 @@ class Quantify:
         annotation = self.genome.get_genome_data('annotation')
         threads = 8
         for sample in sample_list:
-            sample_bam = sample.get_sample_data('bam')
-            cufflinks_cmd = ['cufflinks','--quiet','-G',annotation,'-b',reference,'-I','50','-o',self.genome.get_sample_path(sample.get_id())]
+            sample_bam = sample.get_sample_data('sam')
+            cufflinks_cmd = ['cufflinks','--quiet','-p',str(threads),'-G',annotation,'-b',reference,'-I','50','-o',self.genome.get_sample_path(sample.get_id())]
             # Review: Memory mapped location on each system
             # Attempt to copy to /dev/shm. cufflinks seeks a lot in the file.
             # If that fails, try tmp.
@@ -517,6 +517,7 @@ class Alignment:
             # print captured stdout
             with open(align_output_file,'r') as aof:
                 print(aof.read())
+            sample.add_sample_data('sam',sam_file)
             sample.add_sample_data(self.genome.get_id()+'_align_stats',align_output_file)
             sample.set_command_status("align"+"_"+self.genome.get_id(),"finished")
         except Exception as e:
