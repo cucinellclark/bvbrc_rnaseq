@@ -383,10 +383,14 @@ class Quantify:
             os.mkdir(cuffnorm_outdir)
         # TODO: add library-type
         cuffnorm_cmd = ['cuffnorm','-p',str(threads),'-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf]
-        sam_list = []
+        sam_dict = {}
         for sample in sample_list:
-            sam_list.append(sample.get_sample_data('sam'))
-        cuffnorm_cmd += [','.join(sam_list)]
+           sample_condition = sample.get_condition() 
+            if sample_condition not in sam_dict:
+                sam_dict[sample_condition] = []
+            sam_dict[sample_condition].append(sample.get_sample_data('bam'))
+        for sample_condition in sam_dict:
+            cuffnorm_cmd += [','.join(sam_dict[sample_condition])]
         print('Running command:\n{0}\n'.format(' '.join(cuffnorm_cmd)))
         try:
             subprocess.check_call(cuffnorm_cmd)
