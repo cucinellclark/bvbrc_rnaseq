@@ -377,7 +377,7 @@ class Quantify:
     # outputs to directory 'cuffnorm_output'
     def create_fpkm_table_cufflinks(self):
         threads = 8
-        merged_gtf = self.genome.get_genome_data('merged_gtf')
+        merged_gtf = self.genome.get_genome_data('merge_gtf')
         cxb_file = self.genome.get_genome_data('cxb')
         cuffnorm_outdir = 'cuffnorm_output'
         if not os.path.exists(cuffnorm_outdir):
