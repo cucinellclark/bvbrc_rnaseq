@@ -391,7 +391,7 @@ class Quantify:
             else:
                 sys.stderr.write('{0} already exists: skipping stringtie merged annotation'.format(gtf_output))
 
-    def run_cufflinks(self,sample_list):
+    def run_cufflinks(self,sample_list,threads):
         reference = self.genome.get_genome_data('fasta')
         annotation = self.genome.get_genome_data('annotation')
         threads = 8
