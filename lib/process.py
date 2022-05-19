@@ -15,6 +15,7 @@ class DifferentialExpression:
 
     comparisons = None
     genome = None
+    recipe = None
 
     def __init__(self, c):
         print("Creating DifferentialExpression manager")
@@ -24,6 +25,30 @@ class DifferentialExpression:
     # to run gene+transcript diffexp if host (just gene for bacteria)
     def set_genome(self, g):
         self.genome = g
+
+    def set_recipe(self, r):
+        self.recipe = r
+
+    def run_differential_expression(self,output_prefix):
+        if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host':
+            return self.run_deseq2(output_prefix)
+        elif self.recipe == 'cufflinks':
+            return self.run_cuffdiff(output_prefix)
+        else:
+            sys.stderr.write('Invalid recipe for differential expression: {0}\n'.format(self.recipe))
+            return False
+
+    def run_cuffdiff(self,output_prefix):
+        threads = 8
+        merged_gtf = self.genome.get_genome_data('merged_gtf')
+        cxb_file = self.genome.get_genome_data('cxb') 
+        cuffdiff_cmd = ['cuffdiff','-p',str(threads),merged_gtf,cxb_file]
+        print('Running Command:\n{0}'.format(' '.join(cuffdiff_cmd)))
+        try:
+            subprocess.check_call(cuffdiff_cmd)
+        except Exception as e:
+            sys.stderr.write('Error running cuffdiff:\n{0}'.format(e))
+            return -1
 
     def create_metadata_file(self, sample_list, output_dir):
         meta_file = os.path.join(output_dir,'sample_metadata.tsv')
@@ -37,7 +62,7 @@ class DifferentialExpression:
         return meta_file
 
     # TODO: don't let colons exist in the condition names on UI
-    def run_differential_expression(self,output_prefix): 
+    def run_deseq2(self,output_prefix): 
         contrast_list = self.comparisons.get_contrast_list() 
         gene_counts = self.genome.get_genome_data(self.genome.get_id()+"_gene_counts")
         genome_type = self.genome.get_genome_type()
@@ -494,9 +519,10 @@ class Quantify:
             o.write('{0}\n'.format('\n'.join(gtf_list)))
         cuffmerge_cmd.append('assembly_list.txt')
         print("Running command:\n{0}".format(" ".join(cuffmerge_cmd)))
+        merged_gtf = os.path.join(output_dir,'merged_asm/merged.gtf')
         try: 
             subprocess.check_call(cuffmerge_cmd) 
-            self.genome.add_genome_data('merge_gtf')
+            self.genome.add_genome_data('merge_gtf',merged_gtf)
         except Exception as e:
             sys.stderr.write('Error running cuffmerge:\n{0}\n'.format(e))
             return False
