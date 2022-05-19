@@ -385,7 +385,7 @@ class Quantify:
         cuffnorm_cmd = ['cuffnorm','-p',str(threads),'-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf]
         sam_dict = {}
         for sample in sample_list:
-           sample_condition = sample.get_condition() 
+            sample_condition = sample.get_condition() 
             if sample_condition not in sam_dict:
                 sam_dict[sample_condition] = []
             sam_dict[sample_condition].append(sample.get_sample_data('bam'))
