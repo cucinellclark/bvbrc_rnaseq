@@ -253,13 +253,25 @@ class Quantify:
         elif self.recipe == 'Host':
             return self.create_genome_counts_table_stringtie(output_dir,sample_list)
         elif self.recipe == 'cufflinks':
-            return self.create_genome_counts_table_cufflinks(output_dir,sample_list)
+            return self.create_genome_counts_table_cufflinks(output_dir,sample_list,8)
         else:
             sys.stderr.write('No counts table method found for recipe {0}\n'.format(self.recipe))
             return None
 
-    def create_genome_counts_table_cufflinks(self,output_dir,sample_list):
-        print('testing')
+    def create_genome_counts_table_cufflinks(self,output_dir,sample_list,threads):
+        #cuffquant [options] <transcripts.gtf> <sample1_hits.sam> <sample2_hits.sam> [... sampleN_hits.sam]
+        cuffquant_cmd = ['cuffquant','-o',output_dir,'-p',str(threads)]
+        # TODO: add strandedness to command
+        for sample in sample_list:
+            cuffquant_cmd += [sample.get_sample_data('bam')] 
+        print('Running command:\n{0}\n'.format(' '.join(cuffquant_cmd)))
+        try:
+            subprocess.check_call(cuffquant_cmd)
+        except Exception as e:
+            sys.stderr.write('Error running cuffquant\n')
+            return -1 
+        # TODO: rename output file?
+        return 0
 
     # Call prepDE.py script which formats data in the gtf files as a table
     # https://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
