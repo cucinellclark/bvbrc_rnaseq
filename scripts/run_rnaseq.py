@@ -199,7 +199,7 @@ if __name__ == "__main__":
     parser.add_argument('-o', help='output directory. defaults to current directory.', required=False, default=None)
     parser.add_argument('-g', help='csv list of directories each containing all genome data: fna, gff, and hisat indices', required=True)
     parser.add_argument('--sstring', help='json server string specifying api {"data_api":"url"}', required=False, default=None)
-    parser.add_argument('-p', help='tool parameters', required=False, default='{}')
+    parser.add_argument('-p', help='tool parameters', required=False, type=str,default="{}")
     parser.add_argument('-d', help='differential expression folder', required=False, default='.diff_exp')
     # TODO:
     # link to genome files (gff, fa)??? 

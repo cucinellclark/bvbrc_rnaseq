@@ -33,12 +33,12 @@ class DifferentialExpression:
         if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host':
             return self.run_deseq2(output_prefix)
         elif self.recipe == 'cufflinks':
-            return self.run_cuffdiff(output_prefix)
+            return self.run_cuffdiff()
         else:
             sys.stderr.write('Invalid recipe for differential expression: {0}\n'.format(self.recipe))
             return False
 
-    def run_cuffdiff(self,output_prefix):
+    def run_cuffdiff(self):
         threads = 8
         merged_gtf = self.genome.get_genome_data('merged_gtf')
         cxb_file = self.genome.get_genome_data('cxb') 
@@ -366,11 +366,30 @@ class Quantify:
         self.genome.add_genome_data(self.genome.get_id()+'_gene_counts',output_file)
         return output_file
 
-    def create_genome_tpm_table(self, output_dir, sample_list):
-        if self.genome.get_genome_type() == 'bacteria':
+    def create_genome_quant_table(self, output_dir, sample_list):
+        if self.recipe == 'HTSeq-DESeq':
             return self.create_tpm_table_tpmcalculator(output_dir,sample_list)
-        if self.genome.get_genome_type() == 'host':
+        elif self.recipe == 'Host':
             return self.create_tpm_table_stringtie(output_dir,sample_list)
+        elif self.recipe == 'cufflinks':
+            return self.create_fpkm_table_cufflinks()
+
+    # outputs to directory 'cuffnorm_output'
+    def create_fpkm_table_cufflinks(self):
+        threads = 8
+        merged_gtf = self.genome.get_genome_data('merged_gtf')
+        cxb_file = self.genome.get_genome_data('cxb')
+        cuffnorm_outdir = 'cuffnorm_output'
+        if not os.path.exists(cuffnorm_outdir):
+            os.mkdir(cuffnorm_outdir)
+        # TODO: add library-type
+        cuffnorm_cmd = ['cuffnorm','-p',str(threads),'-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf,cxb_file]
+        print('Running command:\n{0}\n'.format(' '.join(cuffnorm_cmd)))
+        try:
+            subprocess.check_call(cuffnorm_cmd)
+        except Exception as e:
+            sys.stderr.write('Error running stringtie:\n{0}\n'.format(e))
+            return -1
 
     def create_tpm_table_tpmcalculator(self, output_dir, sample_list):
         genome_df = None
