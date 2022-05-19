@@ -14,6 +14,9 @@ from bvbrc_api import authenticateByEnv
 
 #https://www.nature.com/articles/s41598-020-76881-x
 
+# valid recipes
+valid_recipes = ['HTSeq-DESeq','cufflinks','Host']
+
 def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, session, map_args):
     # setup folder structure and genome databases
     setup(output_dir, experiment_dict, genome_list)
@@ -62,7 +65,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
             samples = experiment_dict[condition].get_sample_list()
             sample_list = sample_list + samples 
         print('sample_list = {0}'.format(sample_list))
-        condition_output_list = quantifier.run_quantification(sample_list, 8)
+        condition_output_list = quantifier.run_quantification(sample_list, map_args.recipe,8)
         genome_quant_file = quantifier.create_genome_counts_table(output_dir, sample_list)
         genome.add_genome_data('counts_table', genome_quant_file)
         # TODO: test host

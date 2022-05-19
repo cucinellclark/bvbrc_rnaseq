@@ -4,6 +4,7 @@
 import sys, os, subprocess
 import concurrent.futures
 import glob, json
+import tempfile
 
 import pandas as pd
 import numpy as np
@@ -134,16 +135,18 @@ class Quantify:
     def set_genome(self,g):
         self.genome = g
 
-    def run_quantification(self, sample_list, threads):
-        if self.genome.get_genome_type() == 'bacteria':
+    def run_quantification(self, sample_list, recipe, threads):
+        if recipe == 'HTSeq-DESeq':
             htseq_ret = self.run_htseq(sample_list, threads)
             if htseq_ret != 0:
                 return htseq_ret
             return self.run_tpmcalc(sample_list, threads)
-        elif self.genome.get_genome_type() == 'host':
+        elif recipe == 'Host':
             self.run_stringtie(sample_list, threads)
+        elif recipe == 'cufflinks':
+            self.run_cufflinks(sample_list, threads)            
         else:
-            sys.stderr.write("Invalid genome type: {0}".format(self.genome.get_genome_type()))
+            sys.stderr.write("Invalid recipe: {0}".format(recipe))
             return -1 
 
     def run_tpmcalc(self, sample_list, threads):
@@ -387,6 +390,66 @@ class Quantify:
                     return -1
             else:
                 sys.stderr.write('{0} already exists: skipping stringtie merged annotation'.format(gtf_output))
+
+    def run_cufflinks(self,sample_list):
+        reference = self.genome.get_genome_data('fasta')
+        annotation = self.genome.get_genome_data('annotation')
+        threads = 8
+        for sample in sample_list:
+            sample_bam = sample.get_sample_data('bam')
+            cufflinks_cmd = ['cufflinks','--quiet','-G',annotation,'-b',reference,'-I','50']
+            # Review: Memory mapped location on each system
+            # Attempt to copy to /dev/shm. cufflinks seeks a lot in the file.
+            # If that fails, try tmp.
+            #
+            bam_to_use = None
+
+            try:
+                tmpfd, bam_tmp = tempfile.mkstemp(prefix="CUFFL.",dir="/dev/shm")
+                os.close(tmpfd)
+                shutil.copy(sample_bam, bamp_tmp)
+                print ("Copy succeeded to %s" % (bam_tmp))
+                bam_to_use = bam_tmp
+            except IOError as err:
+                os.unlink(bam_tmp)
+                bam_to_use = None
+                bam_tmp = None
+                sys.stderr.write("Can't copy %s to %s: %s\n" % (sample_bam, bam_tmp, err))
+
+            if bam_to_use == None:
+                try:
+                    tmpfd, bam_tmp = tempfile.mkstemp(prefix="CUFFL.",dir=".")
+                    os.close(tmpfd)
+                    shutil.copy(sample_bam, bam_tmp)
+                    bam_to_use = bam_tmp
+
+
+                except IOError as err:
+                    os.unlink(bam_tmp)
+                    bam_to_use = None
+                    bam_tmp = None
+                    sys.stderr.write("Can't copy %s to %s: %s\n" % (sample_bam, bam_tmp, err))
+
+            
+            if bam_to_use == None:
+                sys.stderr.write("Can't copy %s to tmp space\n" % (sample_bam))
+                bam_to_use = sample_bam 
+                bam_tmp = None
+
+            cufflinks_cmd += [bam_to_use]
+            cuff_gtf = sample.get_sample_data('bam').replace('.bam','_transcripts.gtf')
+            print("Running command:\n{0}".format(" ".join(cufflinks_cmd)))
+            try:
+                subprocess.check_call(cufflinks_cmd) 
+                sample.add_sample_data('cuff_gtf',cuff_gtf)
+            except Exception as e:
+                sys.stderr.write('Error running cufflinks on sample {0}:\n{1}\n'.format(sample.get_id(),e))
+                return False
+            
+            if bam_tmp != None:
+                sys.stderr.write("remove temp %s\n" % (bam_tmp))
+                os.unlink(bam_tmp)
+    return True
 
 class Alignment: 
 
@@ -778,3 +841,4 @@ class Preprocess:
         for r in sample.get_reads_as_list(): 
             if not os.path.exists(r):
                 print("{0} does not exist".format(r))
+
