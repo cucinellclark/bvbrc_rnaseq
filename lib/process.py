@@ -483,7 +483,7 @@ class Quantify:
                 os.unlink(bam_tmp)
 
         # run cuffmerge to produce a top-level transcripts.gtf file
-        cuffmerge_cmd = ['cuffmerge','-p',str(threads),'-o','cuffmerge.stdout']
+        cuffmerge_cmd = ['cuffmerge','-p',str(threads)]
         ref_gtf = self.genome.get_genome_data('gtf')
         if ref_gtf is not None:
             cuffmerge_cmd += ['-g',ref_gtf]
