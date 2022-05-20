@@ -9,6 +9,7 @@ import tempfile
 import pandas as pd
 import numpy as np
 
+import cuffdiff_to_genematrix
 from bvbrc_api import getSubsystemsDf,getPathwayDf
 
 class DifferentialExpression:
@@ -29,19 +30,21 @@ class DifferentialExpression:
     def set_recipe(self, r):
         self.recipe = r
 
-    def run_differential_expression(self,output_prefix,sample_list):
+    def run_differential_expression(self,output_dir,sample_list):
         if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host':
+            output_prefix = os.path.join(output_dir,self.genome.get_id()+"_")
             return self.run_deseq2(output_prefix)
         elif self.recipe == 'cufflinks':
-            return self.run_cuffdiff(sample_list)
+            return self.run_cuffdiff(output_dir,sample_list)
         else:
             sys.stderr.write('Invalid recipe for differential expression: {0}\n'.format(self.recipe))
             return False
 
-    def run_cuffdiff(self,sample_list):
+    def run_cuffdiff(self,output_dir,sample_list):
         threads = 8
         merged_gtf = self.genome.get_genome_data('merge_gtf')
         cuffdiff_cmd = ['cuffdiff','-p',str(threads),merged_gtf]
+        # TODO: replace with contrast or condition class?
         sam_dict = {}
         for sample in sample_list:
             sample_condition = sample.get_condition() 
@@ -53,6 +56,10 @@ class DifferentialExpression:
         print('Running Command:\n{0}'.format(' '.join(cuffdiff_cmd)))
         try:
             subprocess.check_call(cuffdiff_cmd)
+            gmx_file = os.path.join(output_dir,'gene_exp.gmx')
+            diff_file = os.path.join(output_dir,'gene_exp.diff')
+            cuffdiff_to_genematrix.main([diff_file],gmx_file) 
+            self.genome.add_genome_data('gmx',gmx_file)
         except Exception as e:
             sys.stderr.write('Error running cuffdiff:\n{0}'.format(e))
             return -1
@@ -764,12 +771,16 @@ class Alignment:
 class DiffExpImport:
 
     genome = None
+    recipe = None
 
     def __init__(self):
         print('Creating differential expression import manager')
 
     def set_genome(self,g):
         self.genome = g
+
+    def set_recipe(self,r):
+        self.recipe = r
 
     def write_gmx_file(self,output_dir):    
         contrast_file_list = self.genome.get_genome_data('contrast_file_list') 
@@ -804,6 +815,9 @@ class DiffExpImport:
     def run_diff_exp_import(self,output_dir,map_args):
         gmx_file = self.genome.get_genome_data('gmx') 
         transform_script = 'expression_transform'
+        if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host': # create gmx file from DESeq2 results
+            self.write_gmx_file(output_dir) 
+        # elst cufflinks, file should already exist
         if os.path.exists(gmx_file):
             experiment_path=os.path.join(output_dir, map_args.d)
             subprocess.call(["mkdir","-p",experiment_path])
@@ -827,6 +841,10 @@ class DiffExpImport:
             diffexp_obj_file=os.path.join(output_dir, os.path.basename(map_args.d.lstrip(".")))
             with open(diffexp_obj_file, 'w') as diffexp_job:
                 diffexp_job.write(json.dumps(diffexp_json))
+            return True
+        else:
+            sys.stderr.write('GMX file does not exist, exiting differential expression import')
+            return False
             
     def setup_diffexp_json(self):
         #job template for differential expression object
