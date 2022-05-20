@@ -388,7 +388,7 @@ class Quantify:
             sample_condition = sample.get_condition() 
             if sample_condition not in sam_dict:
                 sam_dict[sample_condition] = []
-            sam_dict[sample_condition].append(sample.get_sample_data('bam'))
+            sam_dict[sample_condition].append(sample.get_sample_data('sam'))
         for sample_condition in sam_dict:
             cuffnorm_cmd += [','.join(sam_dict[sample_condition])]
         print('Running command:\n{0}\n'.format(' '.join(cuffnorm_cmd)))
