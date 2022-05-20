@@ -29,16 +29,16 @@ class DifferentialExpression:
     def set_recipe(self, r):
         self.recipe = r
 
-    def run_differential_expression(self,output_prefix):
+    def run_differential_expression(self,output_prefix,sample_list):
         if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host':
             return self.run_deseq2(output_prefix)
         elif self.recipe == 'cufflinks':
-            return self.run_cuffdiff()
+            return self.run_cuffdiff(sample_list)
         else:
             sys.stderr.write('Invalid recipe for differential expression: {0}\n'.format(self.recipe))
             return False
 
-    def run_cuffdiff(self):
+    def run_cuffdiff(self,sample_list):
         threads = 8
         merged_gtf = self.genome.get_genome_data('merge_gtf')
         cuffdiff_cmd = ['cuffdiff','-p',str(threads),merged_gtf]

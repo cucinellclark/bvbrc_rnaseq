@@ -88,7 +88,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
             genome.add_genome_data('sample_metadata_file',meta_file)
             diff_exp.set_genome(genome)
             output_prefix = os.path.join(output_dir,genome.get_id()+"_")
-            diff_exp.run_differential_expression(output_prefix)
+            diff_exp.run_differential_expression(output_prefix,sample_list)
             if genome.get_genome_type() == 'bacteria':
                 diffexp_import.set_genome(genome)
                 diffexp_import.write_gmx_file(output_dir)
