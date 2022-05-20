@@ -122,6 +122,9 @@ class GenomeData:
         superclass_mapping = self.genome.get_genome_data('superclass_mapping')
         pathway_mapping = self.genome.get_genome_data('pathway_mapping')
         genome_counts = self.genome.get_genome_data("tpm")
+        if genome_counts is None:
+            sys.stderr.write('No tpm\'s matrix in genome data: exiting create_system_figures\n')
+            return False
         metadata = self.genome.get_genome_data('sample_metadata_file')
         superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_Superclass_Distribution")
         pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_PathwayClass_Distribution")
@@ -153,6 +156,7 @@ class GenomeData:
             sys.stderr.write('Error, pathway_df is None')
             return -1
 
+    # subsystem_df is a pandas dataframe
     def run_subsystems(self, output_dir, session):
         subsystem_df = getSubsystemsDf([self.genome.get_id()],session)
         if not subsystem_df is None:
