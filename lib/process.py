@@ -47,7 +47,7 @@ class DifferentialExpression:
             sample_condition = sample.get_condition() 
             if sample_condition not in sam_dict:
                 sam_dict[sample_condition] = []
-            sam_dict[sample_condition].append(sample.get_sample_data('sam'))
+            sam_dict[sample_condition].append(sample.get_sample_data('bam'))
         for sample_condition in sam_dict:
             cuffdiff_cmd += [','.join(sam_dict[sample_condition])]
         print('Running Command:\n{0}'.format(' '.join(cuffdiff_cmd)))
