@@ -3,7 +3,7 @@
     "script": "App-RNASeq",
     "label": "Analyze RNASeq reads",
     "description": "Align or assemble RNASeq reads into transcripts with normalized expression levels",
-  "default_memory": "100G",
+    "default_memory": "100G",
     "parameters": [
         {
             "id": "experimental_conditions",
@@ -21,8 +21,8 @@
             "type": "string"
         },
         {
-        "id": "strand_specific",
-        "label": "Are the reads in this study strand-specific?",
+            "id": "strand_specific",
+            "label": "Are the reads in this study strand-specific?",
             "required": 0,
             "default": true,
             "type": "bool"
@@ -32,7 +32,7 @@
             "type": "group",
             "allow_multiple": true,
             "required": 0,
-            "default" : null,
+            "default": null,
             "group": [
                 {
                     "id": "sample_id",
@@ -93,7 +93,7 @@
             "type": "group",
             "allow_multiple": true,
             "required": 0,
-            "default" : null,
+            "default": null,
             "group": [
                 {
                     "id": "sample_id",
@@ -121,11 +121,43 @@
             ]
         },
         {
+            "id": "bam_libs",
+            "type": "group",
+            "allow_multiple": true,
+            "required": 0,
+            "default": null,
+            "group": [
+                {
+                    "id": "sample_id",
+                    "required": 1,
+                    "label": "id for the sample",
+                    "desc": "Sample Id that will be used for filenames",
+                    "default": "sample",
+                    "type": "string"
+                },
+                {
+                    "id": "alignment",
+                    "required": 1,
+                    "label": "Alignment file",
+                    "desc": "Alignment file in BAM",
+                    "wstype": "BAM",
+                    "type": "wstype"
+                },
+                {
+                    "id": "condition",
+                    "label": "Experimental condition index",
+                    "required": 0,
+                    "default": 1,
+                    "type": "int"
+                }
+            ]
+        },
+        {
             "id": "srr_libs",
             "type": "group",
             "allow_multiple": true,
             "required": 0,
-            "default" : null,
+            "default": null,
             "group": [
                 {
                     "id": "sample_id",
@@ -166,7 +198,10 @@
             "label": "genome type: bacteria or host",
             "desc": "genome is type bacteria or host",
             "type": "enum",
-            "enum": ["bacteria","host"]   
+            "enum": [
+                "bacteria",
+                "host"
+            ]
         },
         {
             "id": "recipe",
@@ -175,7 +210,11 @@
             "default": "RNA-Rocket",
             "desc": "Recipe used for RNAseq analysis",
             "type": "enum",
-            "enum": ["RNA-Rocket", "Rockhopper", "Host"]
+            "enum": [
+                "RNA-Rocket",
+                "Rockhopper",
+                "Host"
+            ]
         },
         {
             "id": "host_ftp",
@@ -194,28 +233,28 @@
             "type": "folder"
         },
         {
-            "id":"output_file",
-            "label":"File Basename",
+            "id": "output_file",
+            "label": "File Basename",
             "required": 1,
-            "default":null,
-            "desc":"Basename for the generated output files. Defaults to the basename of the input data.",
-            "type":"wsid"
-        },
-       {
-            "id":"unit_test",
-            "label":"Unit Test Path",
-            "required":0,
             "default": null,
-            "desc": "Path to the json file used for unit testing",
-            "type":"string"
+            "desc": "Basename for the generated output files. Defaults to the basename of the input data.",
+            "type": "wsid"
         },
         {
-            "id":"skip_sampling",
-            "label":"Skip Sampling",
-            "required":0,
-            "default":null,
-            "desc":"flag to skip the sampling step in alignment.py",
-            "type":"string"
+            "id": "unit_test",
+            "label": "Unit Test Path",
+            "required": 0,
+            "default": null,
+            "desc": "Path to the json file used for unit testing",
+            "type": "string"
+        },
+        {
+            "id": "skip_sampling",
+            "label": "Skip Sampling",
+            "required": 0,
+            "default": null,
+            "desc": "flag to skip the sampling step in alignment.py",
+            "type": "string"
         }
     ]
 }

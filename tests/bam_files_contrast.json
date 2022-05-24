@@ -1,0 +1,27 @@
+{
+    "contrasts": [
+        [
+            1,
+            2
+        ]
+    ],
+    "experimental_conditions": [
+        "exposed",
+        "unexposed"
+    ],
+    "bam_libs": [
+        {
+            "condition": 1,
+            "alignment": "/jsporter@patricbrc.org/home/RNA-Seq/bam_83333.113/exposed/SRR10075889.bam"
+        },
+        {
+            "condition": 2,
+            "alignment": "/jsporter@patricbrc.org/home/RNA-Seq/bam_83333.113/unexposed/SRR10075886.bam"
+        }
+    ],
+    "recipe": "RNA-Rocket",
+    "feature_count": "cufflinks",
+    "reference_genome_id": "83333.113",
+    "output_path": "/jsporter@patricbrc.org/home/RNA-Seq",
+    "output_file": "bam_files_contrast"
+}
