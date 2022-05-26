@@ -1,6 +1,6 @@
 {
-    "id": "RNASeq",
-    "script": "App-RNASeq",
+    "id": "RNASeq2",
+    "script": "App-RNASeq2",
     "label": "Analyze RNASeq reads",
     "description": "Align or assemble RNASeq reads into transcripts with normalized expression levels",
   "default_memory": "100G",
