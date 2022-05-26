@@ -1,25 +1,29 @@
 TOP_DIR = ../..
 include $(TOP_DIR)/tools/Makefile.common
 
-DEPLOY_RUNTIME ?= /kb/runtime
 TARGET ?= /kb/deployment
+DEPLOY_RUNTIME ?= /kb/runtime
 
 APP_SERVICE = app_service
 
-SRC_PERL = $(wildcard scripts/*.pl)
-BIN_PERL = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_PERL))))
-DEPLOY_PERL = $(addprefix $(TARGET)/bin/,$(basename $(notdir $(SRC_PERL))))
+WRAP_PYTHON_TOOL = wrap_python3
+WRAP_PYTHON_SCRIPT = bash $(TOOLS_DIR)/$(WRAP_PYTHON3_TOOL).sh
+
+SRC_SERVICE_PYTHON = $(wildcard scripts/*.py)
+BIN_SERVICE_PYTHON = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_SERVICE_PYTHON))))
+DEPLOY_SERVICE_PYTHON = $(addprefix $(SERVICE_DIR)/bin/,$(basename $(notdir $(SRC_SERVICE_PYTHON))))
 
 SRC_SERVICE_PERL = $(wildcard service-scripts/*.pl)
 BIN_SERVICE_PERL = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_SERVICE_PERL))))
 DEPLOY_SERVICE_PERL = $(addprefix $(SERVICE_DIR)/bin/,$(basename $(notdir $(SRC_SERVICE_PERL))))
 
+SRC_R = $(wildcard scripts/*.R)
+BIN_R = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_R))))
+DEPLOY_R = $(addprefix $(TARGET)/bin/,$(basename $(notdir $(SRC_R))))
+
 CLIENT_TESTS = $(wildcard t/client-tests/*.t)
 SERVER_TESTS = $(wildcard t/server-tests/*.t)
 PROD_TESTS = $(wildcard t/prod-tests/*.t)
-
-STARMAN_WORKERS = 8
-STARMAN_MAX_REQUESTS = 100
 
 TPAGE_ARGS = --define kb_top=$(TARGET) --define kb_runtime=$(DEPLOY_RUNTIME) --define kb_service_name=$(SERVICE) \
 	--define kb_service_port=$(SERVICE_PORT) --define kb_service_dir=$(SERVICE_DIR) \
@@ -29,17 +33,13 @@ TPAGE_ARGS = --define kb_top=$(TARGET) --define kb_runtime=$(DEPLOY_RUNTIME) --d
 
 all: bin 
 
-bin: $(BIN_PERL) $(BIN_SERVICE_PERL)
+bin: $(BIN_PERL) $(BIN_SERVICE_PERL) $(BIN_R) $(BIN_SERVICE_PYTHON)
 
 deploy: deploy-all
 deploy-all: deploy-client 
 deploy-client: deploy-libs deploy-scripts deploy-docs
 
 deploy-service: deploy-libs deploy-scripts deploy-service-scripts deploy-specs
-
-deploy-specs:
-	mkdir -p $(TARGET)/services/$(APP_SERVICE)
-	rsync -arv app_specs $(TARGET)/services/$(APP_SERVICE)/.
 
 deploy-service-scripts:
 	export KB_TOP=$(TARGET); \
@@ -53,16 +53,17 @@ deploy-service-scripts:
 	        $(WRAP_PERL_SCRIPT) "$(TARGET)/plbin/$$basefile" $(TARGET)/bin/$$base ; \
 	done
 
+deploy-specs:
+	mkdir -p $(TARGET)/services/$(APP_SERVICE)
+	rsync -arv app_specs $(TARGET)/services/$(APP_SERVICE)/.
 
 deploy-dir:
 	if [ ! -d $(SERVICE_DIR) ] ; then mkdir $(SERVICE_DIR) ; fi
 	if [ ! -d $(SERVICE_DIR)/bin ] ; then mkdir $(SERVICE_DIR)/bin ; fi
 
-deploy-docs: 
-
+deploy-docs:
 
 clean:
-
 
 $(BIN_DIR)/%: service-scripts/%.pl $(TOP_DIR)/user-env.sh
 	$(WRAP_PERL_SCRIPT) '$$KB_TOP/modules/$(CURRENT_DIR)/$<' $@
