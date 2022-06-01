@@ -295,14 +295,14 @@ if __name__ == "__main__":
     # put sra-fastq files in <output_dir>/SRA_Fastq/
     # put sra-metadata files in <output_dir>/SRA_Meta/
     # set type to paired or single here
-    if 'sra_libs' in job_data:
+    if 'srr_libs' in job_data:
         sra_fastq_dir = os.path.join(output_dir,'SRA_Fastq')
         sra_meta_dir = os.path.join(output_dir,'SRA_Meta')
         if not os.path.exists(sra_fastq_dir):
             os.mkdir(sra_fastq_dir)
         if not os.path.exists(sra_meta_dir):
             os.mkdir(sra_meta_dir)
-        for sra_sample in job_data['sra_libs']:
+        for sra_sample in job_data['srr_libs']:
             srr_id = sra_sample['srr_accession'] 
             meta_file = os.path.join(sra_meta_dir,srr_id+'_meta.txt')
             reads_dir = {}
