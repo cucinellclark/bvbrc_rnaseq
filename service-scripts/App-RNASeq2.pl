@@ -117,8 +117,8 @@ sub process_rnaseq {
     print STDERR "$tmpdir\n";
     ###localize_params for regular script
     #localize_params_local for testing: will not download files
-    #$params = localize_params($tmpdir, $params);
-    $params = localize_params_local($tmpdir, $params);
+    $params = localize_params($tmpdir, $params);
+    #$params = localize_params_local($tmpdir, $params);
     
     my @outputs;
     my $prefix = $recipe;
