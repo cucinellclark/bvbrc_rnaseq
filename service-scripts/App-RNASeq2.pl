@@ -125,13 +125,13 @@ sub process_rnaseq {
     my $host = 0;
     if ($recipe eq 'Rockhopper') {
         @outputs = run_rockhopper($params, $tmpdir);
-    } elsif ($recipe eq 'Tuxedo' || $recipe eq 'RNA-Rocket') {
+    } elsif ($recipe eq 'tuxedo' || $recipe eq 'htseq') {
         @outputs = run_rna_rocket($params, $tmpdir, $host, $parallel);
-        $prefix = 'Tuxedo';
+        #$prefix = 'Tuxedo';
     } elsif ($recipe eq 'Host') {
         $host = 1;
         @outputs = run_rna_rocket($params, $tmpdir, $host, $parallel);
-        $prefix = 'Host';
+        #$prefix = 'Host';
     } else {
         die "Unrecognized recipe: $recipe \n";
     }
