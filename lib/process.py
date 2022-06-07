@@ -825,7 +825,7 @@ class DiffExpImport:
         gmx_file = self.genome.get_genome_data('gmx') 
         transform_script = 'expression_transform'
         if gmx_file is None:
-            sys.stderr.write('gmx_file is null, exiting differential expression import')
+            sys.stderr.write('gmx_file is null, exiting differential expression import\n')
             return False
         if os.path.exists(gmx_file):
             experiment_path=os.path.join(output_dir, map_args.d)
