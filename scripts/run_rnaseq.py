@@ -197,7 +197,7 @@ if __name__ == "__main__":
                     "read2": "/anwarren@patricbrc.org/home/rnaseq_test/MERO_75_R2.fq.gz", "condition": 2}], "contrasts": [[1, 2]]}', required=True)
     parser.add_argument('-o', help='output directory. defaults to current directory.', required=False, default=None)
     parser.add_argument('-g', help='csv list of directories each containing all genome data: fna, gff, and hisat indices', required=True)
-    parser.add_argument('--sstring', help='json server string specifying api {"data_api":"url"}', required=False, default=None)
+    parser.add_argument('--sstring', help='json server string specifying api {"data_api":"url"}', required=False, default='{"data_api":"https://p3.theseed.org/services/data_api/genome_feature"}')
     parser.add_argument('-p', help='tool parameters', required=False, type=str,default="{}")
     parser.add_argument('-d', help='differential expression folder', required=False, default='.diff_exp')
     # TODO:
