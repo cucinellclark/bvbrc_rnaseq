@@ -817,7 +817,7 @@ class DiffExpImport:
                     else:
                         o.write("\t0")
                 o.write("\n")
-
+ 
     def run_diff_exp_import(self,output_dir,map_args):
         if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host': # create gmx file from DESeq2 results
             self.write_gmx_file(output_dir) 
