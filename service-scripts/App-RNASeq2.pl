@@ -117,21 +117,21 @@ sub process_rnaseq {
     print STDERR "$tmpdir\n";
     ###localize_params for regular script
     #localize_params_local for testing: will not download files
-    #$params = localize_params($tmpdir, $params);
-    $params = localize_params_local($tmpdir, $params);
+    $params = localize_params($tmpdir, $params);
+    #$params = localize_params_local($tmpdir, $params);
     
     my @outputs;
     my $prefix = $recipe;
     my $host = 0;
     if ($recipe eq 'Rockhopper') {
         @outputs = run_rockhopper($params, $tmpdir);
-    } elsif ($recipe eq 'Tuxedo' || $recipe eq 'RNA-Rocket') {
+    } elsif ($recipe eq 'cufflinks' || $recipe eq 'HTSeq-DESeq') {
         @outputs = run_rna_rocket($params, $tmpdir, $host, $parallel);
-        $prefix = 'Tuxedo';
+        #$prefix = 'Tuxedo';
     } elsif ($recipe eq 'Host') {
         $host = 1;
         @outputs = run_rna_rocket($params, $tmpdir, $host, $parallel);
-        $prefix = 'Host';
+        #$prefix = 'Host';
     } else {
         die "Unrecognized recipe: $recipe \n";
     }

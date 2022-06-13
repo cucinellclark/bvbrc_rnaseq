@@ -248,6 +248,7 @@ class Quantify:
             return -1
         return 0
 
+    # TODO: change to multithraded htseq, -n parameter
     def run_htseq(self, sample_list, threads):
         # TODO: add strandedness parameter: -s
         # featurey_type: CDS or Gene
@@ -787,6 +788,7 @@ class DiffExpImport:
         self.recipe = r
 
     def write_gmx_file(self,output_dir):    
+        print('writing gmx file')
         contrast_file_list = self.genome.get_genome_data('contrast_file_list') 
         contrast_list = []
         gene_count_dict = {}
@@ -817,14 +819,14 @@ class DiffExpImport:
                 o.write("\n")
 
     def run_diff_exp_import(self,output_dir,map_args):
-        gmx_file = self.genome.get_genome_data('gmx') 
-        if gmx_file is None:
-            sys.stderr.write('gmx_file is null, exiting differential expression import')
-            return False
-        transform_script = 'expression_transform'
         if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host': # create gmx file from DESeq2 results
             self.write_gmx_file(output_dir) 
         # elst cufflinks, file should already exist
+        gmx_file = self.genome.get_genome_data('gmx') 
+        transform_script = 'expression_transform'
+        if gmx_file is None:
+            sys.stderr.write('gmx_file is null, exiting differential expression import\n')
+            return False
         if os.path.exists(gmx_file):
             experiment_path=os.path.join(output_dir, map_args.d)
             subprocess.call(["mkdir","-p",experiment_path])

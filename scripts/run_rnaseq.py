@@ -84,6 +84,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
         diff_exp.set_recipe(map_args.recipe)
         meta_file = diff_exp.create_metadata_file(sample_list, output_dir)
         diffexp_import = process.DiffExpImport()
+        diffexp_import.set_recipe(map_args.recipe)
         for genome in genome_list:
             genome.add_genome_data('sample_metadata_file',meta_file)
             diff_exp.set_genome(genome)
@@ -196,7 +197,7 @@ if __name__ == "__main__":
                     "read2": "/anwarren@patricbrc.org/home/rnaseq_test/MERO_75_R2.fq.gz", "condition": 2}], "contrasts": [[1, 2]]}', required=True)
     parser.add_argument('-o', help='output directory. defaults to current directory.', required=False, default=None)
     parser.add_argument('-g', help='csv list of directories each containing all genome data: fna, gff, and hisat indices', required=True)
-    parser.add_argument('--sstring', help='json server string specifying api {"data_api":"url"}', required=False, default=None)
+    parser.add_argument('--sstring', help='json server string specifying api {"data_api":"url"}', required=False, default='{"data_api":"https://p3.theseed.org/services/data_api/genome_feature"}')
     parser.add_argument('-p', help='tool parameters', required=False, type=str,default="{}")
     parser.add_argument('-d', help='differential expression folder', required=False, default='.diff_exp')
     # TODO:
@@ -295,14 +296,14 @@ if __name__ == "__main__":
     # put sra-fastq files in <output_dir>/SRA_Fastq/
     # put sra-metadata files in <output_dir>/SRA_Meta/
     # set type to paired or single here
-    if 'sra_libs' in job_data:
+    if 'srr_libs' in job_data:
         sra_fastq_dir = os.path.join(output_dir,'SRA_Fastq')
         sra_meta_dir = os.path.join(output_dir,'SRA_Meta')
         if not os.path.exists(sra_fastq_dir):
             os.mkdir(sra_fastq_dir)
         if not os.path.exists(sra_meta_dir):
             os.mkdir(sra_meta_dir)
-        for sra_sample in job_data['sra_libs']:
+        for sra_sample in job_data['srr_libs']:
             srr_id = sra_sample['srr_accession'] 
             meta_file = os.path.join(sra_meta_dir,srr_id+'_meta.txt')
             reads_dir = {}

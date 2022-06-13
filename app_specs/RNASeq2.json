@@ -175,7 +175,7 @@
             "default": "RNA-Rocket",
             "desc": "Recipe used for RNAseq analysis",
             "type": "enum",
-            "enum": ["RNA-Rocket", "Rockhopper", "Host"]
+            "enum": ["HTSeq-DESeq","cufflinks","Host"]
         },
         {
             "id": "host_ftp",
