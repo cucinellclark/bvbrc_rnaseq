@@ -63,7 +63,8 @@ conditions = unique(metadata$Condition)
 systems = unique(system.map[,2])  
 
 #Calculate image width and height
-num_columns <- ceiling(sqrt(length(systems)))
+#num_columns <- ceiling(sqrt(length(systems)))
+num_columns <- 4 
 num_samples <- ncol(counts.mtx)
 num_rows <- ceiling(length(systems)/num_columns)
 png_width = (num_columns + num_samples)*100

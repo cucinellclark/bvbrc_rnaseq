@@ -5,11 +5,11 @@ import sys, os, subprocess, shutil
 import concurrent.futures
 import glob, json
 import tempfile
+from math import log
 
 import pandas as pd
 import numpy as np
 
-import cuffdiff_to_genematrix
 from bvbrc_api import getSubsystemsDf,getPathwayDf
 
 class DifferentialExpression:
@@ -58,7 +58,7 @@ class DifferentialExpression:
             subprocess.check_call(cuffdiff_cmd)
             gmx_file = os.path.join(output_dir,'gene_exp.gmx')
             diff_file = os.path.join(output_dir,'gene_exp.diff')
-            cuffdiff_to_genematrix.main([diff_file],gmx_file) 
+            self.create_gmx_file([diff_file],gmx_file) 
             self.genome.add_genome_data('gmx',gmx_file)
         except Exception as e:
             sys.stderr.write('Error running cuffdiff:\n{0}'.format(e))
@@ -82,7 +82,7 @@ class DifferentialExpression:
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
         
-        deseq_cmd = ['run_deseq2',gene_counts,meta_file,output_prefix,self.genome.get_genome_data('report_img_path'),genome_type]
+        deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_prefix,self.genome.get_genome_data('report_img_path'),genome_type]
         contrast_file_list = []
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
@@ -103,6 +103,74 @@ class DifferentialExpression:
             print('implement')
             return
             transcript_counts = self.genome.get_genome_data(self.genome.get_id()+"_transcript_counts")
+
+    def create_gmx_file(init_args, output_file):
+        output_handle=open(output_file, 'w')
+        if(len(init_args)<1):
+            print ("Usage cuffdiff_to_genematrix.py  <cuffdiff files>")
+            exit(0)
+        master_list_genes=set()
+        master_list_comparisons=set()
+        log_lookup={}
+        for input_file in init_args:
+            input_handle=open(input_file, 'r')
+            lines=input_handle.readlines()
+            for line in lines[1:]:
+                parts=line.strip().split('\t')
+                status='NOT OK'
+                if len(parts)==14:
+                    try:
+                        #test_id gene_id gene    locus   sample_1        sample_2        status  value_1 value_2 log2(fold_change)       test_stat       p_value q_value significant
+                        (gene_col, sample1, sample2, status, value1, value2, log_change) = (parts[2], parts[4], parts[5], parts[6], float(parts[7]), float(parts[8]), float(parts[9]))
+                    except ValueError:
+                        sys.stderr.write('One of the input files does not match the formatting of a CuffDiff gene differential expression testing file\n')
+                        sys.exit()
+                else:
+                    sys.stderr.write('One of the input files does not match the formatting of a CuffDiff gene differential expression testing file\n')
+                    sys.exit()
+                if status != 'OK':
+                    continue
+                gene_ids = []
+                if ',' in gene_col:
+                    gene_ids=gene_col.split(',')
+                else:
+                    gene_ids=[gene_col]
+                changed=False
+                if value1 == 0:
+                    value1=0.01
+                    changed=True
+                if value2 == 0:
+                    value2= 0.01
+                    changed=True
+                if changed:
+                    log_change= log(value2/value1)/log(2)
+                #pandas would be better for this
+                for gene_id in gene_ids:
+                    master_list_genes.add(gene_id)
+                    comp_id=sample1+' vs '+sample2
+                    master_list_comparisons.add(comp_id)
+                    if comp_id not in log_lookup:
+                        log_lookup[comp_id]={}
+                    log_lookup[comp_id][gene_id]=log_change 
+            input_handle.close()
+        comparisons=list(master_list_comparisons)
+        comparisons.sort()
+        headers=['Gene ID']+comparisons
+        genes=list(master_list_genes)
+        genes.sort()
+        output_handle.write('\t'.join(headers)+"\n")
+        for g in genes:
+            value_list=[]
+            for c in comparisons:
+                try:
+                    current_val = str(log_lookup[c][g])
+                except:
+                    current_val='NaN'
+                value_list.append(current_val)
+            output_handle.write('\t'.join([g]+value_list)+"\n")
+        output_handle.close()
+
+
 
 class GenomeData:
 
@@ -128,8 +196,8 @@ class GenomeData:
         metadata = self.genome.get_genome_data('sample_metadata_file')
         superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_Superclass_Distribution")
         pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_PathwayClass_Distribution")
-        superclass_cmd = ["grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
-        pathway_cmd = ["grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
+        superclass_cmd = ["rnaseq_grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
+        pathway_cmd = ["rnaseq_grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
 
         try:
             print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
@@ -342,7 +410,7 @@ class Quantify:
         # TODO: rename output file?
         return 0
 
-    # Call prepDE.py script which formats data in the gtf files as a table
+    # Call rnaseqPrepDE.py script which formats data in the gtf files as a table
     # https://ccb.jhu.edu/software/stringtie/index.shtml?t=manual
     def create_genome_counts_table_stringtie(self,output_dir,sample_list):
         # create input file for -i option
@@ -357,19 +425,19 @@ class Quantify:
         path_file = os.path.join(output_dir,'sample_transcript_paths.txt')
         with open(path_file,'w') as o:
             o.write(output_text)
-        # run prepDE.py 
+        # run rnaseqPrepDE.py 
         gene_matrix_file = os.path.join(output_dir,self.genome.get_id()+"_gene_counts.csv")
         transcript_matrix_file = os.path.join(output_dir,self.genome.get_id()+"_transcript_counts.csv")
         avg_read_length = str(int(np.average(avg_len_list))) 
         # TODO: set path or import or something
-        prepde_cmd = ['prepDE','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
+        prepde_cmd = ['rnaseqPrepDE','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
         try:
             print(' '.join(prepde_cmd))
             subprocess.check_call(prepde_cmd)
             self.genome.add_genome_data(self.genome.get_id()+"_gene_counts",gene_matrix_file)
             self.genome.add_genome_data(self.genome.get_id()+"_transcript_counts",transcript_matrix_file)
         except Exception as e:
-            sys.stderr.write('Error in prepDE.py: cannot generate genome counts or transcript counts file') 
+            sys.stderr.write('Error in rnaseqPrepDE.py: cannot generate genome counts or transcript counts file') 
             sys.exit(-1)
         
     def create_genome_counts_table_htseq(self,output_dir,sample_list):

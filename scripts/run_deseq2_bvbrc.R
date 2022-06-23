@@ -8,7 +8,7 @@ args = commandArgs(trailingOnly=TRUE)
 numContrasts = length(args) - 5
 
 if (numContrasts < 1) {
-    stop("Not enough parameters: RunDESeq2.R <counts_file> <metadata_file> <output_prefix> <report_img_path> <bacteria|host> <contrast 1> ... <contrast n>")
+    stop("Not enough parameters: run_deseq2.R <counts_file> <metadata_file> <output_prefix> <report_img_path> <bacteria|host> <contrast 1> ... <contrast n>")
 }
 counts.file = args[1]
 metadata.file = args[2]
