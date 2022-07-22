@@ -10,7 +10,7 @@ from math import log
 import pandas as pd
 import numpy as np
 
-from bvbrc_api import getSubsystemsDf,getPathwayDf
+from bvbrc_api import getSubsystemsDataFrame,getPathwayDataFrame
 
 class DifferentialExpression:
 
@@ -214,7 +214,7 @@ class GenomeData:
             sys.stderr.write('Error creating pathway violin plots:\n{0}\n'.format(e))
 
     def run_pathway(self, output_dir, session):
-        pathway_df = getPathwayDf([self.genome.get_id()], session)
+        pathway_df = getPathwayDataFrame([self.genome.get_id()], session)
         if not pathway_df is None:
             mapping_table = pathway_df[['patric_id','pathway_class']]
             mapping_output = os.path.join(output_dir,self.genome.get_id()+"_pathway_mapping.tsv")
@@ -226,7 +226,7 @@ class GenomeData:
 
     # subsystem_df is a pandas dataframe
     def run_subsystems(self, output_dir, session):
-        subsystem_df = getSubsystemsDf([self.genome.get_id()],session)
+        subsystem_df = getSubsystemsDataFrame([self.genome.get_id()],session)
         if not subsystem_df is None:
             mapping_table = subsystem_df[['patric_id','superclass']]
             mapping_output = os.path.join(output_dir,self.genome.get_id()+"_superclass_mapping.tsv")
