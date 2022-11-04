@@ -281,15 +281,23 @@ if __name__ == "__main__":
     #paired_end_libs
     if 'paired_end_libs' in job_data:
         for paired_sample in job_data['paired_end_libs']:
+            if 'condition' in paired_sample:
+                condition = paired_sample['condition']
+            else:
+                condition = None
             sample_reads = [paired_sample['read1'],paired_sample['read2']]
-            new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,paired_sample['condition'])
+            new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,condition)
             experiment_dict[new_sample.condition].add_sample(new_sample)
 
     # single_end_libs
     if 'single_end_libs' in job_data:
         for single_sample in job_data['single_end_libs']:
+            if 'condition' in single_sample:
+                condition = single_sample['condition']
+            else:
+                condition = None
             sample_read = [single_sample['read']]
-            new_sample = experiment.Sample(single_sample['sample_id'],'single',sample_read,None,single_sample['condition'])
+            new_sample = experiment.Sample(single_sample['sample_id'],'single',sample_read,None,condition)
             experiment_dict[new_sample.condition].add_sample(new_sample)
 
     # TODO: test this
@@ -304,6 +312,10 @@ if __name__ == "__main__":
         if not os.path.exists(sra_meta_dir):
             os.mkdir(sra_meta_dir)
         for sra_sample in job_data['srr_libs']:
+            if 'condition' in sra_sample:
+                condition = sra_sample['condition']
+            else:
+                condition = None
             srr_id = sra_sample['srr_accession'] 
             meta_file = os.path.join(sra_meta_dir,srr_id+'_meta.txt')
             reads_dir = {}
@@ -333,11 +345,11 @@ if __name__ == "__main__":
                     continue
                 if 'read2' in reads_dir:
                     reads_list = [reads_dir['read1'],reads_dir['read2']]
-                    new_sample = experiment.Sample(srr_id,'paired',reads_list,None,sra_sample['condition'])
+                    new_sample = experiment.Sample(srr_id,'paired',reads_list,None,condition)
                     experiment_dict[new_sample.condition].add_sample(new_sample)
                 else: #single end
                     reads_list = [reads_dir['read']]
-                    new_sample = experiment.Sample(srr_id,'single',reads_list,None,sra_sample['condition'])
+                    new_sample = experiment.Sample(srr_id,'single',reads_list,None,condition)
                     experiment_dict[new_sample.condition].add_sample(new_sample)
                 
             except Exception as e:
