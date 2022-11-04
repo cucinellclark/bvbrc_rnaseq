@@ -325,7 +325,7 @@ class Quantify:
         sample_details_list = []
         for sample in sample_list:
             bam_file = sample.get_sample_data('bam')
-            quant_cmd = ['htseq-count','-t','gene','-f','bam','-r','pos','-i','ID',bam_file,annotation_file]
+            quant_cmd = ['htseq-count','-n',str(threads),'-t','gene','-f','bam','-r','pos','-i','ID',bam_file,annotation_file]
             quant_cmd_list.append(quant_cmd)
             sample_dir = self.genome.get_sample_path(sample.get_id())
             sample_output_file = os.path.join(sample_dir,sample.get_id()+'.counts')

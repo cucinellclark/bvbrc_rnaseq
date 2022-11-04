@@ -31,6 +31,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
 
     # Trimming
     # TODO: replace threads with tool_params value
+    if 
     for condition in experiment_dict:
         for sample in experiment_dict[condition].get_sample_list():
             preprocess.run_trimming(sample, 8)
@@ -384,6 +385,9 @@ if __name__ == "__main__":
 
     # set recipe in map_args
     map_args.recipe = job_data['recipe'] 
+
+    # set trimming in map_args
+    map_args.trimming = job_data['trimming']
 
     # If not cufflinks, run pipeline
     main(genome_list, experiment_dict, tool_params, output_dir, comparisons, s, map_args)
