@@ -65,6 +65,8 @@ class DifferentialExpression:
             return -1
 
     def create_metadata_file(self, sample_list, output_dir):
+        import pdb
+        pdb.set_trace()
         meta_file = os.path.join(output_dir,'sample_metadata.tsv')
         output_text_list = ['Sample\tCondition']
         for sample in sample_list:
