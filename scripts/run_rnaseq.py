@@ -272,6 +272,8 @@ if __name__ == "__main__":
 
     # sample_list = [] # maybe don't store this, access samples by condition like in original
     experiment_dict = {}
+    no_condition = experiment.Condition('no_condition')
+    experiment_dict['no_condition'] = no_condition
     condition_list = []
     for cond_str in job_data['experimental_conditions']:
         condition_list.append(cond_str)
