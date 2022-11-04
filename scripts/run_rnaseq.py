@@ -287,7 +287,8 @@ if __name__ == "__main__":
                 condition = None
             sample_reads = [paired_sample['read1'],paired_sample['read2']]
             new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,condition)
-            experiment_dict[new_sample.condition].add_sample(new_sample)
+            if condition:
+                experiment_dict[condition].add_sample(new_sample)
 
     # single_end_libs
     if 'single_end_libs' in job_data:
@@ -298,7 +299,8 @@ if __name__ == "__main__":
                 condition = None
             sample_read = [single_sample['read']]
             new_sample = experiment.Sample(single_sample['sample_id'],'single',sample_read,None,condition)
-            experiment_dict[new_sample.condition].add_sample(new_sample)
+            if condition:
+                experiment_dict[condition].add_sample(new_sample)
 
     # TODO: test this
     # put sra-fastq files in <output_dir>/SRA_Fastq/
@@ -346,11 +348,13 @@ if __name__ == "__main__":
                 if 'read2' in reads_dir:
                     reads_list = [reads_dir['read1'],reads_dir['read2']]
                     new_sample = experiment.Sample(srr_id,'paired',reads_list,None,condition)
-                    experiment_dict[new_sample.condition].add_sample(new_sample)
+                    if condition:
+                        experiment_dict[condition].add_sample(new_sample)
                 else: #single end
                     reads_list = [reads_dir['read']]
                     new_sample = experiment.Sample(srr_id,'single',reads_list,None,condition)
-                    experiment_dict[new_sample.condition].add_sample(new_sample)
+                    if condition:
+                        experiment_dict[condition].add_sample(new_sample)
                 
             except Exception as e:
                 sys.stderr.write('Error in downloading SRA ID {0}:\n{1}\n'.format(srr_id,e)) 
