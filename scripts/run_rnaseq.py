@@ -284,7 +284,7 @@ if __name__ == "__main__":
             if 'condition' in paired_sample:
                 condition = paired_sample['condition']
             else:
-                condition = None
+                condition = 'no_condition'
             sample_reads = [paired_sample['read1'],paired_sample['read2']]
             new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,condition)
             if condition:
@@ -296,7 +296,7 @@ if __name__ == "__main__":
             if 'condition' in single_sample:
                 condition = single_sample['condition']
             else:
-                condition = None
+                condition = 'no_condition' 
             sample_read = [single_sample['read']]
             new_sample = experiment.Sample(single_sample['sample_id'],'single',sample_read,None,condition)
             if condition:
@@ -317,7 +317,7 @@ if __name__ == "__main__":
             if 'condition' in sra_sample:
                 condition = sra_sample['condition']
             else:
-                condition = None
+                condition = 'no_condition' 
             srr_id = sra_sample['srr_accession'] 
             meta_file = os.path.join(sra_meta_dir,srr_id+'_meta.txt')
             reads_dir = {}
