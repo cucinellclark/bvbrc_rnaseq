@@ -77,6 +77,7 @@ svg_height = num_rows + 5
 legend <- NULL 
 plot_list = vector("list",length(systems)+1)
 browser()
+print('after browser')
 for (i in 1:length(systems)) {
     curr.system = systems[i] 
     curr.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1],] 
