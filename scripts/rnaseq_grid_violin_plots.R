@@ -30,6 +30,8 @@ counts.file = args[2]
 metadata.file = args[3]
 output.file = args[4]
 
+# Removes the Rplots.pdf file accidentally made by this script
+# can't figure out how to 
 if(!interactive()) pdf(NULL)
 
 #check files and extensions
@@ -57,7 +59,7 @@ counts.mtx$keep_rows <- rep(FALSE,length.out=nrow(counts.mtx))
 counts.mtx$keep_rows[keep.idx] <- TRUE
 counts.mtx <- subset(counts.mtx,keep_rows == TRUE)
 print(head(counts.mtx))
-counts.mtx$keep_rows <- NULL
+counts.mtx <- counts.mtx[,-c(ncol(counts.mtx))]
 
 #Testing: min and max values
 #log_min = log(min(counts.mtx)+1)
