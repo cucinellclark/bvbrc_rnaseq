@@ -52,7 +52,7 @@ system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
 
 #Filter entries with no system label and get the intersection of patric_ids
 system.map = system.map[!grepl("NONE",system.map[,2]),]
-counts.mtx = counts.mtx[system.map[,1],]
+counts.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[,1],]
 print('counts 2')
 print(head(counts.mtx))
 
