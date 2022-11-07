@@ -45,12 +45,16 @@ count_sep = "\t"
 
 #read tables
 counts.mtx <- read.table(counts.file,sep=count_sep,header=T,row.names=1,stringsAsFactors=FALSE)
+print('counts 1')
+print(head(counts.mtx))
 metadata <- read.table(metadata.file,sep="\t",header=T,stringsAsFactors=FALSE)
 system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
 
 #Filter entries with no system label and get the intersection of patric_ids
 system.map = system.map[!grepl("NONE",system.map[,2]),]
 counts.mtx = counts.mtx[system.map[,1],]
+print('counts 2')
+print(head(counts.mtx))
 
 #Testing: min and max values
 #log_min = log(min(counts.mtx)+1)
@@ -71,11 +75,6 @@ png_width = (num_columns + num_samples)*100
 png_height = num_rows*200 
 svg_width = num_columns + num_samples
 svg_height = num_rows + 5
-
-print('------')
-print(head(counts.mtx))
-print(head(system.map))
-
 
 #create each plot and ad dit to a list of plots: do not render at this step: occurs when calling svglite() and do.call()
 legend <- NULL 
