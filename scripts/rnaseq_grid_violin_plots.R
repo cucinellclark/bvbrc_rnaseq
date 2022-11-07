@@ -54,6 +54,8 @@ system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
 system.map = system.map[!grepl("NONE",system.map[,2]),]
 keep.rows <- which(rownames(counts.mtx) %in% system.map[,2])
 print(keep.rows)
+print(typeof(system.map[,2]))
+print(typeof(rownames(counts.mtx)))
 counts.mtx = counts.mtx[keep.rows,]
 print(head(system.map))
 print('counts 2')
