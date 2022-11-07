@@ -57,6 +57,7 @@ print(keep.rows)
 counts.mtx = counts.mtx[keep.rows,]
 print(head(system.map))
 print('counts 2')
+print(typeof(counts.mtx))
 print(head(counts.mtx))
 
 #Testing: min and max values
