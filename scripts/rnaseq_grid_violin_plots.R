@@ -45,20 +45,16 @@ count_sep = "\t"
 
 #read tables
 counts.mtx <- read.table(counts.file,sep=count_sep,header=T,row.names=1,stringsAsFactors=FALSE)
-print('counts 1')
 print(head(counts.mtx))
 metadata <- read.table(metadata.file,sep="\t",header=T,stringsAsFactors=FALSE)
 system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
+print(class(counts.mtx))
 
 #Filter entries with no system label and get the intersection of patric_ids
 system.map = system.map[!grepl("NONE",system.map[,2]),]
-keep.rows <- which(rownames(counts.mtx) %in% system.map[,1])
-print(keep.rows)
-counts.mtx = counts.mtx[keep.rows,]
-print(head(system.map))
-print('counts 2')
-print(typeof(counts.mtx))
-print(head(counts.mtx))
+keep.idx <- which(rownames(counts.mtx) %in% system.map[,1])
+counts.mtx = counts.mtx[keep.idx,]
+print(class(counts.mtx))
 
 #Testing: min and max values
 #log_min = log(min(counts.mtx)+1)
