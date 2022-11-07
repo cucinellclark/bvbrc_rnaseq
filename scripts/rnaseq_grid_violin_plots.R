@@ -109,7 +109,8 @@ plot_list[[length(systems)+1]] <- legend
 #vln_png = paste(output.file,"_Pathway_Distribution_mqc.png",sep="")
 #png(vln_png,width=png_width,height=png_height)
 #do.call("grid.arrange",c(plot_list,ncol=num_columns))
-dev.off()
+#dev.off()
+pdf(NULL)
 
 #TODO: issue where it opens a second image and saves one as Rplot.pdf
 ###Output SVG image
