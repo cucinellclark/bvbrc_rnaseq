@@ -52,12 +52,12 @@ system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
 
 #Filter entries with no system label and get the intersection of patric_ids
 system.map = system.map[!grepl("NONE",system.map[,2]),]
-counts.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[,1],]
+num_int = length(intersect(system.map[,1],rownames(counts.mtx)))
+print(num_int)
+counts.mtx = counts.mtx[system.map[,1],]
 print(head(system.map))
 print('counts 2')
 print(head(counts.mtx))
-num_int = length(intersect(system.map[,1],rownames(counts.mtx)))
-print(num_int)
 
 #Testing: min and max values
 #log_min = log(min(counts.mtx)+1)
