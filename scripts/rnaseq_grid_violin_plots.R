@@ -72,12 +72,14 @@ png_height = num_rows*200
 svg_width = num_columns + num_samples
 svg_height = num_rows + 5
 
+print('------')
+print(head(counts.mtx))
+print(head(system.map))
+
 
 #create each plot and ad dit to a list of plots: do not render at this step: occurs when calling svglite() and do.call()
 legend <- NULL 
 plot_list = vector("list",length(systems)+1)
-browser()
-print('after browser')
 for (i in 1:length(systems)) {
     curr.system = systems[i] 
     curr.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1],] 
