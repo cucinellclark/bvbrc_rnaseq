@@ -30,6 +30,8 @@ counts.file = args[2]
 metadata.file = args[3]
 output.file = args[4]
 
+if(!interactive()) pdf(NULL)
+
 #check files and extensions
 #if (grepl("htseq",feature.count)) {
 #    count_sep = "\t"
@@ -110,7 +112,6 @@ plot_list[[length(systems)+1]] <- legend
 #png(vln_png,width=png_width,height=png_height)
 #do.call("grid.arrange",c(plot_list,ncol=num_columns))
 #dev.off()
-pdf(NULL)
 
 #TODO: issue where it opens a second image and saves one as Rplot.pdf
 ###Output SVG image
