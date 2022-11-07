@@ -56,6 +56,7 @@ counts.mtx$keep_rows <- rep(FALSE,length.out=nrow(counts.mtx))
 counts.mtx$keep_rows[keep.idx] <- TRUE
 counts.mtx <- subset(counts.mtx,keep_rows == TRUE)
 counts.mtx$keep_rows <- NULL
+print(head(counts.mtx))
 
 #Testing: min and max values
 #log_min = log(min(counts.mtx)+1)
