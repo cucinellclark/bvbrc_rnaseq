@@ -56,6 +56,8 @@ counts.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[,1],]
 print(head(system.map))
 print('counts 2')
 print(head(counts.mtx))
+num_int = length(intersect(system.map[,1],rownames(counts.mtx)))
+print(num_int)
 
 #Testing: min and max values
 #log_min = log(min(counts.mtx)+1)
