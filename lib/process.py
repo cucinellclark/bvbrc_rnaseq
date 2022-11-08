@@ -349,8 +349,9 @@ class Quantify:
         sample.add_command("htseq"+"_"+self.genome.get_id(),cmd,"running")
         print('Running command:\n{0}\n'.format(' '.join(cmd)))
         try:
-            with open(output_file,'w') as o:
-                subprocess.check_call(cmd,stdout=o)
+            #TODO: ENABLE
+            #with open(output_file,'w') as o:
+            #    subprocess.check_call(cmd,stdout=o)
             sample.set_command_status("htseq"+"_"+self.genome.get_id(),"finished")
             sample.add_sample_data(self.genome.get_id()+"_gene_counts",output_file)
         except Exception as e:
@@ -677,8 +678,9 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(align_cmd))) 
         try:
             # capture stdout for stats later
-            with open(align_output_file,'w') as o:
-                subprocess.check_call(align_cmd,stderr=o)
+            #TODO: ENABLE
+            #with open(align_output_file,'w') as o:
+            #    subprocess.check_call(align_cmd,stderr=o)
             # print captured stdout
             with open(align_output_file,'r') as aof:
                 print(aof.read())
@@ -780,7 +782,8 @@ class Alignment:
         sample.add_command("sample_align",sample_align_cmd,"running") 
         print("Running command:\n{0}".format(" ".join(sample_align_cmd))) 
         try:
-            subprocess.check_call(sample_align_cmd)
+            # TODO: ENABLE
+            #subprocess.check_call(sample_align_cmd)
             sample.set_command_status("sample_align","finished")
         except Exception as e:
             sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
