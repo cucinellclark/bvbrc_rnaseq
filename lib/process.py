@@ -815,8 +815,10 @@ class Alignment:
         print("bam_file = {0}".format(bam_file))
         sam_to_bam_cmd = "samtools view -Su " + sam_file + " | samtools sort -o - - -@ " + str(threads) + " > " + bam_file
         print("Running command:\n{0}".format(sam_to_bam_cmd))
+        # TODO: ENABLE
         try:
-            subprocess.check_call(sam_to_bam_cmd,shell=True)
+            #subprocess.check_call(sam_to_bam_cmd,shell=True)
+            print('skip samtools')
         except Exception as e:
             sys.stderr.write("Error in converting sam to bam file:\n{0}\n".format(e))
             return None
