@@ -757,8 +757,9 @@ class Alignment:
             sample.add_command("sample"+str(readNum),sample_cmd,"running")
             print("Running command:\n{0}".format(" ".join(sample_cmd))) 
             try:
-                with open(sample_file,"w") as so:
-                    subprocess.check_call(sample_cmd,stdout=so)
+                # TODO: ENABLE
+                #with open(sample_file,"w") as so:
+                #    subprocess.check_call(sample_cmd,stdout=so)
                 sample.set_command_status("sample"+str(readNum),"finished")
             except Exception as e:
                 sys.stderr.write("Sampling encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))   
