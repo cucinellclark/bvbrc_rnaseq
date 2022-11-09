@@ -63,8 +63,9 @@ print(head(counts.mtx))
 counts.mtx <- counts.mtx[,-c(ncol(counts.mtx))]
 # happens when using only one sample
 if (class(counts.mtx) != 'data.frame') {
-    counts.mtx <- data.frame((metadata$Sample[1])=counts.mtx)
+    counts.mtx <- data.frame(VALS=counts.mtx)
     rownames(counts.mtx) <- mtx.genes[keep.idx]
+    colnames(counts.mtx) <- c(metadata$Sample[1])
 }
 print(head(counts.mtx))
 
