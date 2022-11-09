@@ -20,7 +20,7 @@ class Genome:
     genome_data = None # Dictionary that holds fasta, annotation, hisat index, etc
     sample_path_dict = None
 
-    def __init__(self, gi, gt, session):
+    def __init__(self, gi, gt, session, genome_query = False):
         self.genome_id = gi
         self.genome_ref_id = gi
         self.genome_type = gt
@@ -30,13 +30,17 @@ class Genome:
         self.sample_path_dict = {}
         self.genome_data = {}
         # get genome id prefix
-        base_query = f'https://www.patricbrc.org/api/genome/?eq(genome_id,{gi})&http_accept=application/solr+json'
-        req = requests.Request('GET',base_query)
-        prepared = req.prepare() 
-        response = session.send(prepared)
-        #res['response']['docs'][0]['common_name']
-        response_data = json.load(io.StringIO(response.text))['response']['docs'][0]
-        self.genome_name = response_data['common_name']
+        if genome_query:
+            base_query = f'https://www.patricbrc.org/api/genome/?eq(genome_id,{gi})&http_accept=application/solr+json'
+            req = requests.Request('GET',base_query)
+            prepared = req.prepare() 
+            response = session.send(prepared)
+            #res['response']['docs'][0]['common_name']
+            print('genome_query:\nurl = {0}\n'.format(base_query))
+            response_data = json.load(io.StringIO(response.text))['response']['docs'][0]
+            self.genome_name = response_data['common_name']
+        else:
+            self.genome_name = gi
 
     def add_genome_data(self,key,data):
         # TODO: (maybe not)check if key is valid
