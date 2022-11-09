@@ -117,9 +117,22 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
     # stats.get_sample_statistics(genome, output_dir, diffexp_flag)
 
     # call multiqc without any adjustments
-    report_manager = report.ReportManager()
-    report_manager.run_multiqc(output_dir)
-    report_manager.create_report(genome, output_dir, diffexp_flag)
+    if not map_args.disable_reports:
+        report_manager = report.ReportManager()
+        # number of samples and conditions
+        report_stats = {}
+        sample_count = 0
+        condition_count = 0
+        for condition in experiment_dict:       
+            sample_count += len(experiment_dict[condition].get_sample_list())
+            if condition != 'no_condition':
+                condition_count += 1
+        report_stats['num_samples'] = sample_count
+        report_stats['num_conditions'] = condition_count
+        # get recipe
+        report_stats['recipe'] = map_args.recipe 
+        report_manager.run_multiqc(output_dir)
+        report_manager.create_report(genome, output_dir, experiment_dict, report_stats, diffexp_flag)
 
     # TODO: Add command output and status 
     # TODO: Add file cleanup
@@ -398,6 +411,12 @@ if __name__ == "__main__":
 
     # set trimming in map_args
     map_args.trimming = job_data['trimming']
+
+    # set report variable
+    if 'disable_reports' in job_data:
+        map_args.disable_reports = job_data['disable_reports']
+    else:
+        map_args.disable_reports = False
 
     # If not cufflinks, run pipeline
     main(genome_list, experiment_dict, tool_params, output_dir, comparisons, s, map_args)

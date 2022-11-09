@@ -26,16 +26,20 @@ class ReportManager:
             sys.stderr.write('Error running multiqc:\n{0}'.format(e)) 
             return -1
 
-    def create_report(self, genome, output_dir, diffexp_flag):
+    def create_report(self, genome, output_dir, experiment_dict, report_stats, diffexp_flag):
         report_lines = []
         genome_name = genome.get_genome_name() 
         report_html_header = self.create_html_header(genome_name)
         report_lines.append(report_html_header)
         report_lines.append('<body>')
 
-        # Intro: which genome, pipeline, number of samples, conditions, and if differential expression was performed
         report_header = "<header>\n<div class=\"report-info pull-right\">\n<span>Report Date:</span>{0}<br>\n<span>Organism:</span>{1}\n</div>\n</header>".format('DATE',genome.get_genome_name())
         report_lines.append(report_header)
+
+        # Intro: which genome, pipeline, number of samples, conditions, and if differential expression was performed
+        report_lines.append('<section>\n<h2>Summary</h2>')
+        report_summary = self.create_summary(report_stats,genome)
+        report_lines.append('</section>')
 
         # TODO: Link to multiqc report for basic sample summary statistics
         # - how to make link aware of other file while in workspace?
@@ -50,6 +54,12 @@ class ReportManager:
         output_report = os.path.join(output_dir,'bvbrc_rnaseq_report.html')
         with open(output_report,'w') as o:
             o.write(report_html)
+
+    def create_summary(self, report_stats, genome):
+        summary_str = f"The BV-BRC RNASeq service was run using the {report_stats['recipe']} pipeline with {report_stats['num_samples']} samples and {report_stats['num_conditions']}." 
+        summary_str += f"The reference genome used was {genome.get_genome_name()}({genome.get_id()})."
+        return summary_str
+        
 
     def create_html_header(self,genome_name):
         header = "<!DOCTYPE html><html><head>\n"
