@@ -39,6 +39,7 @@ class ReportManager:
         # Intro: which genome, pipeline, number of samples, conditions, and if differential expression was performed
         report_lines.append('<section>\n<h2>Summary</h2>')
         report_summary = self.create_summary(report_stats,genome)
+        report_lines.append(report_summary)
         report_lines.append('</section>')
 
         # TODO: Link to multiqc report for basic sample summary statistics
