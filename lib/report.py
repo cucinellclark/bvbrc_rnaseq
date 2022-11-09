@@ -80,7 +80,7 @@ class ReportManager:
         summary_str += f"The reference genome used was {genome.get_genome_name()}({genome.get_id()})."
         return summary_str
 
-    def create_mutliqc_link(self, workspace_path):
+    def create_multiqc_link(self, workspace_path):
         url_base = "https://www.bv-brc.org/workspace"
         if workspace_path[-1] != '/':
             workspace_path += '/'
