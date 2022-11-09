@@ -20,7 +20,7 @@ class Genome:
     genome_data = None # Dictionary that holds fasta, annotation, hisat index, etc
     sample_path_dict = None
 
-    def __init__(self, gi, gt, session, genome_query = False):
+    def __init__(self, gi, gt, session, genome_query = True):
         self.genome_id = gi
         self.genome_ref_id = gi
         self.genome_type = gt
