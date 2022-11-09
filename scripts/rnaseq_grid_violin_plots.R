@@ -96,6 +96,12 @@ print('here')
 for (i in 1:length(systems)) {
     curr.system = systems[i] 
     curr.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1],] 
+    # fix one sample issue
+    if ((class(curr.mtx) != 'data.frame')&(ncol(counts.mtx) == 1) {
+        curr.mtx <- data.frame(VALS=curr.mtx)
+        rownames(curr.mtx) <- mtx.genes[keep.idx]
+        colnames(curr.mtx) <- c(metadata$Sample[1])
+    }
     curr.mtx = data.frame(curr.mtx)
     curr.mtx$Genes <- rownames(curr.mtx)
     melt.df = melt(curr.mtx,id.vars=c("Genes"),measure.vars=colnames(curr.mtx)[-c(length(colnames(curr.mtx)))]) 
