@@ -81,7 +81,8 @@ class ReportManager:
         return summary_str
 
     def create_multiqc_link(self, workspace_path):
-        url_base = "https://www.bv-brc.org/workspace"
+        #url_base = "https://www.bv-brc.org/workspace"
+        url_base = ''
         if workspace_path[-1] != '/':
             workspace_path += '/'
         url = url_base + workspace_path + 'multiqc_report.html'
