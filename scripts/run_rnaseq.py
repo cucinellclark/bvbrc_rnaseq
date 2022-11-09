@@ -8,7 +8,7 @@ import subprocess
 #pipeline modules
 import experiment
 import process
-# import report
+import report
 # import process_statistics
 from bvbrc_api import authenticateByEnv
 
@@ -89,6 +89,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
         diffexp_import = process.DiffExpImport()
         diffexp_import.set_recipe(map_args.recipe)
         for genome in genome_list:
+            continue
             diff_exp.set_genome(genome)
             diff_exp.run_differential_expression(output_dir,sample_list)
             if genome.get_genome_type() == 'bacteria':
@@ -114,8 +115,10 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
     # stats.add_samples(sample_list) 
     # stats.get_sample_statistics(genome, output_dir, diffexp_flag)
 
-    # report_manager = report.ReportManager()
-    # report_manager.create_report(genome, stats.get_stats_dict(), output_dir, diffexp_flag)
+    # call multiqc without any adjustments
+    report_manager = report.ReportManager()
+    report_manager.run_multiqc(output_dir)
+    #report_manager.create_report(genome, stats.get_stats_dict(), output_dir, diffexp_flag)
 
     # TODO: Add command output and status 
     # TODO: Add file cleanup
@@ -213,7 +216,7 @@ if __name__ == "__main__":
 
     # set path to use correct version of samtools
     os.environ['PATH'] = "/disks/patric-common/runtime/samtools-1.9/bin:"+os.environ['PATH']
-    #os.environ['R_LIBS'] = "/disks/patric-common/runtime/lib/R/library:"+os.environ['R_LIBS']
+    os.environ['R_LIBS'] = "/disks/patric-common/runtime/lib/R/library:"+os.environ['R_LIBS']
     print('R_LIBS path = {0}'.format(os.environ['R_LIBS']))
 
     # output directory
