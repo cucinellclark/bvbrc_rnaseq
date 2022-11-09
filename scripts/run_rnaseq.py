@@ -119,7 +119,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
     # call multiqc without any adjustments
     report_manager = report.ReportManager()
     report_manager.run_multiqc(output_dir)
-    #report_manager.create_report(genome, stats.get_stats_dict(), output_dir, diffexp_flag)
+    report_manager.create_report(genome, output_dir, diffexp_flag)
 
     # TODO: Add command output and status 
     # TODO: Add file cleanup
