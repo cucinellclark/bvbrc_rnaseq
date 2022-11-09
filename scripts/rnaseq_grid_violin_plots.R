@@ -103,7 +103,7 @@ for (i in 1:length(systems)) {
         curr.mtx <- data.frame(VALS=curr.mtx)
         print('h1')
         #print(curr.mtx)
-        print(mtx.genes[1:5])
+        print(keep.idx)
         rownames(curr.mtx) <- mtx.genes[keep.idx]
         print('h2')
         colnames(curr.mtx) <- c(metadata$Sample[1])
