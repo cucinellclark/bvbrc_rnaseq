@@ -87,6 +87,7 @@ class ReportManager:
             #    subsystem_figure = sfp.read()
             #return 
             subsystem_figure = f'<img src = \"report_images/{genome.get_id()}_Superclass_Distribution.svg\"'
+            return subsystem_figure
         else:
             return '<p>Error: no subsystem figure found</p>'
 
@@ -97,6 +98,7 @@ class ReportManager:
             #    pathway_figure = sfp.read()
             #return 
             pathway_figure = f'<img src = \"report_images/{genome.get_id()}_Pathway_Distribution.svg\"'
+            return pathway_figure
         else:
             return '<p>Error: no pathway figure found</p>'
     
