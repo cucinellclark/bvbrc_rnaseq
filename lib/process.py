@@ -724,7 +724,8 @@ class Alignment:
         sample.add_command("samstat_"+self.genome.get_id(),samstat_cmd,"running")
         print("Running command:\n{0}".format(" ".join(samstat_cmd)))
         try:
-            subprocess.check_call(samstat_cmd)
+            # TODO: ENABLE
+            #subprocess.check_call(samstat_cmd)
             sample.set_command_status("samstat_"+self.genome.get_id(),"finished")
         except Exception as e:
             sys.stderr.write("Samstat encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
