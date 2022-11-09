@@ -97,7 +97,7 @@ for (i in 1:length(systems)) {
     curr.system = systems[i] 
     curr.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1],] 
     # fix one sample issue
-    if ((class(curr.mtx) != 'data.frame')&(ncol(counts.mtx) == 1) {
+    if ((class(curr.mtx) != 'data.frame')&(ncol(counts.mtx) == 1)) {
         curr.mtx <- data.frame(VALS=curr.mtx)
         rownames(curr.mtx) <- mtx.genes[keep.idx]
         colnames(curr.mtx) <- c(metadata$Sample[1])
