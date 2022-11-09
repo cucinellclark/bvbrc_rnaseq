@@ -98,12 +98,13 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
 
     # Queries: subsystems, kegg
     # output files are used in creating figures
-    genome_data = process.GenomeData()
-    for genome in genome_list:
-        if genome.get_genome_type() == 'bacteria':
-            genome_data.set_genome(genome)
-            genome_data.run_queries(output_dir,session)
-            genome_data.create_system_figures(output_dir)
+    if False:
+        genome_data = process.GenomeData()
+        for genome in genome_list:
+            if genome.get_genome_type() == 'bacteria':
+                genome_data.set_genome(genome)
+                genome_data.run_queries(output_dir,session)
+                genome_data.create_system_figures(output_dir)
     
     # TODO: for now assuming one genome for statistics and report
     genome = genome_list[0] 
@@ -251,7 +252,6 @@ if __name__ == "__main__":
     #for i in range(0,len(job_data["reference_genome_id"])):
         #genome_list.append(experiment.Genome(job_data["reference_genome_id"][i],job_data["genome_type"][i],s))
     genome_list.append(experiment.Genome(job_data["reference_genome_id"],job_data["genome_type"],s))
-    print('here')
 
     # DOWNLOAD GENOME DATA: remove from perl side
 
