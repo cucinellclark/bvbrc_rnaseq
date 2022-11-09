@@ -49,7 +49,7 @@ class ReportManager:
         report_html = '\n'.join(report_lines)
         output_report = os.path.join(output_dir,'bvbrc_rnaseq_report.html')
         with open(output_report,'w') as o:
-            o.write(output_report)
+            o.write(report_html)
 
     def create_html_header(self,genome_name):
         header = "<!DOCTYPE html><html><head>\n"
