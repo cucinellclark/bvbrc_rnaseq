@@ -12,7 +12,7 @@ class ReportManager:
         debug_multiqc = False
         remove_data_dir = True
         force_overwrite = True
-        report_name = os.path.join(output_path,'multiqc_report.txt')
+        report_name = os.path.join(output_path,'multiqc_report')
         multiqc_cmd = ["multiqc","--flat","-o",".","-n",report_name,"-t","simple","."]
         if remove_data_dir:
             multiqc_cmd += ["--no-data-dir"]
