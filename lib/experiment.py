@@ -31,7 +31,7 @@ class Genome:
         self.genome_data = {}
         # get genome id prefix
         if genome_query:
-            base_query = f'https://www.patricbrc.org/api/genome/?eq(genome_id,{gi})&http_accept=application/solr+json'
+            base_query = f'https://alpha.bv-brc.org/api/genome/?eq(genome_id,{gi})&http_accept=application/solr+json'
             print('genome_query:\nurl = {0}\n'.format(base_query))
             req = requests.Request('GET',base_query)
             prepared = req.prepare() 
