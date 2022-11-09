@@ -86,7 +86,7 @@ class ReportManager:
         if workspace_path[-1] != '/':
             workspace_path += '/'
         url = url_base + workspace_path + 'multiqc_report.html'
-        link_text = f'<a href=\"multiqc_report.html\">multiqc report link</a>'
+        link_text = f'<a href=\"multiqc_report.html\" target=\"_parent\">multiqc report link</a>'
         return link_text 
 
     def get_subsystem_figure(self, genome):
