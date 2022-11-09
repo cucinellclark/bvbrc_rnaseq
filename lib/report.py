@@ -30,7 +30,7 @@ class ReportManager:
         report_lines = []
         genome_name = genome.get_genome_name() 
         report_html_header = self.create_html_header(genome_name)
-        report_lines.append(report_header)
+        report_lines.append(report_html_header)
         report_lines.append('<body>')
 
         # Intro: which genome, pipeline, number of samples, conditions, and if differential expression was performed
