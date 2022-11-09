@@ -55,13 +55,16 @@ system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
 #Filter entries with no system label and get the intersection of patric_ids
 system.map = system.map[!grepl("NONE",system.map[,2]),]
 keep.idx <- which(rownames(counts.mtx) %in% system.map[,1])
+mtx.genes <- rownames(counts.mtx)
 counts.mtx$keep_rows <- rep(FALSE,length.out=nrow(counts.mtx))
 counts.mtx$keep_rows[keep.idx] <- TRUE
 counts.mtx <- subset(counts.mtx,keep_rows == TRUE)
 print(head(counts.mtx))
 counts.mtx <- counts.mtx[,-c(ncol(counts.mtx))]
+# happens when using only one sample
 if (class(counts.mtx) != 'data.frame') {
-    counts.mtx <- data.frame(counts.mtx)
+    counts.mtx <- data.frame((metadata$Sample[1])=counts.mtx)
+    rownames(counts.mtx) <- mtx.genes[keep.idx]
 }
 print(head(counts.mtx))
 
