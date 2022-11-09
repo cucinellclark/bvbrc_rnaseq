@@ -102,12 +102,12 @@ for (i in 1:length(systems)) {
         print('in here')
         curr.mtx <- data.frame(VALS=curr.mtx)
         print('h1')
-        print(mtx.genes[keep.idx])
+        print(curr.mtx)
+        #print(mtx.genes[keep.idx])
         rownames(curr.mtx) <- mtx.genes[keep.idx]
         print('h2')
         colnames(curr.mtx) <- c(metadata$Sample[1])
     }
-    print(curr.mtx)
     curr.mtx = data.frame(curr.mtx)
     curr.mtx$Genes <- rownames(curr.mtx)
     melt.df = melt(curr.mtx,id.vars=c("Genes"),measure.vars=colnames(curr.mtx)[-c(length(colnames(curr.mtx)))]) 
