@@ -98,15 +98,16 @@ for (i in 1:length(systems)) {
     curr.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1],] 
     # fix one sample issue
     print(ncol(counts.mtx))
-    print(curr.mtx)
     if ((class(curr.mtx) != 'data.frame')&(ncol(counts.mtx) == 1)) {
+        print('in here')
         curr.mtx <- data.frame(VALS=curr.mtx)
+        print('h1')
         rownames(curr.mtx) <- mtx.genes[keep.idx]
+        print('h2')
         colnames(curr.mtx) <- c(metadata$Sample[1])
     }
-    print('h1')
+    print(curr.mtx)
     curr.mtx = data.frame(curr.mtx)
-    print('h2')
     curr.mtx$Genes <- rownames(curr.mtx)
     melt.df = melt(curr.mtx,id.vars=c("Genes"),measure.vars=colnames(curr.mtx)[-c(length(colnames(curr.mtx)))]) 
     colnames(melt.df) <- c("Gene","Sample","Counts")
