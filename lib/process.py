@@ -709,8 +709,9 @@ class Alignment:
         sample.add_command("samtools_stats_"+self.genome.get_id(),stats_cmd,"running")
         print("Running command:\n{0}".format(" ".join(stats_cmd)))
         try:
-            with open(stats_output,"w") as so:
-                subprocess.check_call(stats_cmd,stdout=so)
+            #TODO: ENABLE
+            #with open(stats_output,"w") as so:
+            #    subprocess.check_call(stats_cmd,stdout=so)
             sample.set_command_status("samtools_stats_"+self.genome.get_id(),"finished")
         except Exception as e:
             sys.stderr.write("Samtools stats encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
