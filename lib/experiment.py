@@ -40,7 +40,7 @@ class Genome:
             response_data = json.load(io.StringIO(response.text))['response']['docs'][0]
             self.genome_name = response_data['common_name']
         else:
-            self.genome_name = gi
+            self.genome_name = self.genome_id
 
     def add_genome_data(self,key,data):
         # TODO: (maybe not)check if key is valid

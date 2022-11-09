@@ -34,7 +34,7 @@ class ReportManager:
         report_lines.append('<body>')
 
         # Intro: which genome, pipeline, number of samples, conditions, and if differential expression was performed
-        report_header = "<header>\n<div class=\"report-info pull-right\">\n<span>Report Date:</span>{0}<br>\n<span>Organism:</span>{1}\n</div>\n</header>".format('DATE',genome)
+        report_header = "<header>\n<div class=\"report-info pull-right\">\n<span>Report Date:</span>{0}<br>\n<span>Organism:</span>{1}\n</div>\n</header>".format('DATE',genome.get_genome_name())
         report_lines.append(report_header)
 
         # TODO: Link to multiqc report for basic sample summary statistics
