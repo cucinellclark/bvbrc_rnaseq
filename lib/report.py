@@ -83,10 +83,9 @@ class ReportManager:
     def get_subsystem_figure(self, genome):
         subsystem_figure_path = genome.get_genome_data('superclass_figure') 
         if subsystem_figure_path and os.path.exists(subsystem_figure_path):
-            #with open(subsystem_figure_path,'r') as sfp: 
-            #    subsystem_figure = sfp.read()
-            #return 
-            subsystem_figure = f'<img src = \"report_images/{genome.get_id()}_Superclass_Distribution.svg\"'
+            with open(subsystem_figure_path,'r') as sfp: 
+                subsystem_figure = sfp.read()
+            #subsystem_figure = f'<img src = \"report_images/{genome.get_id()}_Superclass_Distribution.svg\"'
             return subsystem_figure
         else:
             return '<p>Error: no subsystem figure found</p>'
@@ -94,10 +93,9 @@ class ReportManager:
     def get_pathway_figure(self, genome):
         pathway_figure_path = genome.get_genome_data('pathway_figure') 
         if pathway_figure_path and os.path.exists(pathway_figure_path):
-            #with open(pathway_figure_path,'r') as sfp: 
-            #    pathway_figure = sfp.read()
-            #return 
-            pathway_figure = f'<img src = \"report_images/{genome.get_id()}_Pathway_Distribution.svg\"'
+            with open(pathway_figure_path,'r') as pfp: 
+                pathway_figure = pfp.read()
+            #pathway_figure = f'<img src = \"report_images/{genome.get_id()}_Pathway_Distribution.svg\"'
             return pathway_figure
         else:
             return '<p>Error: no pathway figure found</p>'
