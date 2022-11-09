@@ -44,10 +44,20 @@ class ReportManager:
 
         # TODO: Link to multiqc report for basic sample summary statistics
         # - how to make link aware of other file while in workspace?
+        report_lines.append('<section>\n<h2>MultiQC Report Link</h2>\n')
+        # TODO
+        report_lines.append('</section>')
 
         # Sample IDs and their conditions that have issues
+        report_lines.append('<section>\n<h2>Sample Summary Table</h2>\n')
+        report_sample_table = self.create_sample_table(experiment_dict)
+        report_lines.append(report_sample_table)
+        report_lines.append('</section>')
 
         # Any figures in report_images
+
+        # differential expression section if turned on
+        #if diffexp_flag:
 
         report_lines.append('</body>')
         report_lines.append('</html>')
@@ -57,10 +67,24 @@ class ReportManager:
             o.write(report_html)
 
     def create_summary(self, report_stats, genome):
-        summary_str = f"The BV-BRC RNASeq service was run using the {report_stats['recipe']} pipeline with {report_stats['num_samples']} samples and {report_stats['num_conditions']}." 
+        summary_str = f"The BV-BRC RNASeq service was run using the {report_stats['recipe']} pipeline with {report_stats['num_samples']} samples and {report_stats['num_conditions']} conditions." 
         summary_str += f"The reference genome used was {genome.get_genome_name()}({genome.get_id()})."
         return summary_str
-        
+    
+    def create_sample_table(self,experiment_dict): 
+        table_list = []
+        table_list.append("<table class=\"sm-table kv-table center\">")
+        table_list.append("<thead class=\"table-header\">")
+        table_list.append("<tr>\n<th colspan=\"4\">\n<table-num>Table 1.</table-num>Sample Details\n</th>\n</tr>\n</thead>")
+        table_list.append("<tbody>")
+        table_list.append("<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Quality</td>\n<td>Alignment</td>\n</tr>")
+        for condition in experiment_dict:
+            for sample in experiment_dict[condition]:
+                new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>QUALITY</td>\n<td>ALIGNMENT</td>"
+                table_list.append(new_line)
+        table_list.append("</tbody>")
+        table_list.append('</table>')
+        return '\n'.join(table_list)
 
     def create_html_header(self,genome_name):
         header = "<!DOCTYPE html><html><head>\n"
