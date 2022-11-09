@@ -60,6 +60,9 @@ counts.mtx$keep_rows[keep.idx] <- TRUE
 counts.mtx <- subset(counts.mtx,keep_rows == TRUE)
 print(head(counts.mtx))
 counts.mtx <- counts.mtx[,-c(ncol(counts.mtx))]
+if (class(counts.mtx) != 'data.frame') {
+    print('here')
+}
 print(head(counts.mtx))
 
 #Testing: min and max values
