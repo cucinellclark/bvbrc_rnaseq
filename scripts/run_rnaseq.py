@@ -239,7 +239,12 @@ if __name__ == "__main__":
 
     # Setup session
     s = requests.Session()
-    authenticateByEnv(s)
+    try:
+        authenticateByEnv(s)
+        print('authentication success')
+    except Exception as e:
+        sys.stderr.write('Error during authentication, exiting:\n{0}'.format(e))
+        sys.exit(0)
 
     # load genome ids
     genome_list = []
