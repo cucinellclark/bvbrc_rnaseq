@@ -349,9 +349,8 @@ class Quantify:
         sample.add_command("htseq"+"_"+self.genome.get_id(),cmd,"running")
         print('Running command:\n{0}\n'.format(' '.join(cmd)))
         try:
-            #TODO: ENABLE
-            #with open(output_file,'w') as o:
-            #    subprocess.check_call(cmd,stdout=o)
+            with open(output_file,'w') as o:
+                subprocess.check_call(cmd,stdout=o)
             sample.set_command_status("htseq"+"_"+self.genome.get_id(),"finished")
             sample.add_sample_data(self.genome.get_id()+"_gene_counts",output_file)
         except Exception as e:
@@ -678,9 +677,8 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(align_cmd))) 
         try:
             # capture stdout for stats later
-            #TODO: ENABLE
-            #with open(align_output_file,'w') as o:
-            #    subprocess.check_call(align_cmd,stderr=o)
+            with open(align_output_file,'w') as o:
+                subprocess.check_call(align_cmd,stderr=o)
             # print captured stdout
             with open(align_output_file,'r') as aof:
                 print(aof.read())
@@ -709,9 +707,8 @@ class Alignment:
         sample.add_command("samtools_stats_"+self.genome.get_id(),stats_cmd,"running")
         print("Running command:\n{0}".format(" ".join(stats_cmd)))
         try:
-            #TODO: ENABLE
-            #with open(stats_output,"w") as so:
-            #    subprocess.check_call(stats_cmd,stdout=so)
+            with open(stats_output,"w") as so:
+                subprocess.check_call(stats_cmd,stdout=so)
             sample.set_command_status("samtools_stats_"+self.genome.get_id(),"finished")
         except Exception as e:
             sys.stderr.write("Samtools stats encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
@@ -724,8 +721,7 @@ class Alignment:
         sample.add_command("samstat_"+self.genome.get_id(),samstat_cmd,"running")
         print("Running command:\n{0}".format(" ".join(samstat_cmd)))
         try:
-            # TODO: ENABLE
-            #subprocess.check_call(samstat_cmd)
+            subprocess.check_call(samstat_cmd)
             sample.set_command_status("samstat_"+self.genome.get_id(),"finished")
         except Exception as e:
             sys.stderr.write("Samstat encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
@@ -759,9 +755,8 @@ class Alignment:
             sample.add_command("sample"+str(readNum),sample_cmd,"running")
             print("Running command:\n{0}".format(" ".join(sample_cmd))) 
             try:
-                # TODO: ENABLE
-                #with open(sample_file,"w") as so:
-                #    subprocess.check_call(sample_cmd,stdout=so)
+                with open(sample_file,"w") as so:
+                    subprocess.check_call(sample_cmd,stdout=so)
                 sample.set_command_status("sample"+str(readNum),"finished")
             except Exception as e:
                 sys.stderr.write("Sampling encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))   
@@ -785,8 +780,7 @@ class Alignment:
         sample.add_command("sample_align",sample_align_cmd,"running") 
         print("Running command:\n{0}".format(" ".join(sample_align_cmd))) 
         try:
-            # TODO: ENABLE
-            #subprocess.check_call(sample_align_cmd)
+            subprocess.check_call(sample_align_cmd)
             sample.set_command_status("sample_align","finished")
         except Exception as e:
             sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
@@ -817,10 +811,8 @@ class Alignment:
         print("bam_file = {0}".format(bam_file))
         sam_to_bam_cmd = "samtools view -Su " + sam_file + " | samtools sort -o - - -@ " + str(threads) + " > " + bam_file
         print("Running command:\n{0}".format(sam_to_bam_cmd))
-        # TODO: ENABLE
         try:
-            #subprocess.check_call(sam_to_bam_cmd,shell=True)
-            print('skip samtools')
+            subprocess.check_call(sam_to_bam_cmd,shell=True)
         except Exception as e:
             sys.stderr.write("Error in converting sam to bam file:\n{0}\n".format(e))
             return None
@@ -1020,8 +1012,7 @@ class Preprocess:
         sample.add_command("fastqc",fastqc_cmd,"running")  
         print("Running command:\n {0}".format(" ".join(fastqc_cmd))) 
         try:
-            # TODO: ENABLE
-            #subprocess.check_call(fastqc_cmd)
+            subprocess.check_call(fastqc_cmd)
             sample.set_command_status("fastqc","finished")
         except Exception as e:
             sys.stderr.write("FastQC encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))   
