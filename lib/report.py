@@ -55,6 +55,15 @@ class ReportManager:
         report_lines.append('</section>')
 
         # Any figures in report_images
+        if genome.get_genome_type() == 'bacteria':
+            report_lines.append('<section>\n<h2>Subsystems Disrtribution</h2>\n')
+            report_subsystems = self.get_subsystem_figure(genome)
+            report_lines.append(report_subsystems)
+            report_lines.append('</section>')
+            report_lines.append('<section>\n<h2>Pathways Disrtribution</h2>\n')
+            report_pathways = self.get_pathway_figure(genome)
+            report_lines.append(report_pathways)
+            report_lines.append('</section>')
 
         # differential expression section if turned on
         #if diffexp_flag:
@@ -70,6 +79,26 @@ class ReportManager:
         summary_str = f"The BV-BRC RNASeq service was run using the {report_stats['recipe']} pipeline with {report_stats['num_samples']} samples and {report_stats['num_conditions']} conditions." 
         summary_str += f"The reference genome used was {genome.get_genome_name()}({genome.get_id()})."
         return summary_str
+
+    def get_subsystem_figure(self, genome):
+        subsystem_figure_path = genome.get_genome_data('superclass_figure') 
+        if subsystem_figure_path and os.path.exists(subsystem_figure_path):
+            #with open(subsystem_figure_path,'r') as sfp: 
+            #    subsystem_figure = sfp.read()
+            #return 
+            subsystem_figure = f'<img src = \"report_images/{genome.get_id()}_Superclass_Distribution.svg\"'
+        else:
+            return '<p>Error: no subsystem figure found</p>'
+
+    def get_pathway_figure(self, genome):
+        pathway_figure_path = genome.get_genome_data('pathway_figure') 
+        if pathway_figure_path and os.path.exists(pathway_figure_path):
+            #with open(pathway_figure_path,'r') as sfp: 
+            #    pathway_figure = sfp.read()
+            #return 
+            pathway_figure = f'<img src = \"report_images/{genome.get_id()}_Pathway_Distribution.svg\"'
+        else:
+            return '<p>Error: no pathway figure found</p>'
     
     def create_sample_table(self,experiment_dict): 
         table_list = []
@@ -78,6 +107,8 @@ class ReportManager:
         table_list.append("<tr>\n<th colspan=\"4\">\n<table-num>Table 1.</table-num>Sample Details\n</th>\n</tr>\n</thead>")
         table_list.append("<tbody>")
         table_list.append("<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Quality</td>\n<td>Alignment</td>\n</tr>")
+        # TODO: add quality and alignment stats
+        # TODO: store stats in sample objects
         for condition in experiment_dict:
             for sample in experiment_dict[condition].get_sample_list():
                 new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>QUALITY</td>\n<td>ALIGNMENT</td>"
