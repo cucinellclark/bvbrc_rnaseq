@@ -95,16 +95,16 @@ plot_list = vector("list",length(systems)+1)
 print('here')
 for (i in 1:length(systems)) {
     curr.system = systems[i] 
-    print('h1')
     curr.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1],] 
-    print('h2')
     # fix one sample issue
     if ((class(curr.mtx) != 'data.frame')&(ncol(counts.mtx) == 1)) {
         curr.mtx <- data.frame(VALS=curr.mtx)
         rownames(curr.mtx) <- mtx.genes[keep.idx]
         colnames(curr.mtx) <- c(metadata$Sample[1])
     }
+    print('h1')
     curr.mtx = data.frame(curr.mtx)
+    print('h2')
     curr.mtx$Genes <- rownames(curr.mtx)
     melt.df = melt(curr.mtx,id.vars=c("Genes"),measure.vars=colnames(curr.mtx)[-c(length(colnames(curr.mtx)))]) 
     colnames(melt.df) <- c("Gene","Sample","Counts")
