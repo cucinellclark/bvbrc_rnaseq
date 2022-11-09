@@ -26,7 +26,7 @@ class ReportManager:
             sys.stderr.write('Error running multiqc:\n{0}'.format(e)) 
             return -1
 
-    def create_report(self, genome, output_dir, experiment_dict, report_stats, diffexp_flag):
+    def create_report(self, genome, output_dir, experiment_dict, report_stats, workspace_dir, diffexp_flag):
         report_lines = []
         genome_name = genome.get_genome_name() 
         report_html_header = self.create_html_header(genome_name)
@@ -44,23 +44,23 @@ class ReportManager:
 
         # TODO: Link to multiqc report for basic sample summary statistics
         # - how to make link aware of other file while in workspace?
-        report_lines.append('<section>\n<h2>MultiQC Report Link</h2>\n')
-        # TODO
+        report_lines.append('<section>\n<h2>MultiQC Report Link</h2>')
+        report_lines.append(self.create_multiqc_link(workspace_dir))
         report_lines.append('</section>')
 
         # Sample IDs and their conditions that have issues
-        report_lines.append('<section>\n<h2>Sample Summary Table</h2>\n')
+        report_lines.append('<section>\n<h2>Sample Summary Table</h2>')
         report_sample_table = self.create_sample_table(experiment_dict)
         report_lines.append(report_sample_table)
         report_lines.append('</section>')
 
         # Any figures in report_images
         if genome.get_genome_type() == 'bacteria':
-            report_lines.append('<section>\n<h2>Subsystems Disrtribution</h2>\n')
+            report_lines.append('<section>\n<h2>Subsystems Disrtribution</h2>')
             report_subsystems = self.get_subsystem_figure(genome)
             report_lines.append(report_subsystems)
             report_lines.append('</section>')
-            report_lines.append('<section>\n<h2>Pathways Disrtribution</h2>\n')
+            report_lines.append('<section>\n<h2>Pathways Disrtribution</h2>')
             report_pathways = self.get_pathway_figure(genome)
             report_lines.append(report_pathways)
             report_lines.append('</section>')
@@ -79,6 +79,14 @@ class ReportManager:
         summary_str = f"The BV-BRC RNASeq service was run using the {report_stats['recipe']} pipeline with {report_stats['num_samples']} samples and {report_stats['num_conditions']} conditions." 
         summary_str += f"The reference genome used was {genome.get_genome_name()}({genome.get_id()})."
         return summary_str
+
+    def create_mutliqc_link(self, workspace_path):
+        url_base = "https://www.bv-brc.org/workspace"
+        if workspace_path[-1] != '/':
+            workspace_path += '/'
+        url = url_base + workspace_path + 'multiqc_report.html'
+        link_text = f'<a href=\"{url}\">multiqc report link</a>'
+        return link_text 
 
     def get_subsystem_figure(self, genome):
         subsystem_figure_path = genome.get_genome_data('superclass_figure') 

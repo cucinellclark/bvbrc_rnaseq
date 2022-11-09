@@ -132,7 +132,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
         # get recipe
         report_stats['recipe'] = map_args.recipe 
         report_manager.run_multiqc(output_dir)
-        report_manager.create_report(genome, output_dir, experiment_dict, report_stats, diffexp_flag)
+        report_manager.create_report(genome, output_dir, experiment_dict, report_stats, map_args.workspace_dir, diffexp_flag)
 
     # TODO: Add command output and status 
     # TODO: Add file cleanup
@@ -417,6 +417,9 @@ if __name__ == "__main__":
         map_args.disable_reports = job_data['disable_reports']
     else:
         map_args.disable_reports = False
+
+    # workspace dir for links
+    map_args.workspace_dir = job_data['output_path']
 
     # If not cufflinks, run pipeline
     main(genome_list, experiment_dict, tool_params, output_dir, comparisons, s, map_args)
