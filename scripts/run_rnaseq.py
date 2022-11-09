@@ -98,7 +98,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
 
     # Queries: subsystems, kegg
     # output files are used in creating figures
-    if False:
+    if True:
         genome_data = process.GenomeData()
         for genome in genome_list:
             if genome.get_genome_type() == 'bacteria':
