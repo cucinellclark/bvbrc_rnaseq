@@ -78,7 +78,7 @@ max_val = max(counts.mtx)
 #Get all unique systems and conditions
 conditions = unique(metadata$Condition)
 systems = unique(system.map[,2])  
-
+print('here')
 #Calculate image width and height
 #num_columns <- ceiling(sqrt(length(systems)))
 num_columns <- 4 
