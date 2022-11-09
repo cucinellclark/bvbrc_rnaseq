@@ -59,7 +59,6 @@ mtx.genes <- rownames(counts.mtx)
 counts.mtx$keep_rows <- rep(FALSE,length.out=nrow(counts.mtx))
 counts.mtx$keep_rows[keep.idx] <- TRUE
 counts.mtx <- subset(counts.mtx,keep_rows == TRUE)
-print(head(counts.mtx))
 counts.mtx <- counts.mtx[,-c(ncol(counts.mtx))]
 # happens when using only one sample
 if (class(counts.mtx) != 'data.frame') {
@@ -67,7 +66,6 @@ if (class(counts.mtx) != 'data.frame') {
     rownames(counts.mtx) <- mtx.genes[keep.idx]
     colnames(counts.mtx) <- c(metadata$Sample[1])
 }
-print(head(counts.mtx))
 
 #Testing: min and max values
 #log_min = log(min(counts.mtx)+1)
@@ -92,7 +90,6 @@ svg_height = num_rows + 5
 #create each plot and ad dit to a list of plots: do not render at this step: occurs when calling svglite() and do.call()
 legend <- NULL 
 plot_list = vector("list",length(systems)+1)
-print('here')
 for (i in 1:length(systems)) {
     curr.system = systems[i] 
     system.idx <- which(rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1])
@@ -124,7 +121,6 @@ for (i in 1:length(systems)) {
     plot_list[[i]] <- vln_plot
 }
 plot_list[[length(systems)+1]] <- legend
-print('here2')
 
 ###Output PNG image
 #vln_png = paste(output.file,"_Pathway_Distribution_mqc.png",sep="")
