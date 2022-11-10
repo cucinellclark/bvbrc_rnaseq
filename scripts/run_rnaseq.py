@@ -410,7 +410,10 @@ if __name__ == "__main__":
     map_args.recipe = job_data['recipe'] 
 
     # set trimming in map_args
-    map_args.trimming = job_data['trimming']
+    if 'trimming' in job_data:
+        map_args.trimming = job_data['trimming']
+    else:
+        map_args.trimming = True
 
     # set report variable
     if 'disable_reports' in job_data:
