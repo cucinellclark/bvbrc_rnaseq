@@ -50,7 +50,7 @@ class ReportManager:
 
         # Sample IDs and their conditions that have issues
         report_lines.append('<section>\n<h2>Sample Summary Table</h2>')
-        report_sample_table = self.create_sample_table(experiment_dict)
+        report_sample_table = self.create_sample_table(experiment_dict,genome)
         report_lines.append(report_sample_table)
         report_lines.append('</section>')
 
@@ -77,7 +77,7 @@ class ReportManager:
 
     def create_summary(self, report_stats, genome):
         summary_str = f"The BV-BRC RNASeq service was run using the {report_stats['recipe']} pipeline with {report_stats['num_samples']} samples and {report_stats['num_conditions']} conditions." 
-        summary_str += f" The reference genome used was {genome.get_genome_name().replace('_','')} ({genome.get_id()})."
+        summary_str += f" The reference genome used was {genome.get_genome_name().replace('_',' ')} ({genome.get_id()})."
         return summary_str
 
     def create_multiqc_link(self, workspace_path):
@@ -109,7 +109,7 @@ class ReportManager:
         else:
             return '<p>Error: no pathway figure found</p>'
     
-    def create_sample_table(self,experiment_dict): 
+    def create_sample_table(self,experiment_dict,genome): 
         table_list = []
         table_list.append("<table class=\"sm-table kv-table center\">")
         table_list.append("<thead class=\"table-header\">")
@@ -126,6 +126,13 @@ class ReportManager:
                 condition_str = condition
             for sample in experiment_dict[condition].get_sample_list():
                 #new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>QUALITY</td>\n<td>ALIGNMENT</td>"
+                align_file = sample.get_sample_data(genome.get_id()+'_align_stats')
+                align_str = 'ALIGNMENT'
+                if os.path.exists(align_file):
+                    with open(align_file,'r') as af:
+                        align_text = af.readlines()
+                        print(align_text[-1])
+                        align_str = align_text[-1].split(' ')[0]
                 new_line = f"<tr>\n<td>{condition_str}</td>\n<td>{sample.get_id()}</td>\n<td>ALIGNMENT</td>"
                 table_list.append(new_line)
         table_list.append("</tbody>")
