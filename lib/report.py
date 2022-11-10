@@ -121,10 +121,12 @@ class ReportManager:
         # TODO: store stats in sample objects
         for condition in experiment_dict:
             if condition == 'no_condition':
-                condition = 'None'
+                condition_str = 'None'
+            else:
+                condition_str = condition
             for sample in experiment_dict[condition].get_sample_list():
                 #new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>QUALITY</td>\n<td>ALIGNMENT</td>"
-                new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>ALIGNMENT</td>"
+                new_line = f"<tr>\n<td>{condition_str}</td>\n<td>{sample.get_id()}</td>\n<td>ALIGNMENT</td>"
                 table_list.append(new_line)
         table_list.append("</tbody>")
         table_list.append('</table>')
