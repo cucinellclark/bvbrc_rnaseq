@@ -131,9 +131,8 @@ class ReportManager:
                 if os.path.exists(align_file):
                     with open(align_file,'r') as af:
                         align_text = af.readlines()
-                        print(align_text[-1])
                         align_str = align_text[-1].split(' ')[0]
-                new_line = f"<tr>\n<td>{condition_str}</td>\n<td>{sample.get_id()}</td>\n<td>ALIGNMENT</td>"
+                new_line = f"<tr>\n<td>{condition_str}</td>\n<td>{sample.get_id()}</td>\n<td>{align_str}</td>"
                 table_list.append(new_line)
         table_list.append("</tbody>")
         table_list.append('</table>')
