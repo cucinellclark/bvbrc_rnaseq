@@ -77,7 +77,7 @@ class ReportManager:
 
     def create_summary(self, report_stats, genome):
         summary_str = f"The BV-BRC RNASeq service was run using the {report_stats['recipe']} pipeline with {report_stats['num_samples']} samples and {report_stats['num_conditions']} conditions." 
-        summary_str += f"The reference genome used was {genome.get_genome_name()}({genome.get_id()})."
+        summary_str += f" The reference genome used was {genome.get_genome_name().replace('_','')} ({genome.get_id()})."
         return summary_str
 
     def create_multiqc_link(self, workspace_path):
@@ -115,12 +115,16 @@ class ReportManager:
         table_list.append("<thead class=\"table-header\">")
         table_list.append("<tr>\n<th colspan=\"4\">\n<table-num>Table 1.</table-num>Sample Details\n</th>\n</tr>\n</thead>")
         table_list.append("<tbody>")
-        table_list.append("<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Quality</td>\n<td>Alignment</td>\n</tr>")
+        #table_list.append("<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Quality</td>\n<td>Alignment</td>\n</tr>")
+        table_list.append("<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Alignment</td>\n</tr>")
         # TODO: add quality and alignment stats
         # TODO: store stats in sample objects
         for condition in experiment_dict:
+            if condition == 'no_condition':
+                condition = 'None'
             for sample in experiment_dict[condition].get_sample_list():
-                new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>QUALITY</td>\n<td>ALIGNMENT</td>"
+                #new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>QUALITY</td>\n<td>ALIGNMENT</td>"
+                new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>ALIGNMENT</td>"
                 table_list.append(new_line)
         table_list.append("</tbody>")
         table_list.append('</table>')
