@@ -256,22 +256,21 @@ if __name__ == "__main__":
         genome_key = os.path.basename(os.path.dirname(genome_dir))
     else:
         genome_key = os.path.basename(genome_dir)
-    for genome in genome_list:
-        if genome_key == genome.get_id():
-            print(os.listdir(genome_dir))
-            for f in os.listdir(genome_dir):
-                data_key = None
-                if f.endswith(".fna") or f.endswith(".fa") or f.endswith(".fasta"):
-                    data_key = "fasta"
-                elif f.endswith(".gff"): # TODO: other annotation types?
-                    data_key = "annotation"
-                elif f.endswith(".ht2.tar"):
-                    data_key = "hisat_index"
-                else:
-                    continue
-                # TODO: any file linking?
-                genome.set_genome_dir(genome_dir)
-                genome.add_genome_data(data_key,os.path.abspath(os.path.join(genome_dir,f)))
+    if genome_key == genome.get_id():
+        print(os.listdir(genome_dir))
+        for f in os.listdir(genome_dir):
+            data_key = None
+            if f.endswith(".fna") or f.endswith(".fa") or f.endswith(".fasta"):
+                data_key = "fasta"
+            elif f.endswith(".gff"): # TODO: other annotation types?
+                data_key = "annotation"
+            elif f.endswith(".ht2.tar"):
+                data_key = "hisat_index"
+            else:
+                continue
+            # TODO: any file linking?
+            genome.set_genome_dir(genome_dir)
+            genome.add_genome_data(data_key,os.path.abspath(os.path.join(genome_dir,f)))
 
     # sample_list = [] # maybe don't store this, access samples by condition like in original
     experiment_dict = {}
