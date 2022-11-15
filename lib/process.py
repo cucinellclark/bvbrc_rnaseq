@@ -430,8 +430,8 @@ class Quantify:
         with open(path_file,'w') as o:
             o.write(output_text)
         # run rnaseqPrepDE.py 
-        gene_matrix_file = os.path.join(output_dir,self.genome.get_id()+"_gene_counts.csv")
-        transcript_matrix_file = os.path.join(output_dir,self.genome.get_id()+"_transcript_counts.csv")
+        gene_matrix_file = os.path.join(output_dir,"gene_counts_matrix.csv")
+        transcript_matrix_file = os.path.join(output_dir,+"transcript_counts_matrix.csv")
         avg_read_length = str(int(np.average(avg_len_list))) 
         # TODO: set path or import or something
         prepde_cmd = ['rnaseqPrepDE','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
@@ -452,7 +452,7 @@ class Quantify:
                 genome_df = sample_df
             else:
                 genome_df = genome_df.join(sample_df)
-        output_file = os.path.join(output_dir,self.genome.get_id() + '_counts.tsv')
+        output_file = os.path.join(output_dir,'gene_counts_matrix.tsv')
         genome_df.to_csv(output_file,sep='\t')
         self.genome.add_genome_data(self.genome.get_id()+'_gene_counts',output_file)
         return output_file
@@ -553,7 +553,7 @@ class Quantify:
             else:
                 sys.stderr.write('{0} already exists: skipping stringtie'.format(gtf_output))
         # merge reconstructed transcriptomes
-        merge_file = os.path.join(self.genome.get_genome_dir(),self.genome.get_id()+'.merged.gtf')
+        merge_file = os.path.join(self.genome.get_genome_dir(),'merged.gtf')
         if not os.path.exists(merge_file) or True:
             merge_cmd = ['stringtie','--merge','-G',annotation_file,'-o',merge_file] + gtf_list
             try:

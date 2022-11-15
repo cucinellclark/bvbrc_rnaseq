@@ -83,7 +83,7 @@
                     "id": "condition",
                     "label": "Experimental condition index",
                     "required": 0,
-                    "default": 1,
+                    "default": '',
                     "type": "int"
                 }
             ]
@@ -115,7 +115,7 @@
                     "id": "condition",
                     "label": "Experimental condition index",
                     "required": 0,
-                    "default": 1,
+                    "default": '',
                     "type": "int"
                 }
             ]
@@ -146,14 +146,14 @@
                     "id": "condition",
                     "label": "Experimental condition index",
                     "required": 0,
-                    "default": 1,
+                    "default": '',
                     "type": "int"
                 }
             ]
         },
         {
             "id": "reference_genome_id",
-            "required": 0,
+            "required": 1,
             "default": null,
             "label": "Reference genome ID",
             "desc": "Reference genome ID",
@@ -161,7 +161,7 @@
         },
         {
             "id": "genome_type",
-            "required": 0,
+            "required": 1,
             "default": null,
             "label": "genome type: bacteria or host",
             "desc": "genome is type bacteria or host",
@@ -171,8 +171,8 @@
         {
             "id": "recipe",
             "label": "RNAseq recipe",
-            "required": 0,
-            "default": "RNA-Rocket",
+            "required": 1,
+            "default": "HTSeq-DESeq",
             "desc": "Recipe used for RNAseq analysis",
             "type": "enum",
             "enum": ["HTSeq-DESeq","cufflinks","Host"]
@@ -200,6 +200,14 @@
             "default":null,
             "desc":"Basename for the generated output files. Defaults to the basename of the input data.",
             "type":"wsid"
+        },
+       {
+            "id":"trimming",
+            "label":"Trimgalore",
+            "required":0,
+            "default": false,
+            "desc": "run trimgalore on the reads",
+            "type": "bool"
         },
        {
             "id":"unit_test",

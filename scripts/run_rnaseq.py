@@ -17,9 +17,10 @@ from bvbrc_api import authenticateByEnv
 # valid recipes
 valid_recipes = ['HTSeq-DESeq','cufflinks','Host']
 
-def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, session, map_args):
+def main(genome, experiment_dict, tool_params, output_dir, comparisons, session, map_args):
+
     # setup folder structure and genome databases
-    setup(output_dir, experiment_dict, genome_list)
+    setup(output_dir, experiment_dict, genome)
     diffexp_flag = comparisons.check_diffexp() 
     
     ### process data independently of genomes
@@ -36,42 +37,39 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
             for sample in experiment_dict[condition].get_sample_list():
                 preprocess.run_trimming(sample, 8)
 
-    ### Sampled align against one genome?
+    ### Sampled align against genome
     # TODO: replace threads with tool_params value
     # TODO: assess strandedness with one genome?
     alignment = process.Alignment()
-    for genome in genome_list:
-        alignment.set_genome(genome)
-        for condition in experiment_dict:
-            for sample in experiment_dict[condition].get_sample_list():
-                alignment.run_sample_alignment(sample, 8)
+    alignment.set_genome(genome)
+    for condition in experiment_dict:
+        for sample in experiment_dict[condition].get_sample_list():
+            alignment.run_sample_alignment(sample, 8)
 
-    ### Align against each genome
-    for genome in genome_list:
-        alignment.set_genome(genome) 
-        for condition in experiment_dict:
-            for sample in experiment_dict[condition].get_sample_list():
-                # TODO: error checking after alignment?
-                alignment.run_alignment(sample, 8)
-                alignment.run_alignment_stats(sample, 8)
+    ### Align against genome
+    alignment.set_genome(genome) 
+    for condition in experiment_dict:
+        for sample in experiment_dict[condition].get_sample_list():
+            # TODO: error checking after alignment?
+            alignment.run_alignment(sample, 8)
+            alignment.run_alignment_stats(sample, 8)
 
     # HTSeq(bacteria), Stringtie(host)
     # TODO: some sort of check to make sure everything finished
     # TODO: test host paired
     quantifier = process.Quantify()
-    for genome in genome_list:
-        quantifier.set_genome(genome)
-        quantifier.set_recipe(map_args.recipe)
-        sample_list = []
-        for condition in experiment_dict:
-            samples = experiment_dict[condition].get_sample_list()
-            sample_list = sample_list + samples 
-        print('sample_list = {0}'.format(sample_list))
-        condition_output_list = quantifier.run_quantification(sample_list,8)
-        genome_quant_file = quantifier.create_genome_counts_table(output_dir, sample_list)
-        genome.add_genome_data('counts_table', genome_quant_file)
-        # TODO: test host
-        genome_quant_file = quantifier.create_genome_quant_table(output_dir, sample_list)
+    quantifier.set_genome(genome)
+    quantifier.set_recipe(map_args.recipe)
+    sample_list = []
+    for condition in experiment_dict:
+        samples = experiment_dict[condition].get_sample_list()
+        sample_list = sample_list + samples 
+    print('sample_list = {0}'.format(sample_list))
+    condition_output_list = quantifier.run_quantification(sample_list,8)
+    genome_quant_file = quantifier.create_genome_counts_table(output_dir, sample_list)
+    genome.add_genome_data('counts_table', genome_quant_file)
+    # TODO: test host
+    genome_quant_file = quantifier.create_genome_quant_table(output_dir, sample_list)
 
     # sample_list used in function below
     sample_list = []
@@ -83,32 +81,28 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
     diff_exp = process.DifferentialExpression(comparisons) 
     diff_exp.set_recipe(map_args.recipe)
     meta_file = diff_exp.create_metadata_file(sample_list, output_dir)
-    for genome in genome_list:
-        genome.add_genome_data('sample_metadata_file',meta_file)
+    genome.add_genome_data('sample_metadata_file',meta_file)
     if diffexp_flag:
         diffexp_import = process.DiffExpImport()
         diffexp_import.set_recipe(map_args.recipe)
-        for genome in genome_list:
-            continue
-            diff_exp.set_genome(genome)
-            diff_exp.run_differential_expression(output_dir,sample_list)
-            if genome.get_genome_type() == 'bacteria':
-                diffexp_import.set_genome(genome)
-                diffexp_import.run_diff_exp_import(output_dir,map_args)
+        # TODO: enable and test when R library is fixed
+        '''
+        diff_exp.set_genome(genome)
+        diff_exp.run_differential_expression(output_dir,sample_list)
+        if genome.get_genome_type() == 'bacteria':
+            diffexp_import.set_genome(genome)
+            diffexp_import.run_diff_exp_import(output_dir,map_args)
+        '''
 
     # Queries: subsystems, kegg
     # output files are used in creating figures
     if True:
         genome_data = process.GenomeData()
-        for genome in genome_list:
-            if genome.get_genome_type() == 'bacteria':
-                genome_data.set_genome(genome)
-                genome_data.run_queries(output_dir,session)
-                genome_data.create_system_figures(output_dir)
+        if genome.get_genome_type() == 'bacteria':
+            genome_data.set_genome(genome)
+            genome_data.run_queries(output_dir,session)
+            genome_data.create_system_figures(output_dir)
     
-    # TODO: for now assuming one genome for statistics and report
-    genome = genome_list[0] 
-
     # TODO: finish up colleting sample statistics and generate report
     # Get statistics for samples
     # using sample_list created in differential expression section
@@ -141,7 +135,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
 # sets up initial condition, sample, genome folder structure
 # folder stucture is: output_dir/condition/sample/genome
 # TODO: diffexp object folder
-def setup(output_dir, experiment_dict, genome_list):
+def setup(output_dir, experiment_dict, genome):
     # create output directory
     if not os.path.exists(output_dir):
         print("Creating output directory: {0}".format(output_dir))
@@ -159,11 +153,9 @@ def setup(output_dir, experiment_dict, genome_list):
             sample_path = os.path.abspath(os.path.join(experiment_dict[condition].get_path(),sample.get_id()))
             sample.set_path(sample_path)
             subfolder_list.append(sample.get_path())
-            for genome in genome_list:
-                # TODO: if only 1 genome, don't create subfolders?
-                genome_path = os.path.join(sample.get_path(),genome.get_id()) 
-                genome.create_path_entry(sample.get_id(),genome_path) 
-                subfolder_list.append(genome.get_sample_path(sample.get_id()))
+            genome_path = sample.get_path() 
+            genome.create_path_entry(sample.get_id(),genome_path) 
+            subfolder_list.append(genome.get_sample_path(sample.get_id()))
 
     # create subfolders
     print("Creating {0} subfolders:".format(len(subfolder_list)))
@@ -178,9 +170,7 @@ def setup(output_dir, experiment_dict, genome_list):
     report_img_folder = os.path.join(output_dir,'report_images/')
     if not os.path.exists(report_img_folder):
         os.mkdir(report_img_folder)
-    # TODO: assuming 1 genome
-    for genome in genome_list:
-        genome.add_genome_data('report_img_path',report_img_folder)
+    genome.add_genome_data('report_img_path',report_img_folder)
 
     # TODO: genome_data checking, delete genome if not enough data??? Throw errors???
     # setup genome index objects
@@ -200,8 +190,7 @@ def setup(output_dir, experiment_dict, genome_list):
             print("{0} already exists".format(genome_data_dir))
         genome.setup_genome_database(genome_data_dir) 
     '''
-    for genome in genome_list:
-        genome.setup_genome_database()
+    genome.setup_genome_database()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -261,38 +250,36 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # load genome ids
-    genome_list = []
+    # genome_list = []
     #for i in range(0,len(job_data["reference_genome_id"])):
         #genome_list.append(experiment.Genome(job_data["reference_genome_id"][i],job_data["genome_type"][i],s))
-    genome_list.append(experiment.Genome(job_data["reference_genome_id"],job_data["genome_type"],s))
+    # genome_list.append(experiment.Genome(job_data["reference_genome_id"],job_data["genome_type"],s))
+    genome = experiment.Genome(job_data["reference_genome_id"],job_data["genome_type"],s)
 
     # DOWNLOAD GENOME DATA: remove from perl side
 
     # Load genome data
-    # Note: not making the assumption the genome directories supplied will be in the same order
-    #       as the genomes in reference_genome_id
-    genome_dir_list = map_args.g.strip().split(',')
-    for genome_dir in genome_dir_list:
-        if genome_dir.endswith("/"):
-            genome_key = os.path.basename(os.path.dirname(genome_dir))
-        else:
-            genome_key = os.path.basename(genome_dir)
-        for genome in genome_list:
-            if genome_key == genome.get_id():
-                print(os.listdir(genome_dir))
-                for f in os.listdir(genome_dir):
-                    data_key = None
-                    if f.endswith(".fna") or f.endswith(".fa") or f.endswith(".fasta"):
-                        data_key = "fasta"
-                    elif f.endswith(".gff"): # TODO: other annotation types?
-                        data_key = "annotation"
-                    elif f.endswith(".ht2.tar"):
-                        data_key = "hisat_index"
-                    else:
-                        continue
-                    # TODO: any file linking?
-                    genome.set_genome_dir(genome_dir)
-                    genome.add_genome_data(data_key,os.path.abspath(os.path.join(genome_dir,f)))
+    genome_dir = map_args.g.strip()
+    if genome_dir.endswith("/"):
+        genome_key = os.path.basename(os.path.dirname(genome_dir))
+    else:
+        genome_key = os.path.basename(genome_dir)
+    for genome in genome_list:
+        if genome_key == genome.get_id():
+            print(os.listdir(genome_dir))
+            for f in os.listdir(genome_dir):
+                data_key = None
+                if f.endswith(".fna") or f.endswith(".fa") or f.endswith(".fasta"):
+                    data_key = "fasta"
+                elif f.endswith(".gff"): # TODO: other annotation types?
+                    data_key = "annotation"
+                elif f.endswith(".ht2.tar"):
+                    data_key = "hisat_index"
+                else:
+                    continue
+                # TODO: any file linking?
+                genome.set_genome_dir(genome_dir)
+                genome.add_genome_data(data_key,os.path.abspath(os.path.join(genome_dir,f)))
 
     # sample_list = [] # maybe don't store this, access samples by condition like in original
     experiment_dict = {}
@@ -425,4 +412,4 @@ if __name__ == "__main__":
     map_args.workspace_dir = job_data['output_path']
 
     # If not cufflinks, run pipeline
-    main(genome_list, experiment_dict, tool_params, output_dir, comparisons, s, map_args)
+    main(genome, experiment_dict, tool_params, output_dir, comparisons, s, map_args)
