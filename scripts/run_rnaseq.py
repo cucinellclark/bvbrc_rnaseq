@@ -38,7 +38,6 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
                 preprocess.run_trimming(sample, 8)
 
     ### Sampled align against genome
-    # TODO: replace threads with tool_params value
     # TODO: assess strandedness with one genome?
     alignment = process.Alignment()
     alignment.set_genome(genome)
@@ -103,13 +102,6 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
             genome_data.run_queries(output_dir,session)
             genome_data.create_system_figures(output_dir)
     
-    # TODO: finish up colleting sample statistics and generate report
-    # Get statistics for samples
-    # using sample_list created in differential expression section
-    # stats = process_statistics.Statistics()
-    # stats.add_samples(sample_list) 
-    # stats.get_sample_statistics(genome, output_dir, diffexp_flag)
-
     # call multiqc without any adjustments
     if not map_args.disable_reports:
         report_manager = report.ReportManager()
