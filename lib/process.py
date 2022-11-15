@@ -431,7 +431,7 @@ class Quantify:
             o.write(output_text)
         # run rnaseqPrepDE.py 
         gene_matrix_file = os.path.join(output_dir,"gene_counts_matrix.csv")
-        transcript_matrix_file = os.path.join(output_dir,+"transcript_counts_matrix.csv")
+        transcript_matrix_file = os.path.join(output_dir,"transcript_counts_matrix.csv")
         avg_read_length = str(int(np.average(avg_len_list))) 
         # TODO: set path or import or something
         prepde_cmd = ['rnaseqPrepDE','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
