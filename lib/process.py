@@ -503,7 +503,7 @@ class Quantify:
                 genome_df = genome_df.merge(sample_df,how='outer',on='Gene_Id')
         genome_df = genome_df.fillna(0)
         genome_df.set_index('Gene_Id',inplace=True)
-        output_file = os.path.join(output_dir,self.genome.get_id()+"_tpm_counts.tsv")
+        output_file = os.path.join(output_dir,"tpm_counts_matrix.tsv")
         genome_df.to_csv(output_file,sep='\t')
         self.genome.add_genome_data('tpm',output_file)
 
@@ -520,7 +520,7 @@ class Quantify:
                 genome_df = genome_df.merge(sample_df,how='outer',on='Gene_Id')
             genome_df = genome_df.fillna(0)
             genome_df.set_index('Gene_Id', inplace=True)
-            output_file = os.path.join(output_dir,self.genome.get_id()+"_tpm_counts.tsv")
+            output_file = os.path.join(output_dir,"tpm_counts_matrix.tsv")
             genome_df.to_csv(output_file,sep='\t')
             self.genome.add_genome_data('tpm',output_file)
 
