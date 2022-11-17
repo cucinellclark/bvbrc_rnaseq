@@ -109,8 +109,9 @@ sub process_rnaseq {
     my $recipe = $params->{recipe};
     
     # my $tmpdir = File::Temp->newdir();
-    my $tmpdir = File::Temp->newdir( CLEANUP => 1 );
-    # my $tmpdir = File::Temp->newdir( CLEANUP => 0 );
+    # TODO: SWITCH THIS TODO TODO TODO
+    # my $tmpdir = File::Temp->newdir( CLEANUP => 1 );
+     my $tmpdir = File::Temp->newdir( CLEANUP => 0 );
     # my $tmpdir = "/tmp/RNApubref";
     # my $tmpdir = "/tmp/RNAuser";
     system("chmod", "755", "$tmpdir");
