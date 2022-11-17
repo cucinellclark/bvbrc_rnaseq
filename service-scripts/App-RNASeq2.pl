@@ -236,7 +236,7 @@ sub run_bvbrc_rnaseq {
     my $pstring = encode_json($override);
     my $sstring = encode_json($dat);
     
-    my $outdir = "$tmpdir";
+    my $outdir = "$tmpdir/rnaseq";
     
     my $exps     = params_to_exps($params);
     my $labels   = $params->{experimental_conditions};
