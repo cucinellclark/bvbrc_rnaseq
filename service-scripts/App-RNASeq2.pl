@@ -244,6 +244,8 @@ sub run_bvbrc_rnaseq {
     my $output_name = $params->{output_file} or die "Output name is required\n";
     my $host_ftp = defined($params->{host_ftp}) ? $params->{host_ftp} : undef;
     my $diffexp_name = "." . defined($params->{diffexp_name}) ? $params->{diffexp_name} : 'diff_exp';
+    print 'here\n';
+    print $diffexp_name . '\n';
     my $diffexp_folder = "$outdir/$diffexp_name";
     my $diffexp_file = "$outdir/$diffexp_name";
     my $ref_dir  = prepare_ref_data_rocket($ref_id, $tmpdir, $host, $host_ftp);
