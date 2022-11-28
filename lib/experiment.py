@@ -37,8 +37,13 @@ class Genome:
             prepared = req.prepare() 
             response = session.send(prepared)
             #res['response']['docs'][0]['common_name']
-            response_data = json.load(io.StringIO(response.text))['response']['docs'][0]
-            self.genome_name = response_data['common_name']
+            response_json = json.load(io.StringIO(response.text))
+            if 'response' in response_json:
+                response_data = response_json['response']['docs'][0]
+                self.genome_name = response_data['common_name']
+            else:
+                import pdb
+                pdb.set_trace()
         else:
             self.genome_name = self.genome_id
 
