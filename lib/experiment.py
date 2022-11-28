@@ -42,8 +42,7 @@ class Genome:
                 response_data = response_json['response']['docs'][0]
                 self.genome_name = response_data['common_name']
             else:
-                import pdb
-                pdb.set_trace()
+                self.genome_name = self.genome_id
         else:
             self.genome_name = self.genome_id
 
