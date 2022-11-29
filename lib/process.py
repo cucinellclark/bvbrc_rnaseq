@@ -763,7 +763,7 @@ class Alignment:
             print("Running command:\n{0}".format(" ".join(sample_cmd))) 
             try:
                 # TODO: ENABLE
-                #with open(sample_file,"w") as so:
+                with open(sample_file,"w") as so:
                     subprocess.check_call(sample_cmd,stdout=so)
                 sample.set_command_status("sample"+str(readNum),"finished")
             except Exception as e:
