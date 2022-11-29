@@ -763,8 +763,8 @@ class Alignment:
             print("Running command:\n{0}".format(" ".join(sample_cmd))) 
             try:
                 # TODO: ENABLE
-                with open(sample_file,"w") as so:
-                    subprocess.check_call(sample_cmd,stdout=so)
+                #with open(sample_file,"w") as so:
+                #    subprocess.check_call(sample_cmd,stdout=so)
                 sample.set_command_status("sample"+str(readNum),"finished")
             except Exception as e:
                 sys.stderr.write("Sampling encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))   
@@ -789,7 +789,7 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(sample_align_cmd))) 
         try:
             # TODO: ENABLE
-            subprocess.check_call(sample_align_cmd)
+            #subprocess.check_call(sample_align_cmd)
             sample.set_command_status("sample_align","finished")
         except Exception as e:
             sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
@@ -803,8 +803,8 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(infer_cmd)))
         try:
             # TODO: ENABLE
-            with open(infer_file,"w") as o:
-                subprocess.check_call(infer_cmd,stdout=o) 
+            #with open(infer_file,"w") as o:
+            #    subprocess.check_call(infer_cmd,stdout=o) 
             sample.set_command_status("infer_strand","finished")
             sample.add_sample_data("infer_strand_file",infer_file)
         except Exception as e:
@@ -1027,7 +1027,7 @@ class Preprocess:
         print("Running command:\n {0}".format(" ".join(fastqc_cmd))) 
         try:
             # TODO: ENABLE
-            subprocess.check_call(fastqc_cmd)
+            #subprocess.check_call(fastqc_cmd)
             sample.set_command_status("fastqc","finished")
         except Exception as e:
             sys.stderr.write("FastQC encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))   
@@ -1053,7 +1053,7 @@ class Preprocess:
         print("Running command:\n{0}".format(" ".join(trim_cmd)))
         try:
             # TODO: ENABLE
-            subprocess.check_call(trim_cmd)
+            #subprocess.check_call(trim_cmd)
             sample.set_command_status("trim","finished")
             sample.set_reads_list(trimmed_reads)
             for cutadapt_file in glob.glob('./*cutadapt.log'):
