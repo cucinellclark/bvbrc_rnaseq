@@ -764,7 +764,7 @@ class Alignment:
             try:
                 # TODO: ENABLE
                 #with open(sample_file,"w") as so:
-                #    subprocess.check_call(sample_cmd,stdout=so)
+                    subprocess.check_call(sample_cmd,stdout=so)
                 sample.set_command_status("sample"+str(readNum),"finished")
             except Exception as e:
                 sys.stderr.write("Sampling encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))   
@@ -789,7 +789,7 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(sample_align_cmd))) 
         try:
             # TODO: ENABLE
-            #subprocess.check_call(sample_align_cmd)
+            subprocess.check_call(sample_align_cmd)
             sample.set_command_status("sample_align","finished")
         except Exception as e:
             sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
