@@ -803,8 +803,8 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(infer_cmd)))
         try:
             # TODO: ENABLE
-            #with open(infer_file,"w") as o:
-            #    subprocess.check_call(infer_cmd,stdout=o) 
+            with open(infer_file,"w") as o:
+                subprocess.check_call(infer_cmd,stdout=o) 
             sample.set_command_status("infer_strand","finished")
             sample.add_sample_data("infer_strand_file",infer_file)
         except Exception as e:
