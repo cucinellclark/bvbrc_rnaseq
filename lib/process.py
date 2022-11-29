@@ -1043,11 +1043,11 @@ class Preprocess:
         trimmed_reads = []
         trim_cmd = ["trim_galore","--output_dir",sample_dir,"--cores",str(threads)]
         if sample.get_type() == "paired":
-            trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split(".")[0]+"_val_1.fq"))
-            trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[1]).split(".")[0]+"_val_2.fq"))
+            trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split(".")[0]+"_val_1.fq.gz"))
+            trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[1]).split(".")[0]+"_val_2.fq.gz"))
             trim_cmd += ["--paired"]
         if sample.get_type() == "single":
-            trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq"))
+            trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq.gz"))
         trim_cmd += reads
         sample.add_command("trim",trim_cmd,"running")
         print("Running command:\n{0}".format(" ".join(trim_cmd)))
