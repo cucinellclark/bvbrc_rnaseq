@@ -83,8 +83,8 @@ class DifferentialExpression:
         meta_file = self.genome.get_genome_data('sample_metadata_file')
 
         deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,os.path.join(output_dir,output_prefix),self.genome.get_genome_data('report_img_path'),genome_type]
-        vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix + 'volcano_plot.svg')
-        ev_cmd = ['rnaseq_volcano_plots',vp_figure]
+        vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.svg')
+        ev_cmd = ['rnaseq_volcano_plots',os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix)]
         contrast_file_list = []
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
