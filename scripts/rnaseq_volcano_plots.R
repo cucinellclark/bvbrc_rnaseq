@@ -16,9 +16,9 @@ library(svglite)
 output_prefix = args[1]
 output_name = paste(output_prefix,'_volcano_plot.svg',sep='')
 arg_pairs = args[2:length(args)]
-plot_list = vector("list",length(deseq_files))
 plot_index <- 0
 deseq_files <- arg_pairs[c(TRUE,FALSE)]
+plot_list = vector("list",length(deseq_files))
 print(deseq_files)
 contrast_names <- arg_pairs[c(FALSE,TRUE)]
 print(contrast_names)
