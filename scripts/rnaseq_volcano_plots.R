@@ -30,7 +30,7 @@ for (diffexp_file in deseq_files) {
         plot_index <- plot_index + 1
         curr.data <- read.table(diffexp_file,sep='\t',header=T)
         contrast_title <- contrast_names[curr_index]
-        ev_img <- EnhancedVolcano(curr.data,lab=rownames(curr.data),x='log2FoldChange',y='padj',subtitle="",title=contrast_title,legendPosition="top",titleLabSize=14) 
+        ev_img <- EnhancedVolcano(curr.data,lab=curr.data$Gene_Name,x='log2FoldChange',y='padj',subtitle="",title=contrast_title,legendPosition="top",titleLabSize=14) 
         plot_list[[plot_index]] <- ev_img
     }
 }
