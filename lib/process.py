@@ -89,7 +89,7 @@ class DifferentialExpression:
             deseq_cmd = deseq_cmd + [contrast]
             cond1 = contrast.split(':')[0]
             cond2 = contrast.split(':')[1]
-            diffexp_file = output_prefix + cond1 + '_vs_' + cond2 + '.' + '.deseq2.tsv' 
+            diffexp_file = output_prefix + cond1 + '_vs_' + cond2 + '.deseq2.tsv' 
             ev_cmd = ev_cmd + [diffexp_file,contrast.replace(':','_vs_')]
             contrast_file_list.append(diffexp_file)
         try:
