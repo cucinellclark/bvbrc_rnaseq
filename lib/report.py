@@ -56,11 +56,11 @@ class ReportManager:
 
         # Any figures in report_images
         if genome.get_genome_type() == 'bacteria':
-            report_lines.append('<section>\n<h2>Subsystems Disrtribution</h2>')
+            report_lines.append('<section>\n<h2>Subsystems Distribution</h2>')
             report_subsystems = self.get_subsystem_figure(genome)
             report_lines.append(report_subsystems)
             report_lines.append('</section>')
-            report_lines.append('<section>\n<h2>Pathways Disrtribution</h2>')
+            report_lines.append('<section>\n<h2>Pathways Distribution</h2>')
             report_pathways = self.get_pathway_figure(genome)
             report_lines.append(report_pathways)
             report_lines.append('</section>')
