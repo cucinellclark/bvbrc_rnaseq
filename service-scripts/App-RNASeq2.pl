@@ -9,6 +9,7 @@ use File::Temp;
 use File::Slurp;
 use File::Basename;
 use IPC::Run 'run';
+use File::Path 'rmtree';
 use JSON;
 use Bio::KBase::AppService::AppConfig;
 use Bio::KBase::AppService::AppScript;
@@ -196,6 +197,12 @@ sub process_rnaseq {
     }
     my $time2 = `date`;
     my $outdir = "$tmpdir";
+    
+    # TODO test: Remove genome directory
+    my $ref_id   = $params->{reference_genome_id};
+    my $ref_dir  = "$tmpdir/$ref_id"
+    rmtree([ "$ref_dir" ]);
+
     save_output_files($app,$outdir);
     write_output("Start: $time1"."End:   $time2", "$tmpdir/DONE");
 
@@ -289,8 +296,6 @@ sub run_bvbrc_rnaseq {
     #    my ($rc, $out, $err) = run_cmd(\@cmd);
     #    print STDERR "STDOUT:\n$out\n";
     #    print STDERR "STDERR:\n$err\n";
-    
-    
     
     run("echo $outdir && ls -ltr $outdir");
     
@@ -803,6 +808,7 @@ sub verify_cmd {
     system("which $cmd >/dev/null") == 0 or die "Command not found: $cmd\n";
 }
 
+# TODO: figure out how to modify this function so it only saves the files I want it to
 sub save_output_files
 {
     my($app, $output) = @_;

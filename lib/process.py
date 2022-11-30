@@ -32,8 +32,8 @@ class DifferentialExpression:
 
     def run_differential_expression(self,output_dir,sample_list):
         if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host':
-            output_prefix = os.path.join(output_dir,self.genome.get_id()+"_")
-            return self.run_deseq2(output_prefix)
+            output_prefix = self.genome.get_id()+"_"
+            return self.run_deseq2(output_dir,output_prefix)
         elif self.recipe == 'cufflinks':
             return self.run_cuffdiff(output_dir,sample_list)
         else:
@@ -76,24 +76,31 @@ class DifferentialExpression:
         return meta_file
 
     # TODO: don't let colons exist in the condition names on UI
-    def run_deseq2(self,output_prefix): 
+    def run_deseq2(self,output_dir,output_prefix): 
         contrast_list = self.comparisons.get_contrast_list() 
         gene_counts = self.genome.get_genome_data(self.genome.get_id()+"_gene_counts")
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
-        
+
         deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_prefix,self.genome.get_genome_data('report_img_path'),genome_type]
+        ev_cmd = ['rnaseq_volcano_plots',output_prefix]
         contrast_file_list = []
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
             cond1 = contrast.split(':')[0]
             cond2 = contrast.split(':')[1]
-            diffexp_file = output_prefix + cond1 + '_vs_' + cond2 + '.' + genome_type + '.deseq2.tsv' 
+            diffexp_file = output_prefix + cond1 + '_vs_' + cond2 + '.' + '.deseq2.tsv' 
+            ev_cmd = ev_cmd + [diffexp_file,contrast.replace(':','_vs_')]
             contrast_file_list.append(diffexp_file)
         try:
             print('Running Command:\n{0}'.format(' '.join(deseq_cmd)))
             subprocess.check_call(deseq_cmd)
             self.genome.add_genome_data('contrast_file_list',contrast_file_list)
+            # invoke volcano plots script
+            # rnaseq_volcano_plots.R <output_prefix> <deseq2_file1> <contrast_name1> <deseq2_file2> <contrast_name2>...
+            subprocess.check_call(ev_cmd)
+            vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix + '_volcano_plot.svg')
+            self.genome.add_genome_data('volcano_plots',vp_figure)
         except Exception as e:
             sys.stderr.write('Error running run_deseq2:\n{0}'.format(e))
             return -1
@@ -103,6 +110,8 @@ class DifferentialExpression:
             print('implement')
             return
             transcript_counts = self.genome.get_genome_data(self.genome.get_id()+"_transcript_counts")
+
+        
 
     def create_gmx_file(init_args, output_file):
         output_handle=open(output_file, 'w')
@@ -307,7 +316,7 @@ class Quantify:
         print('Running command:\n{0}\n'.format(' '.join(cmd)))
         try:
             # TODO: ENABLE
-            subprocess.check_call(cmd)
+            #subprocess.check_call(cmd)
             sample.set_command_status("tpmcalc"+"_"+self.genome.get_id(),"finished")
             output_file = os.path.abspath(sample.get_id()+'_genes.out')
             if not os.path.exists(output_file):
@@ -353,8 +362,8 @@ class Quantify:
         print('Running command:\n{0}\n'.format(' '.join(cmd)))
         try:
             # TODO: ENABLE
-            with open(output_file,'w') as o:
-               subprocess.check_call(cmd,stdout=o)
+            #with open(output_file,'w') as o:
+            #   subprocess.check_call(cmd,stdout=o)
             sample.set_command_status("htseq"+"_"+self.genome.get_id(),"finished")
             sample.add_sample_data(self.genome.get_id()+"_gene_counts",output_file)
         except Exception as e:
@@ -682,8 +691,8 @@ class Alignment:
         try:
             # capture stdout for stats later
             # TODO: ENABLE
-            with open(align_output_file,'w') as o:
-                subprocess.check_call(align_cmd,stderr=o)
+            #with open(align_output_file,'w') as o:
+            #    subprocess.check_call(align_cmd,stderr=o)
             # print captured stdout
             with open(align_output_file,'r') as aof:
                 print(aof.read())
@@ -713,8 +722,8 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(stats_cmd)))
         try:
             # TODO: ENABLE
-            with open(stats_output,"w") as so:
-                subprocess.check_call(stats_cmd,stdout=so)
+            #with open(stats_output,"w") as so:
+            #    subprocess.check_call(stats_cmd,stdout=so)
             sample.set_command_status("samtools_stats_"+self.genome.get_id(),"finished")
         except Exception as e:
             sys.stderr.write("Samtools stats encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
@@ -728,7 +737,7 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(samstat_cmd)))
         try:
             # TODO: ENABLE
-            subprocess.check_call(samstat_cmd)
+            #subprocess.check_call(samstat_cmd)
             sample.set_command_status("samstat_"+self.genome.get_id(),"finished")
         except Exception as e:
             sys.stderr.write("Samstat encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
@@ -763,8 +772,8 @@ class Alignment:
             print("Running command:\n{0}".format(" ".join(sample_cmd))) 
             try:
                 # TODO: ENABLE
-                with open(sample_file,"w") as so:
-                    subprocess.check_call(sample_cmd,stdout=so)
+                #with open(sample_file,"w") as so:
+                #    subprocess.check_call(sample_cmd,stdout=so)
                 sample.set_command_status("sample"+str(readNum),"finished")
             except Exception as e:
                 sys.stderr.write("Sampling encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))   
@@ -789,8 +798,8 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(sample_align_cmd))) 
         try:
             # TODO: ENABLE
-            subprocess.check_call(sample_align_cmd)
-            sample.set_command_status("sample_align","finished")
+            #subprocess.check_call(sample_align_cmd)
+            #sample.set_command_status("sample_align","finished")
         except Exception as e:
             sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
             sample.set_command_status("sample_align",e)
@@ -803,8 +812,8 @@ class Alignment:
         print("Running command:\n{0}".format(" ".join(infer_cmd)))
         try:
             # TODO: ENABLE
-            with open(infer_file,"w") as o:
-                subprocess.check_call(infer_cmd,stdout=o) 
+            #with open(infer_file,"w") as o:
+            #    subprocess.check_call(infer_cmd,stdout=o) 
             sample.set_command_status("infer_strand","finished")
             sample.add_sample_data("infer_strand_file",infer_file)
         except Exception as e:
@@ -823,7 +832,7 @@ class Alignment:
         print("Running command:\n{0}".format(sam_to_bam_cmd))
         try:
             # TODO: ENABLE
-            subprocess.check_call(sam_to_bam_cmd,shell=True)
+            #subprocess.check_call(sam_to_bam_cmd,shell=True)
             print('skip')
         except Exception as e:
             sys.stderr.write("Error in converting sam to bam file:\n{0}\n".format(e))
@@ -832,7 +841,7 @@ class Alignment:
         print("Running command:\n{0}".format(index_cmd))
         try:
             # TODO: ENABLE
-            subprocess.check_call(index_cmd,shell=True)
+            #subprocess.check_call(index_cmd,shell=True)
             print('skip')
         except Exception as e:
             sys.stderr.write("Error indexing bam file:\n{0}\n".format(e))
