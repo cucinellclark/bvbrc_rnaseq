@@ -14,7 +14,7 @@ library(EnhancedVolcano,quietly=T)
 library(svglite)
 
 output_prefix = args[1]
-output_name = paste(output_prefix,'_volcano_plot.svg',sep='')
+output_name = paste(output_prefix,'volcano_plot.svg',sep='')
 arg_pairs = args[2:length(args)]
 plot_index <- 0
 deseq_files <- arg_pairs[c(TRUE,FALSE)]
