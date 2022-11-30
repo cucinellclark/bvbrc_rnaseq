@@ -83,7 +83,7 @@ for (i in 6:length(args))
     res = cbind(res,data.frame(Gene_Name=rownames(res)))
     res = res[,c("Gene_Name","baseMean","log2FoldChange","lfcSE","stat","pvalue","padj")]
     #write to output file
-    results_file = paste(output_prefix,curr_contrast[1],"_vs_",curr_contrast[2],".",genome_type,".deseq2.tsv",sep="")     
+    results_file = paste(output_prefix,curr_contrast[1],"_vs_",curr_contrast[2],".deseq2.tsv",sep="")     
     write.table(res,file=results_file,sep="\t",quote=FALSE,row.names=FALSE)
 
     #Create volcano plot
