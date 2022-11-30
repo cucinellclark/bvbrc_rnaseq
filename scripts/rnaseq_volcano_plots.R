@@ -19,7 +19,9 @@ arg_pairs = args[2:length(args)]
 plot_list = vector("list",length(deseq_files))
 plot_index <- 0
 deseq_files <- arg_pairs[c(TRUE,FALSE)]
+print(deseq_files)
 contrast_names <- arg_pairs[c(FALSE,TRUE)]
+print(contrast_names)
 curr_index <- 0
 # If file exists assume it's the correct file
 for (diffexp_file in deseq_files) {
