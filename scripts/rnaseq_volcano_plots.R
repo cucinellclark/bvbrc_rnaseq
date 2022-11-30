@@ -35,6 +35,8 @@ for (diffexp_file in deseq_files) {
     }
 }
 
+svg_width = 14
+svg_height = ceiling((numContrasts/2)) * 5
 svglite(output_name)
 do.call("grid.arrange",c(plot_list,ncol=1))
 dev.off()
