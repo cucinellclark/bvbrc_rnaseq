@@ -82,14 +82,15 @@ class DifferentialExpression:
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
 
-        deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_prefix,self.genome.get_genome_data('report_img_path'),genome_type]
-        ev_cmd = ['rnaseq_volcano_plots',output_prefix]
+        deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,os.path.join(output_dir,output_prefix),self.genome.get_genome_data('report_img_path'),genome_type]
+        vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix + '_volcano_plot.svg')
+        ev_cmd = ['rnaseq_volcano_plots',vp_figure]
         contrast_file_list = []
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
             cond1 = contrast.split(':')[0]
             cond2 = contrast.split(':')[1]
-            diffexp_file = output_prefix + cond1 + '_vs_' + cond2 + '.deseq2.tsv' 
+            diffexp_file = os.path.join(output_dir,output_prefix + cond1 + '_vs_' + cond2 + '.deseq2.tsv') 
             ev_cmd = ev_cmd + [diffexp_file,contrast.replace(':','_vs_')]
             contrast_file_list.append(diffexp_file)
         try:
@@ -99,7 +100,6 @@ class DifferentialExpression:
             # invoke volcano plots script
             # rnaseq_volcano_plots.R <output_prefix> <deseq2_file1> <contrast_name1> <deseq2_file2> <contrast_name2>...
             subprocess.check_call(ev_cmd)
-            vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix + '_volcano_plot.svg')
             self.genome.add_genome_data('volcano_plots',vp_figure)
         except Exception as e:
             sys.stderr.write('Error running run_deseq2:\n{0}'.format(e))
