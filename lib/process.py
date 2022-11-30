@@ -799,7 +799,7 @@ class Alignment:
         try:
             # TODO: ENABLE
             #subprocess.check_call(sample_align_cmd)
-            #sample.set_command_status("sample_align","finished")
+            sample.set_command_status("sample_align","finished")
         except Exception as e:
             sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
             sample.set_command_status("sample_align",e)
