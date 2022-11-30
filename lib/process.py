@@ -100,7 +100,7 @@ class DifferentialExpression:
             # invoke volcano plots script
             # rnaseq_volcano_plots.R <output_prefix> <deseq2_file1> <contrast_name1> <deseq2_file2> <contrast_name2>...
             subprocess.check_call(ev_cmd)
-            self.genome.add_genome_data('volcano_plots',vp_figure)
+            self.genome.add_genome_data('rnaseq_volcano_plots',vp_figure)
         except Exception as e:
             sys.stderr.write('Error running run_deseq2:\n{0}'.format(e))
             return -1
