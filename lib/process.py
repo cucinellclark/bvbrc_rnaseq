@@ -1069,12 +1069,15 @@ class Preprocess:
                 new_r1 = os.path.join(sample_dir,os.path.basename(reads[0]).split(".")[0]+"_val_1.fq")
                 new_r2 = os.path.join(sample_dir,os.path.basename(reads[1]).split(".")[0]+"_val_2.fq")
                 if not os.path.exists(new_r1) and os.path.exists(new_r1 + '.gz'):
-                    trimmed_reads.append(new_r1)
-                    trimmed_reads.append(new_r2)
+                    new_r1 = new_r1 + '.gz'
+                    new_r2 = new_r2 + '.gz'
+                trimmed_reads.append(new_r1)
+                trimmed_reads.append(new_r2)
             else:
                 new_r = os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq")
                 if not os.path.exists(new_r) and os.path.exists(new_r+'.gz'):
-                    trimmed_reads.append(new_r)
+                    new_r = new_r + '.gz'
+                trimmed_reads.append(new_r)
             sample.set_reads_list(trimmed_reads)
             for cutadapt_file in glob.glob('./*cutadapt.log'):
                 os.remove(cutadapt_file)  
