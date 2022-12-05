@@ -200,7 +200,7 @@ sub process_rnaseq {
     
     # TODO test: Remove genome directory
     my $ref_id   = $params->{reference_genome_id};
-    my $ref_dir  = "$tmpdir/$ref_id"
+    my $ref_dir  = "$tmpdir/$ref_id";
     rmtree([ "$ref_dir" ]);
 
     save_output_files($app,$outdir);
