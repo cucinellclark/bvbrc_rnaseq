@@ -1053,11 +1053,11 @@ class Preprocess:
         trimmed_reads = []
         trim_cmd = ["trim_galore","--output_dir",sample_dir,"--cores",str(threads)]
         if sample.get_type() == "paired":
-            trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split(".")[0]+"_val_1.fq.gz"))
-            trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[1]).split(".")[0]+"_val_2.fq.gz"))
+            #trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split(".")[0]+"_val_1.fq.gz"))
+            #trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[1]).split(".")[0]+"_val_2.fq.gz"))
             trim_cmd += ["--paired"]
-        if sample.get_type() == "single":
-            trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq.gz"))
+        #if sample.get_type() == "single":
+        #    trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq.gz"))
         trim_cmd += reads
         sample.add_command("trim",trim_cmd,"running")
         print("Running command:\n{0}".format(" ".join(trim_cmd)))
@@ -1065,6 +1065,16 @@ class Preprocess:
             # TODO: ENABLE
             subprocess.check_call(trim_cmd)
             sample.set_command_status("trim","finished")
+            if sample.get_type() == "paired": 
+                new_r1 = os.path.join(sample_dir,os.path.basename(reads[0]).split(".")[0]+"_val_1.fq"
+                new_r2 = os.path.join(sample_dir,os.path.basename(reads[1]).split(".")[0]+"_val_2.fq"
+                if not os.path.exists(new_r1) and os.path.exists(new_r1 + '.gz'):
+                    trimmed_reads.append(new_r1)
+                    trimmed_reads.append(new_r2)
+            else:
+                new_r = os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq"
+                if not os.path.exists(new_r) and os.path.exists(new_r+'.gz'):
+                    trimmed_reads.append(new_r)
             sample.set_reads_list(trimmed_reads)
             for cutadapt_file in glob.glob('./*cutadapt.log'):
                 os.remove(cutadapt_file)  
