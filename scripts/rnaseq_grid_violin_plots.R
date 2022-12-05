@@ -1,5 +1,7 @@
 #!/opt/patric-common/runtime/bin/Rscript
 
+options(bitmapType='cairo')
+
 #load libraries quietly
 library(ggplot2,quietly=TRUE)
 library(gridExtra,quietly=TRUE)
@@ -79,7 +81,7 @@ systems = unique(system.map[,2])
 
 #Calculate image width and height
 #num_columns <- ceiling(sqrt(length(systems)))
-num_columns <- 4 
+num_columns <- 3 
 num_samples <- ncol(counts.mtx)
 num_rows <- ceiling(length(systems)/num_columns)
 png_width = (num_columns + num_samples)*100
@@ -123,17 +125,17 @@ for (i in 1:length(systems)) {
 plot_list[[length(systems)+1]] <- legend
 
 ###Output PNG image
-#vln_png = paste(output.file,"_Pathway_Distribution_mqc.png",sep="")
-#png(vln_png,width=png_width,height=png_height)
-#do.call("grid.arrange",c(plot_list,ncol=num_columns))
-#dev.off()
+vln_png = paste(output.file,".svg",sep="")
+png(vln_png,width=png_width,height=png_height)
+do.call("grid.arrange",c(plot_list,ncol=num_columns))
+dev.off()
 
 #TODO: issue where it opens a second image and saves one as Rplot.pdf
 ###Output SVG image
 #vln_svg = paste(output.file,"_Pathway_Distribution_mqc.svg",sep="")
-vln_svg = paste(output.file,".svg",sep="")
+#vln_svg = paste(output.file,".svg",sep="")
 #svg(vln_svg,width=svg_width,height=svg_height)
 #svglite(vln_svg,width=svg_width,height=svg_height)
-svglite(vln_svg,width=12,height=10)
-do.call("grid.arrange",c(plot_list,ncol=num_columns))
-dev.off()
+#svglite(vln_svg,width=12,height=10)
+#do.call("grid.arrange",c(plot_list,ncol=num_columns))
+#dev.off()

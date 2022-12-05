@@ -14,7 +14,8 @@ library(EnhancedVolcano,quietly=T)
 library(svglite)
 
 output_prefix = args[1]
-output_name = paste(output_prefix,'volcano_plot.svg',sep='')
+#output_name = paste(output_prefix,'volcano_plot.svg',sep='')
+output_name = paste(output_prefix,'volcano_plot.png',sep='')
 arg_pairs = args[2:length(args)]
 plot_index <- 0
 deseq_files <- arg_pairs[c(TRUE,FALSE)]
@@ -35,9 +36,11 @@ for (diffexp_file in deseq_files) {
     }
 }
 
-svg_width = 10
 numContrasts = length(deseq_files)
-svg_height = numContrasts * 5
-svglite(output_name,width=svg_width,height=svg_height)
+png_height = 480*numContrasts
+#svg_width = 10
+#svg_height = numContrasts * 5
+#svglite(output_name,width=svg_width,height=svg_height)
+png(output_name,height=png_height)
 do.call("grid.arrange",c(plot_list,ncol=1))
 dev.off()
