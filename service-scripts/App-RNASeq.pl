@@ -714,6 +714,7 @@ sub params_to_exps {
 }
 
 sub localize_params {
+    print 'localize_params: shouldnt be called\n';
     my ($tmpdir, $params) = @_;
     for (@{$params->{paired_end_libs}}) {
         $_->{read1} = get_ws_file($tmpdir, $_->{read1}) if $_->{read1};
@@ -726,6 +727,7 @@ sub localize_params {
 }
 
 sub localize_params_local {
+    print 'localize_params_should: should be called\n';
     my ($tmpdir, $params) = @_;
     return $params;
 }
