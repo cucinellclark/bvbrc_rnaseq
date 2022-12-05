@@ -1,5 +1,7 @@
 #!/opt/patric-common/runtime/bin/Rscript
 
+options(bitmapType='cairo')
+
 #parameter format:
 #rnaseq_volcano_plots.R <output_prefix> <deseq2_file1> <contrast_name1> <deseq2_file2> <contrast_name2>... 
 args = commandArgs(trailingOnly=TRUE)
