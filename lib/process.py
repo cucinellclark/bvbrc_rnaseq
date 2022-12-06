@@ -83,7 +83,8 @@ class DifferentialExpression:
         meta_file = self.genome.get_genome_data('sample_metadata_file')
 
         deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,os.path.join(output_dir,output_prefix),self.genome.get_genome_data('report_img_path'),genome_type]
-        vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.svg')
+        #vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.svg')
+        vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.png')
         ev_cmd = ['rnaseq_volcano_plots',os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix)]
         contrast_file_list = []
         for contrast in contrast_list:
@@ -213,7 +214,8 @@ class GenomeData:
             print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
             # TODO: ENABLE
             subprocess.check_call(superclass_cmd) 
-            self.genome.add_genome_data('superclass_figure',superclass_figure+'.svg')
+            #self.genome.add_genome_data('superclass_figure',superclass_figure+'.svg')
+            self.genome.add_genome_data('superclass_figure',superclass_figure+'.png')
         except Exception as e:
             sys.stderr.write('Error creating superclass violin plots:\n{0}\n'.format(e))
 
@@ -221,7 +223,8 @@ class GenomeData:
             print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
             # TODO: ENABLE
             subprocess.check_call(pathway_cmd) 
-            self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
+            #self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
+            self.genome.add_genome_data('pathway_figure',pathway_figure+'.png')
         except Exception as e:
             sys.stderr.write('Error creating pathway violin plots:\n{0}\n'.format(e))
 

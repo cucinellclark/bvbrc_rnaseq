@@ -125,7 +125,8 @@ for (i in 1:length(systems)) {
 plot_list[[length(systems)+1]] <- legend
 
 ###Output PNG image
-vln_png = paste(output.file,".svg",sep="")
+#vln_png = paste(output.file,".svg",sep="")
+vln_png = paste(output.file,".png",sep="")
 png(vln_png,width=png_width,height=png_height)
 do.call("grid.arrange",c(plot_list,ncol=num_columns))
 dev.off()
