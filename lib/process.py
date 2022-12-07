@@ -1069,15 +1069,18 @@ class Preprocess:
             subprocess.check_call(trim_cmd)
             sample.set_command_status("trim","finished")
             if sample.get_type() == "paired": 
-                new_r1 = os.path.join(sample_dir,os.path.basename(reads[0]).split(".")[0]+"_val_1.fq")
-                new_r2 = os.path.join(sample_dir,os.path.basename(reads[1]).split(".")[0]+"_val_2.fq")
+                read_parts1 = os.path.basename(reads[0]).split(".")
+                read_parts2 = os.path.basename(reads[1]).split(".")
+                new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
+                new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
                 if not os.path.exists(new_r1) and os.path.exists(new_r1 + '.gz'):
                     new_r1 = new_r1 + '.gz'
                     new_r2 = new_r2 + '.gz'
                 trimmed_reads.append(new_r1)
                 trimmed_reads.append(new_r2)
             else:
-                new_r = os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq")
+                read_parts = os.path.basename(reads[0]).split('.')
+                new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-1])+"_trimmed.fq")
                 if not os.path.exists(new_r) and os.path.exists(new_r+'.gz'):
                     new_r = new_r + '.gz'
                 trimmed_reads.append(new_r)
