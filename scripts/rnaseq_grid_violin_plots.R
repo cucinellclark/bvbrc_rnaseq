@@ -1,5 +1,7 @@
 #!/opt/patric-common/runtime/bin/Rscript
 
+options(bitmapType='cairo')
+
 #load libraries quietly
 library(ggplot2,quietly=TRUE)
 library(gridExtra,quietly=TRUE)
@@ -30,6 +32,10 @@ counts.file = args[2]
 metadata.file = args[3]
 output.file = args[4]
 
+# Removes the Rplots.pdf file accidentally made by this script
+# can't figure out how to 
+if(!interactive()) pdf(NULL)
+
 #check files and extensions
 #if (grepl("htseq",feature.count)) {
 #    count_sep = "\t"
@@ -50,7 +56,18 @@ system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
 
 #Filter entries with no system label and get the intersection of patric_ids
 system.map = system.map[!grepl("NONE",system.map[,2]),]
-counts.mtx = counts.mtx[system.map[,1],]
+keep.idx <- which(rownames(counts.mtx) %in% system.map[,1])
+mtx.genes <- rownames(counts.mtx)
+counts.mtx$keep_rows <- rep(FALSE,length.out=nrow(counts.mtx))
+counts.mtx$keep_rows[keep.idx] <- TRUE
+counts.mtx <- subset(counts.mtx,keep_rows == TRUE)
+counts.mtx <- counts.mtx[,-c(ncol(counts.mtx))]
+# happens when using only one sample
+if (class(counts.mtx) != 'data.frame') {
+    counts.mtx <- data.frame(VALS=counts.mtx)
+    rownames(counts.mtx) <- mtx.genes[keep.idx]
+    colnames(counts.mtx) <- c(metadata$Sample[1])
+}
 
 #Testing: min and max values
 #log_min = log(min(counts.mtx)+1)
@@ -63,7 +80,8 @@ conditions = unique(metadata$Condition)
 systems = unique(system.map[,2])  
 
 #Calculate image width and height
-num_columns <- ceiling(sqrt(length(systems)))
+#num_columns <- ceiling(sqrt(length(systems)))
+num_columns <- 3 
 num_samples <- ncol(counts.mtx)
 num_rows <- ceiling(length(systems)/num_columns)
 png_width = (num_columns + num_samples)*100
@@ -71,13 +89,19 @@ png_height = num_rows*200
 svg_width = num_columns + num_samples
 svg_height = num_rows + 5
 
-
 #create each plot and ad dit to a list of plots: do not render at this step: occurs when calling svglite() and do.call()
 legend <- NULL 
 plot_list = vector("list",length(systems)+1)
 for (i in 1:length(systems)) {
     curr.system = systems[i] 
-    curr.mtx = counts.mtx[rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1],] 
+    system.idx <- which(rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1])
+    curr.mtx = counts.mtx[system.idx,] 
+    # fix one sample issue
+    if ((class(curr.mtx) != 'data.frame')&(ncol(counts.mtx) == 1)) {
+        curr.mtx <- data.frame(VALS=curr.mtx)
+        rownames(curr.mtx) <- rownames(counts.mtx)[system.idx]
+        colnames(curr.mtx) <- c(metadata$Sample[1])
+    }
     curr.mtx = data.frame(curr.mtx)
     curr.mtx$Genes <- rownames(curr.mtx)
     melt.df = melt(curr.mtx,id.vars=c("Genes"),measure.vars=colnames(curr.mtx)[-c(length(colnames(curr.mtx)))]) 
@@ -101,17 +125,18 @@ for (i in 1:length(systems)) {
 plot_list[[length(systems)+1]] <- legend
 
 ###Output PNG image
-#vln_png = paste(output.file,"_Pathway_Distribution_mqc.png",sep="")
-#png(vln_png,width=png_width,height=png_height)
-#do.call("grid.arrange",c(plot_list,ncol=num_columns))
-#dev.off()
+#vln_png = paste(output.file,".svg",sep="")
+vln_png = paste(output.file,".png",sep="")
+png(vln_png,width=png_width,height=png_height)
+do.call("grid.arrange",c(plot_list,ncol=num_columns))
+dev.off()
 
 #TODO: issue where it opens a second image and saves one as Rplot.pdf
 ###Output SVG image
 #vln_svg = paste(output.file,"_Pathway_Distribution_mqc.svg",sep="")
-vln_svg = paste(output.file,".svg",sep="")
+#vln_svg = paste(output.file,".svg",sep="")
 #svg(vln_svg,width=svg_width,height=svg_height)
 #svglite(vln_svg,width=svg_width,height=svg_height)
-svglite(vln_svg,width=12,height=10)
-do.call("grid.arrange",c(plot_list,ncol=num_columns))
-dev.off()
+#svglite(vln_svg,width=12,height=10)
+#do.call("grid.arrange",c(plot_list,ncol=num_columns))
+#dev.off()

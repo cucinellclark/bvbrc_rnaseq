@@ -9,6 +9,7 @@ use File::Temp;
 use File::Slurp;
 use File::Basename;
 use IPC::Run 'run';
+use File::Path 'rmtree';
 use JSON;
 use Bio::KBase::AppService::AppConfig;
 use Bio::KBase::AppService::AppScript;
@@ -123,15 +124,11 @@ sub process_rnaseq {
     my @outputs;
     my $prefix = $recipe;
     my $host = 0;
-    if ($recipe eq 'Rockhopper') {
-        @outputs = run_rockhopper($params, $tmpdir);
-    } elsif ($recipe eq 'cufflinks' || $recipe eq 'HTSeq-DESeq') {
-        @outputs = run_rna_rocket($params, $tmpdir, $host, $parallel);
-        #$prefix = 'Tuxedo';
+    if ($recipe eq 'cufflinks' || $recipe eq 'HTSeq-DESeq') {
+        @outputs = run_bvbrc_rnaseq($params, $tmpdir, $host, $parallel);
     } elsif ($recipe eq 'Host') {
         $host = 1;
-        @outputs = run_rna_rocket($params, $tmpdir, $host, $parallel);
-        #$prefix = 'Host';
+        @outputs = run_bvbrc_rnaseq($params, $tmpdir, $host, $parallel);
     } else {
         die "Unrecognized recipe: $recipe \n";
     }
@@ -197,7 +194,13 @@ sub process_rnaseq {
 	}
     }
     my $time2 = `date`;
-    my $outdir = "$tmpdir/Rocket";
+    my $outdir = "$tmpdir";
+    
+    # TODO test: Remove genome directory
+    my $ref_id   = $params->{reference_genome_id};
+    my $ref_dir  = "$tmpdir/$ref_id";
+    rmtree([ "$ref_dir" ]);
+
     save_output_files($app,$outdir);
     write_output("Start: $time1"."End:   $time2", "$tmpdir/DONE");
 
@@ -206,7 +209,7 @@ sub process_rnaseq {
     }
 }
 
-sub run_rna_rocket {
+sub run_bvbrc_rnaseq {
     my ($params, $tmpdir, $host, $parallel) = @_;
 
     #$parallel //= 1;
@@ -238,19 +241,19 @@ sub run_rna_rocket {
     my $pstring = encode_json($override);
     my $sstring = encode_json($dat);
     
-    my $outdir = "$tmpdir/Rocket";
+    my $outdir = "$tmpdir";
     
     my $exps     = params_to_exps($params);
     my $labels   = $params->{experimental_conditions};
-    my $ref_id   = $params->{reference_genome_id} or die "Reference genome is required for RNA-Rocket\n";
-    my $output_name = $params->{output_file} or die "Output name is required for RNA-Rocket\n";
+    my $ref_id   = $params->{reference_genome_id} or die "Reference genome is required\n";
+    my $output_name = $params->{output_file} or die "Output name is required\n";
     my $host_ftp = defined($params->{host_ftp}) ? $params->{host_ftp} : undef;
-    my $dsuffix = "_diffexp";
-    my $diffexp_name = ".$output_name$dsuffix";
-    my $diffexp_folder = "$outdir/.$output_name$dsuffix";
-    my $diffexp_file = "$outdir/$output_name$dsuffix";
+    print STDERR "here\n";
+    my $diffexp_name = defined($params->{diffexp_name}) ? $params->{diffexp_name} : "diff_exp";
+    my $diffexp_folder = "$outdir/$diffexp_name";
+    my $diffexp_file = "$outdir/$diffexp_name";
     my $ref_dir  = prepare_ref_data_rocket($ref_id, $tmpdir, $host, $host_ftp);
-    my $unit_test = defined($params->{unit_test}) ? $params->{unit_test} : undef;
+    #my $unit_test = defined($params->{unit_test}) ? $params->{unit_test} : undef;
     
     print "Run rna_rocket ", Dumper($exps, $labels, $tmpdir);
     
@@ -292,32 +295,34 @@ sub run_rna_rocket {
     #    print STDERR "STDOUT:\n$out\n";
     #    print STDERR "STDERR:\n$err\n";
     
-    
-    
     run("echo $outdir && ls -ltr $outdir");
     
     #
     # Collect output and assign types.
     #
     my @outputs;
+
+    # check for no_condition directory
+    if (-d "$outdir/no_condition") {
+        push @$labels, 'no_condition';
+    }
     
     #
     # BAM/BAI/GTF files are in the replicate folders.
     # We flatten the file structure in replicate folders for the
     # files we are saving.
     #
-    my @sets = map { basename($_) } glob("$outdir/$ref_id/*");
-    for my $set (@sets)
+    for my $cond (@$labels)
     {
-	my @reps = map { basename($_) } glob("$outdir/$ref_id/$set/replicate*");
+	my @reps = map { basename($_) } glob("$outdir/$cond/*");
 	
 	for my $rep (@reps)
 	{
-	    my $path = "$outdir/$ref_id/$set/$rep";
+	    my $path = "$outdir/$cond/$rep";
 	    #
 	    # Suffix/type list for output
 	    #
-	    my @types = (['.bam', 'bam'], ['.bai', 'bai'], ['.gtf', 'gff'], ['.html', 'html'], ['_tracking', 'txt']);
+	    my @types = (['.bam', 'bam'], ['.bai', 'bai'], ,['.gtf', 'gff'], ['.html', 'html'], ['_tracking', 'txt']);
 	    for my $t (@types)
 	    {
 		my($suffix, $type) = @$t;
@@ -333,7 +338,7 @@ sub run_rna_rocket {
     #
     # Remaining files are loaded as plain text.
     #
-    for my $txt (glob("$outdir/$ref_id/*diff"))
+    for my $txt (glob("$outdir/*diff"))
     {
 	push(@outputs, [$txt, 'txt']);
     }
@@ -801,6 +806,7 @@ sub verify_cmd {
     system("which $cmd >/dev/null") == 0 or die "Command not found: $cmd\n";
 }
 
+# TODO: figure out how to modify this function so it only saves the files I want it to
 sub save_output_files
 {
     my($app, $output) = @_;

@@ -8,7 +8,7 @@ import subprocess
 #pipeline modules
 import experiment
 import process
-# import report
+import report
 # import process_statistics
 from bvbrc_api import authenticateByEnv
 
@@ -17,9 +17,10 @@ from bvbrc_api import authenticateByEnv
 # valid recipes
 valid_recipes = ['HTSeq-DESeq','cufflinks','Host']
 
-def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, session, map_args):
+def main(genome, experiment_dict, tool_params, output_dir, comparisons, session, map_args):
+
     # setup folder structure and genome databases
-    setup(output_dir, experiment_dict, genome_list)
+    setup(output_dir, experiment_dict, genome)
     diffexp_flag = comparisons.check_diffexp() 
     
     ### process data independently of genomes
@@ -31,46 +32,43 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
 
     # Trimming
     # TODO: replace threads with tool_params value
-    for condition in experiment_dict:
-        for sample in experiment_dict[condition].get_sample_list():
-            preprocess.run_trimming(sample, 8)
+    if map_args.trimming: 
+        for condition in experiment_dict:
+            for sample in experiment_dict[condition].get_sample_list():
+                preprocess.run_trimming(sample, 8)
 
-    ### Sampled align against one genome?
-    # TODO: replace threads with tool_params value
+    ### Sampled align against genome
     # TODO: assess strandedness with one genome?
     alignment = process.Alignment()
-    for genome in genome_list:
-        alignment.set_genome(genome)
-        for condition in experiment_dict:
-            for sample in experiment_dict[condition].get_sample_list():
-                alignment.run_sample_alignment(sample, 8)
+    alignment.set_genome(genome)
+    for condition in experiment_dict:
+        for sample in experiment_dict[condition].get_sample_list():
+            alignment.run_sample_alignment(sample, 8)
 
-    ### Align against each genome
-    for genome in genome_list:
-        alignment.set_genome(genome) 
-        for condition in experiment_dict:
-            for sample in experiment_dict[condition].get_sample_list():
-                # TODO: error checking after alignment?
-                alignment.run_alignment(sample, 8)
-                alignment.run_alignment_stats(sample, 8)
+    ### Align against genome
+    alignment.set_genome(genome) 
+    for condition in experiment_dict:
+        for sample in experiment_dict[condition].get_sample_list():
+            # TODO: error checking after alignment?
+            alignment.run_alignment(sample, 8)
+            alignment.run_alignment_stats(sample, 8)
 
     # HTSeq(bacteria), Stringtie(host)
     # TODO: some sort of check to make sure everything finished
     # TODO: test host paired
     quantifier = process.Quantify()
-    for genome in genome_list:
-        quantifier.set_genome(genome)
-        quantifier.set_recipe(map_args.recipe)
-        sample_list = []
-        for condition in experiment_dict:
-            samples = experiment_dict[condition].get_sample_list()
-            sample_list = sample_list + samples 
-        print('sample_list = {0}'.format(sample_list))
-        condition_output_list = quantifier.run_quantification(sample_list,8)
-        genome_quant_file = quantifier.create_genome_counts_table(output_dir, sample_list)
-        genome.add_genome_data('counts_table', genome_quant_file)
-        # TODO: test host
-        genome_quant_file = quantifier.create_genome_quant_table(output_dir, sample_list)
+    quantifier.set_genome(genome)
+    quantifier.set_recipe(map_args.recipe)
+    sample_list = []
+    for condition in experiment_dict:
+        samples = experiment_dict[condition].get_sample_list()
+        sample_list = sample_list + samples 
+    print('sample_list = {0}'.format(sample_list))
+    condition_output_list = quantifier.run_quantification(sample_list,8)
+    genome_quant_file = quantifier.create_genome_counts_table(output_dir, sample_list)
+    genome.add_genome_data('counts_table', genome_quant_file)
+    # TODO: test host
+    genome_quant_file = quantifier.create_genome_quant_table(output_dir, sample_list)
 
     # sample_list used in function below
     sample_list = []
@@ -79,41 +77,45 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
         sample_list = sample_list + samples
 
     # Differential expression 
+    diff_exp = process.DifferentialExpression(comparisons) 
+    diff_exp.set_recipe(map_args.recipe)
+    meta_file = diff_exp.create_metadata_file(sample_list, output_dir)
+    genome.add_genome_data('sample_metadata_file',meta_file)
     if diffexp_flag:
-        diff_exp = process.DifferentialExpression(comparisons) 
-        diff_exp.set_recipe(map_args.recipe)
-        meta_file = diff_exp.create_metadata_file(sample_list, output_dir)
         diffexp_import = process.DiffExpImport()
         diffexp_import.set_recipe(map_args.recipe)
-        for genome in genome_list:
-            genome.add_genome_data('sample_metadata_file',meta_file)
-            diff_exp.set_genome(genome)
-            diff_exp.run_differential_expression(output_dir,sample_list)
-            if genome.get_genome_type() == 'bacteria':
-                diffexp_import.set_genome(genome)
-                diffexp_import.run_diff_exp_import(output_dir,map_args)
+        diff_exp.set_genome(genome)
+        diff_exp.run_differential_expression(output_dir,sample_list)
+        if genome.get_genome_type() == 'bacteria':
+            diffexp_import.set_genome(genome)
+            diffexp_import.run_diff_exp_import(output_dir,map_args)
 
     # Queries: subsystems, kegg
     # output files are used in creating figures
-    genome_data = process.GenomeData()
-    for genome in genome_list:
+    if True:
+        genome_data = process.GenomeData()
         if genome.get_genome_type() == 'bacteria':
             genome_data.set_genome(genome)
             genome_data.run_queries(output_dir,session)
             genome_data.create_system_figures(output_dir)
     
-    # TODO: for now assuming one genome for statistics and report
-    genome = genome_list[0] 
-
-    # TODO: finish up colleting sample statistics and generate report
-    # Get statistics for samples
-    # using sample_list created in differential expression section
-    # stats = process_statistics.Statistics()
-    # stats.add_samples(sample_list) 
-    # stats.get_sample_statistics(genome, output_dir, diffexp_flag)
-
-    # report_manager = report.ReportManager()
-    # report_manager.create_report(genome, stats.get_stats_dict(), output_dir, diffexp_flag)
+    # call multiqc without any adjustments
+    if not map_args.disable_reports:
+        report_manager = report.ReportManager()
+        # number of samples and conditions
+        report_stats = {}
+        sample_count = 0
+        condition_count = 0
+        for condition in experiment_dict:       
+            sample_count += len(experiment_dict[condition].get_sample_list())
+            if condition != 'no_condition':
+                condition_count += 1
+        report_stats['num_samples'] = sample_count
+        report_stats['num_conditions'] = condition_count
+        # get recipe
+        report_stats['recipe'] = map_args.recipe 
+        report_manager.run_multiqc(output_dir)
+        report_manager.create_report(genome, output_dir, experiment_dict, report_stats, map_args.workspace_dir, diffexp_flag)
 
     # TODO: Add command output and status 
     # TODO: Add file cleanup
@@ -122,7 +124,7 @@ def main(genome_list, experiment_dict, tool_params, output_dir, comparisons, ses
 # sets up initial condition, sample, genome folder structure
 # folder stucture is: output_dir/condition/sample/genome
 # TODO: diffexp object folder
-def setup(output_dir, experiment_dict, genome_list):
+def setup(output_dir, experiment_dict, genome):
     # create output directory
     if not os.path.exists(output_dir):
         print("Creating output directory: {0}".format(output_dir))
@@ -140,11 +142,9 @@ def setup(output_dir, experiment_dict, genome_list):
             sample_path = os.path.abspath(os.path.join(experiment_dict[condition].get_path(),sample.get_id()))
             sample.set_path(sample_path)
             subfolder_list.append(sample.get_path())
-            for genome in genome_list:
-                # TODO: if only 1 genome, don't create subfolders?
-                genome_path = os.path.join(sample.get_path(),genome.get_id()) 
-                genome.create_path_entry(sample.get_id(),genome_path) 
-                subfolder_list.append(genome.get_sample_path(sample.get_id()))
+            genome_path = sample.get_path() 
+            genome.create_path_entry(sample.get_id(),genome_path) 
+            subfolder_list.append(genome.get_sample_path(sample.get_id()))
 
     # create subfolders
     print("Creating {0} subfolders:".format(len(subfolder_list)))
@@ -159,9 +159,7 @@ def setup(output_dir, experiment_dict, genome_list):
     report_img_folder = os.path.join(output_dir,'report_images/')
     if not os.path.exists(report_img_folder):
         os.mkdir(report_img_folder)
-    # TODO: assuming 1 genome
-    for genome in genome_list:
-        genome.add_genome_data('report_img_path',report_img_folder)
+    genome.add_genome_data('report_img_path',report_img_folder)
 
     # TODO: genome_data checking, delete genome if not enough data??? Throw errors???
     # setup genome index objects
@@ -181,8 +179,7 @@ def setup(output_dir, experiment_dict, genome_list):
             print("{0} already exists".format(genome_data_dir))
         genome.setup_genome_database(genome_data_dir) 
     '''
-    for genome in genome_list:
-        genome.setup_genome_database()
+    genome.setup_genome_database()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -234,44 +231,48 @@ if __name__ == "__main__":
 
     # Setup session
     s = requests.Session()
-    authenticateByEnv(s)
+    try:
+        authenticateByEnv(s)
+        print('authentication success')
+    except Exception as e:
+        sys.stderr.write('Error during authentication, exiting:\n{0}'.format(e))
+        sys.exit(0)
 
     # load genome ids
-    genome_list = []
+    # genome_list = []
     #for i in range(0,len(job_data["reference_genome_id"])):
         #genome_list.append(experiment.Genome(job_data["reference_genome_id"][i],job_data["genome_type"][i],s))
-    genome_list.append(experiment.Genome(job_data["reference_genome_id"],job_data["genome_type"],s))
+    # genome_list.append(experiment.Genome(job_data["reference_genome_id"],job_data["genome_type"],s))
+    genome = experiment.Genome(job_data["reference_genome_id"],job_data["genome_type"],s)
 
     # DOWNLOAD GENOME DATA: remove from perl side
 
     # Load genome data
-    # Note: not making the assumption the genome directories supplied will be in the same order
-    #       as the genomes in reference_genome_id
-    genome_dir_list = map_args.g.strip().split(',')
-    for genome_dir in genome_dir_list:
-        if genome_dir.endswith("/"):
-            genome_key = os.path.basename(os.path.dirname(genome_dir))
-        else:
-            genome_key = os.path.basename(genome_dir)
-        for genome in genome_list:
-            if genome_key == genome.get_id():
-                print(os.listdir(genome_dir))
-                for f in os.listdir(genome_dir):
-                    data_key = None
-                    if f.endswith(".fna") or f.endswith(".fa") or f.endswith(".fasta"):
-                        data_key = "fasta"
-                    elif f.endswith(".gff"): # TODO: other annotation types?
-                        data_key = "annotation"
-                    elif f.endswith(".ht2.tar"):
-                        data_key = "hisat_index"
-                    else:
-                        continue
-                    # TODO: any file linking?
-                    genome.set_genome_dir(genome_dir)
-                    genome.add_genome_data(data_key,os.path.abspath(os.path.join(genome_dir,f)))
+    genome_dir = map_args.g.strip()
+    if genome_dir.endswith("/"):
+        genome_key = os.path.basename(os.path.dirname(genome_dir))
+    else:
+        genome_key = os.path.basename(genome_dir)
+    if genome_key == genome.get_id():
+        print(os.listdir(genome_dir))
+        for f in os.listdir(genome_dir):
+            data_key = None
+            if f.endswith(".fna") or f.endswith(".fa") or f.endswith(".fasta"):
+                data_key = "fasta"
+            elif f.endswith(".gff"): # TODO: other annotation types?
+                data_key = "annotation"
+            elif f.endswith(".ht2.tar"):
+                data_key = "hisat_index"
+            else:
+                continue
+            # TODO: any file linking?
+            genome.set_genome_dir(genome_dir)
+            genome.add_genome_data(data_key,os.path.abspath(os.path.join(genome_dir,f)))
 
     # sample_list = [] # maybe don't store this, access samples by condition like in original
     experiment_dict = {}
+    no_condition = experiment.Condition('no_condition')
+    experiment_dict['no_condition'] = no_condition
     condition_list = []
     for cond_str in job_data['experimental_conditions']:
         condition_list.append(cond_str)
@@ -281,16 +282,26 @@ if __name__ == "__main__":
     #paired_end_libs
     if 'paired_end_libs' in job_data:
         for paired_sample in job_data['paired_end_libs']:
+            if 'condition' in paired_sample:
+                condition = paired_sample['condition']
+            else:
+                condition = 'no_condition'
             sample_reads = [paired_sample['read1'],paired_sample['read2']]
-            new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,paired_sample['condition'])
-            experiment_dict[new_sample.condition].add_sample(new_sample)
+            new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,condition)
+            if condition:
+                experiment_dict[condition].add_sample(new_sample)
 
     # single_end_libs
     if 'single_end_libs' in job_data:
         for single_sample in job_data['single_end_libs']:
+            if 'condition' in single_sample:
+                condition = single_sample['condition']
+            else:
+                condition = 'no_condition' 
             sample_read = [single_sample['read']]
-            new_sample = experiment.Sample(single_sample['sample_id'],'single',sample_read,None,single_sample['condition'])
-            experiment_dict[new_sample.condition].add_sample(new_sample)
+            new_sample = experiment.Sample(single_sample['sample_id'],'single',sample_read,None,condition)
+            if condition:
+                experiment_dict[condition].add_sample(new_sample)
 
     # TODO: test this
     # put sra-fastq files in <output_dir>/SRA_Fastq/
@@ -304,6 +315,10 @@ if __name__ == "__main__":
         if not os.path.exists(sra_meta_dir):
             os.mkdir(sra_meta_dir)
         for sra_sample in job_data['srr_libs']:
+            if 'condition' in sra_sample:
+                condition = sra_sample['condition']
+            else:
+                condition = 'no_condition' 
             srr_id = sra_sample['srr_accession'] 
             meta_file = os.path.join(sra_meta_dir,srr_id+'_meta.txt')
             reads_dir = {}
@@ -333,12 +348,14 @@ if __name__ == "__main__":
                     continue
                 if 'read2' in reads_dir:
                     reads_list = [reads_dir['read1'],reads_dir['read2']]
-                    new_sample = experiment.Sample(srr_id,'paired',reads_list,None,sra_sample['condition'])
-                    experiment_dict[new_sample.condition].add_sample(new_sample)
+                    new_sample = experiment.Sample(srr_id,'paired',reads_list,None,condition)
+                    if condition:
+                        experiment_dict[condition].add_sample(new_sample)
                 else: #single end
                     reads_list = [reads_dir['read']]
-                    new_sample = experiment.Sample(srr_id,'single',reads_list,None,sra_sample['condition'])
-                    experiment_dict[new_sample.condition].add_sample(new_sample)
+                    new_sample = experiment.Sample(srr_id,'single',reads_list,None,condition)
+                    if condition:
+                        experiment_dict[condition].add_sample(new_sample)
                 
             except Exception as e:
                 sys.stderr.write('Error in downloading SRA ID {0}:\n{1}\n'.format(srr_id,e)) 
@@ -367,5 +384,20 @@ if __name__ == "__main__":
     # set recipe in map_args
     map_args.recipe = job_data['recipe'] 
 
+    # set trimming in map_args
+    if 'trimming' in job_data:
+        map_args.trimming = job_data['trimming']
+    else:
+        map_args.trimming = True
+
+    # set report variable
+    if 'disable_reports' in job_data:
+        map_args.disable_reports = job_data['disable_reports']
+    else:
+        map_args.disable_reports = False
+
+    # workspace dir for links
+    map_args.workspace_dir = job_data['output_path']
+
     # If not cufflinks, run pipeline
-    main(genome_list, experiment_dict, tool_params, output_dir, comparisons, s, map_args)
+    main(genome, experiment_dict, tool_params, output_dir, comparisons, s, map_args)
