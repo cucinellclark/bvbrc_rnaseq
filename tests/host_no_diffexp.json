@@ -1,0 +1,16 @@
+{
+    "output_path": "/anwarren@patricbrc.org/home/humanRNASeq",
+    "output_file": "human_update050520_try3",
+    "host_ftp": "ftp://ftp.patricbrc.org/host_genomes/9606/GRCh38.p13/GCF_000001405.39_GRCh38.p13",
+    "recipe": "Host",
+    "genome_type":"host",
+    "reference_genome_id": "9606.33",
+    "trimming":false,
+    "paired_end_libs": [
+        {
+            "sample_id":"ERR188383_chrX",
+            "read1": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/ERR188383_chrX_1.fastq.gz",
+            "read2": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/ERR188383_chrX_2.fastq.gz"
+        }
+    ]
+}

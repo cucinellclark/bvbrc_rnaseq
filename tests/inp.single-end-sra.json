@@ -1,0 +1,24 @@
+{
+  "single_end_libs": [],
+  "output_file": "RNA_Seq_CFN42",
+  "output_path": "/anwarren@patricbrc.org/home/RNA_Seq_CFN42",
+  "srr_libs": [
+    {
+      "sample_id": "SRX337120",
+      "srr_accession": "SRX337120"
+    },
+    {
+      "sample_id": "SRX337121",
+      "srr_accession": "SRX337121"
+    },
+    {
+      "sample_id": "SRX337122",
+      "srr_accession": "SRX337122"
+    }
+  ],
+  "reference_genome_id": "754521.3",
+  "genome_type":"bacteria",
+  "paired_end_libs": [],
+  "recipe": "HTSeq-DESeq",
+  "trimming":true
+}

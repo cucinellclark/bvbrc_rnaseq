@@ -1,0 +1,41 @@
+{
+    "output_path":"/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq",
+    "output_file":"out",
+    "recipe":"HTSeq-DESeq",
+    "reference_genome_id":"208964.12",
+    "genome_type":"bacteria",
+    "trimming":true,
+    "contrasts": [
+        ["T2.5","EtOH"]
+    ],
+    "paired_end_libs": [
+        {
+            "condition":"EtOH",
+            "sample_id":"SRR11575106",
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP257531_Pao1_Paired/SRR11575106_1.fastq",
+            "read2":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP257531_Pao1_Paired/SRR11575106_2.fastq"
+        },
+        {
+            "condition":"EtOH",
+            "sample_id":"SRR11575107",
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP257531_Pao1_Paired/SRR11575107_1.fastq",
+            "read2":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP257531_Pao1_Paired/SRR11575107_2.fastq"
+        },
+        {
+            "condition":"T2.5",
+            "sample_id":"SRR11575109",
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP257531_Pao1_Paired/SRR11575109_1.fastq",
+            "read2":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP257531_Pao1_Paired/SRR11575109_2.fastq"
+        },
+        {
+            "condition":"T2.5",
+            "sample_id":"SRR11575108",
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP257531_Pao1_Paired/SRR11575108_1.fastq",
+            "read2":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP257531_Pao1_Paired/SRR11575108_2.fastq"
+        }
+    ],
+    "experimental_conditions": [
+        "EtOH",
+        "T2.5"
+    ]
+}

@@ -1,0 +1,33 @@
+{
+    "output_path": "/anwarren@patricbrc.org/home/debug",
+    "output_file": "human_diff_exp_sif51",
+    "recipe": "Host",
+    "reference_genome_id": "9606.33",
+    "genome_type":"host",
+    "trimming":false,
+    "contrasts": [
+        [
+            "cond1",
+            "cond2"
+        ]
+    ],
+    "paired_end_libs": [
+        {
+            "condition": "cond1",
+            "sample_id":"ERR188044_chrX",
+            "read1": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/ERR188044_chrX_1.fastq.gz",
+            "read2": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/ERR188044_chrX_2.fastq.gz"
+        },
+        {
+            "condition": "cond2",
+            "sample_Id":"ERR188383_chrX",
+            "read1": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/ERR188383_chrX_1.fastq.gz",
+            "read2": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/ERR188383_chrX_2.fastq.gz"
+        }
+    ],
+    "experimental_conditions": [
+        "cond1",
+        "cond2"
+    ],
+    "host_ftp": "ftp://ftp.patricbrc.org/host_genomes/9606/GRCh38.p13/GCF_000001405.39_GRCh38.p13"
+}

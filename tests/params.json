@@ -1,0 +1,42 @@
+{
+    "contrasts": [
+        [
+            "MHB",
+            "COL"
+        ],
+        [
+            "MHB",
+            "MERO"
+        ]
+    ],
+    "output_file": "A baumannii AMR",
+    "experimental_conditions": [
+        "MHB",
+        "COL",
+        "MERO"
+    ],
+    "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq",
+    "reference_genome_id": "1310581.3",
+    "genome_type":"bacteria",
+    "paired_end_libs": [
+        {
+            "sample_id":"MHB",
+            "read2": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/MHB_R2.fq.gz",
+            "read1": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/MHB_R1.fq.gz",
+            "condition":"MHB" 
+        },
+        {
+            "sample_id": "COL",
+            "read2": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/COL_75_R2.fq.gz",
+            "read1": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/COL_75_R1.fq.gz",
+            "condition": "COL"
+        },
+        {
+            "sample_id": "MERO",
+            "read2": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/MERO_75_R2.fq.gz",
+            "read1": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/MERO_75_R1.fq.gz",
+            "condition": "MERO"
+        }
+    ],
+    "recipe": "cufflinks" 
+}
