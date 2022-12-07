@@ -69,12 +69,6 @@ class ReportManager:
         # TODO: add when svg API issue is fixed
         #if diffexp_flag:
 
-        # Add references
-        report_lines.append('<section>\n<h2>References</h2>')
-        reference_lines = self.get_references()
-        report_lines.append(reference_lines)
-        report_lines.append('</section>')
-
         report_lines.append('</body>')
         report_lines.append('</html>')
         report_html = '\n'.join(report_lines)
@@ -153,35 +147,7 @@ class ReportManager:
         table_list.append('</table>')
         return '\n'.join(table_list)
 
-    def get_references(self):
-        print('generating references')
-        # multiqc
-        multiqc_ref = "\t\t1.\t MultiQC: Summarize analysis results for multiple tools and samples in a single report Philip Ewels, Måns Magnusson, Sverker Lundin and Max Käller Bioinformatics (2016) doi: 10.1093/bioinformatics/btw35PMID: 27312411 doi: 10.1093/bioinformatics/btw354 PMID: 27312411 "
-        # fastqc
-        fastqc_ref = "\t\t2.\tAndrews, S. (2010). FastQC:  A Quality Control Tool for High Throughput Sequence Data [Online]. Available online at: http://www.bioinformatics.babraham.ac.uk/projects/fastqc/"
-        # trimgalore
-        trimgalore_ref = "\t\t3.\tKrueger, F. (2019, November). Babraham bioinformatics - trim galore! Retrieved December 7, 2022, from https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/ "
-        # cutadapt
-        cutadapt_ref = "\t\t4.\tMARTIN, Marcel. Cutadapt removes adapter sequences from high-throughput sequencing reads. EMBnet.journal, [S.l.], v. 17, n. 1, p. pp. 10-12, may 2011. ISSN 2226-6089. Available at: <https://journal.embnet.org/index.php/embnetjournal/article/view/200>. Date accessed: 07 dec. 2022. doi:https://doi.org/10.14806/ej.17.1.200. "
-        # htseq
-        htseq_ref = "\t\t5.\tAnders S, Pyl PT, Huber W. HTSeq--a Python framework to work with high-throughput sequencing data. Bioinformatics. 2015 Jan 15;31(2):166-9. doi: 10.1093/bioinformatics/btu638. Epub 2014 Sep 25. PMID: 25260700; PMCID: PMC4287950."
-        # stringtie
-        stringtie_ref = "\t\t6.\tPertea M, Pertea GM, Antonescu CM, Chang TC, Mendell JT, Salzberg SL. StringTie enables improved reconstruction of a transcriptome from RNA-seq reads. Nat Biotechnol. 2015 Mar;33(3):290-5. doi: 10.1038/nbt.3122. Epub 2015 Feb 18. PMID: 25690850; PMCID: PMC4643835."
-        # deseq2
-        deseq_ref = "\t\t7.\tLove MI, Huber W, Anders S (2014). “Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2.” Genome Biology, 15, 550. doi: 10.1186/s13059-014-0550-8."
-        # bowtie/hisat
-        bowtie_ref = "\t\t8.\tLangmead B, Salzberg SL. Fast gapped-read alignment with Bowtie 2. Nat Methods. 2012 Mar 4;9(4):357-9. doi: 10.1038/nmeth.1923. PMID: 22388286; PMCID: PMC3322381."
-        hisat_ref = "\t\t9.\tKim, D., Paggi, J.M., Park, C. et al. Graph-based genome alignment and genotyping with HISAT2 and HISAT-genotype. Nat Biotechnol 37, 907–915 (2019). https://doi.org/10.1038/s41587-019-0201-4"
-        # tpmcalculator
-        tpmcalc_ref = "\t\t10.\tRoberto Vera Alvarez, Lorinc Sandor Pongor, Leonardo Mariño-Ramírez, David Landsman, TPMCalculator: one-step software to quantify mRNA abundance of genomic features, Bioinformatics, Volume 35, Issue 11, 1 June 2019, Pages 1960–1962, https://doi.org/10.1093/bioinformatics/bty896"
-        # cufflinks
-        cufflinks_ref = "\t\t11.\tTrapnell, C., Williams, B., Pertea, G. et al. Transcript assembly and quantification by RNA-Seq reveals unannotated transcripts and isoform switching during cell differentiation. Nat Biotechnol 28, 511–515 (2010). https://doi.org/10.1038/nbt.1621"
-        # seqtk
-        seqtk_ref = "\t\t12.\tlh3. (n.d.). Lh3/SEQTK: Toolkit for processing sequences in FASTA/Q Formats. GitHub. Retrieved December 7, 2022, from https://github.com/lh3/seqtk "
-        # rseqc
-        # bvbrc
-
-    def create_html_header(self,genome_name):
+        def create_html_header(self,genome_name):
         header = "<!DOCTYPE html><html><head>\n"
         header += "<title>BV-BRC RNASeq Report | {0}</title>\n".format(genome_name)
         header += "<link href=\"https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700,800,900\" rel=\"stylesheet\">\n"
