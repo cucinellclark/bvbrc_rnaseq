@@ -1,0 +1,44 @@
+{
+   "contrasts" : [
+      [
+         "not infected",
+         "infected avirulent"
+      ],
+      [
+         "not infected",
+         "infected virulent" 
+      ],
+      [
+         "infected avirulent",
+         "infected virulent"
+      ]
+   ],
+   "experimental_conditions" : [
+      "not infected",
+      "infected avirulent",
+      "infected virulent"
+   ],
+   "output_file" : "apr3",
+   "output_path" : "/olson@patricbrc.org/home/test",
+   "recipe" : "cufflinks",
+   "reference_genome_id" : "83332.12",
+    "genome_type":"bacteria",
+    "trimming":false,
+   "srr_libs" : [
+      {
+         "condition" : "not infected",
+         "sample_id" : "SRR8238942",
+         "srr_accession" : "SRR8238942"
+      },
+      {
+         "condition" : "infected avirulent",
+         "sample_id" : "SRR8238944",
+         "srr_accession" : "SRR8238944"
+      },
+      {
+         "condition" : "infected virulent",
+         "sample_id" : "SRR8238946",
+         "srr_accession" : "SRR8238946"
+      }
+   ]
+}

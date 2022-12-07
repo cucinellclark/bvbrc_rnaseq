@@ -1,0 +1,42 @@
+{
+    "output_path":"/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq",
+    "output_file":"out",
+    "recipe":"Host",
+    "reference_genome_id":"10090.24",
+    "genome_type":"host",
+    "trimming":false,
+    "host_ftp":"ftp://ftp.patricbrc.org/host_genomes/10090/GRCm38.p6/GCF_000001635.26_GRCm38.p6",
+    "contrasts": [
+        ["avirulent","control"]
+    ],
+    "paired_end_libs": [
+        {
+            "sample_id":"SRR8238941",
+            "condition":"control",
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP170254_Mouse_Paired/SRR8238941_1_sample.fastq",
+            "read2":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP170254_Mouse_Paired/SRR8238941_2_sample.fastq"
+        },
+        {
+            "sample_id":"SRR8238942",
+            "condition":"control",
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP170254_Mouse_Paired/SRR8238942_1_sample.fastq",
+            "read2":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP170254_Mouse_Paired/SRR8238942_2_sample.fastq"
+        },
+        {
+            "sample_id":"SRR8238943",
+            "condition":"avirulent",
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP170254_Mouse_Paired/SRR8238943_1_sample.fastq",
+            "read2":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP170254_Mouse_Paired/SRR8238943_2_sample.fastq"
+        },
+        {
+            "sample_id":"SRR8238944",
+            "condition":"avirulent",
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP170254_Mouse_Paired/SRR8238944_1_sample.fastq",
+            "read2":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP170254_Mouse_Paired/SRR8238944_2_sample.fastq"
+        }
+    ],
+    "experimental_conditions": [
+        "control",
+        "avirulent"
+    ]
+}

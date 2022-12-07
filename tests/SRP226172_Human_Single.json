@@ -1,0 +1,38 @@
+{
+    "output_path":"/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq",
+    "output_file":"out",
+    "recipe":"Host",
+    "reference_genome_id":"9606.33",
+    "genome_type":"host",
+    "trimming":false,
+    "host_ftp":"ftp://ftp.patricbrc.org/host_genomes/9606/GRCh38.p13/GCF_000001405.39_GRCh38.p13",
+    "contrasts": [
+        ["avirulent","control"]
+    ],
+    "single_end_libs": [
+        {
+            "condition":"control",
+            "sample_id":"SRR10307418",
+            "read":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP226172_Human_Single/SRR10307418_sample.fastq"
+        },
+        {
+            "condition":"control",
+            "sample_id":"SRR10307419",
+            "read":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP226172_Human_Single/SRR10307419_sample.fastq"
+        },
+        {
+            "condition":"avirulent",
+            "sample_id":"SRR10307420",
+            "read":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP226172_Human_Single/SRR10307420_sample.fastq"
+        },
+        {
+            "condition":"avirulent",
+            "sample_id":"SRR10307421",
+            "read":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP226172_Human_Single/SRR10307421_sample.fastq"
+        }
+    ],
+    "experimental_conditions": [
+        "control",
+        "avirulent"
+    ]
+}
