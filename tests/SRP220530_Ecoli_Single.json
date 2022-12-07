@@ -1,7 +1,7 @@
 {
     "output_path":"/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq",
     "output_file":"out",
-    "recipe":"RNA-Rocket",
+    "recipe":"HTSeq-DESeq",
     "reference_genome_id":"83333.113",
     "genome_type":"bacteria",
     "trimming":true,
