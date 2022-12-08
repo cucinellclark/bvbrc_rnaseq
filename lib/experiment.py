@@ -3,6 +3,7 @@
 import sys, os, subprocess
 import requests
 import json, io
+import bvbrc_api as bvb
 
 class Genome:
 
@@ -31,18 +32,20 @@ class Genome:
         self.genome_data = {}
         # get genome id prefix
         if genome_query:
-            base_query = f'https://alpha.bv-brc.org/api/genome/?eq(genome_id,{gi})&http_accept=application/solr+json'
-            print('genome_query:\nurl = {0}\n'.format(base_query))
-            req = requests.Request('GET',base_query)
-            prepared = req.prepare() 
-            response = session.send(prepared)
+            base = f'https://alpha.bv-brc.org/api/genome/?'
+            query = f'eq(genome_id,{gi})'
+            headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']}
+            print('genome_query:\nurl = {0}\n{1}\n'.format(base+query,headers))
+            genome_res = bvb.getQueryDataText(base,query,headers) 
             #res['response']['docs'][0]['common_name']
-            response_json = json.load(io.StringIO(response.text))
-            if 'response' in response_json:
-                response_data = response_json['response']['docs'][0]
-                self.genome_name = response_data['common_name']
-            else:
+            response_json = json.load(io.StringIO(genome_res))
+            if len(response_json) == 0:
                 self.genome_name = self.genome_id
+            else:
+                if 'common_name' in response_json[0]:
+                    self.genome_name = response_data[0]['common_name']
+                else:
+                    self.genome_name = self.genome_id
         else:
             self.genome_name = self.genome_id
 
