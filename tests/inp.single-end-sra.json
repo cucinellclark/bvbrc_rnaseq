@@ -20,5 +20,7 @@
   "genome_type":"bacteria",
   "paired_end_libs": [],
   "recipe": "HTSeq-DESeq",
+  "experimental_conditions":[],
+  "contrasts":[],
   "trimming":true
 }
