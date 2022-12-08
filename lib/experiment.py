@@ -43,7 +43,7 @@ class Genome:
                 self.genome_name = self.genome_id
             else:
                 if 'common_name' in response_json[0]:
-                    self.genome_name = response_data[0]['common_name']
+                    self.genome_name = response_json[0]['common_name']
                 else:
                     self.genome_name = self.genome_id
         else:
