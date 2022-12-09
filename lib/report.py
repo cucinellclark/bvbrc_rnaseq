@@ -93,6 +93,8 @@ class ReportManager:
     def get_subsystem_figure(self, genome):
         subsystem_figure_path = genome.get_genome_data('superclass_figure') 
         if subsystem_figure_path and os.path.exists(subsystem_figure_path):
+            if subsystem_figure_path.endswith('.png'):
+                return '<p>Error: Png file for subsystems</p>'
             try:
                 with open(subsystem_figure_path,'r') as sfp: 
                     subsystem_figure = sfp.read()
@@ -107,6 +109,8 @@ class ReportManager:
     def get_pathway_figure(self, genome):
         pathway_figure_path = genome.get_genome_data('pathway_figure') 
         if pathway_figure_path and os.path.exists(pathway_figure_path):
+            if pathway_figure_path.endswith('.png'):
+                return '<p>Error: Png file pathways</p>'
             try:
                 with open(pathway_figure_path,'r') as pfp: 
                     pathway_figure = pfp.read()
