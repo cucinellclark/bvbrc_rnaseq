@@ -828,6 +828,11 @@ class Alignment:
         sample.add_sample_data("strand",strand)
         
         # TODO: remove sampled files and sampled sam
+        for sampled_reads_file in sampled_reads_list:
+            if os.path.exists(sampled_reads_file):
+                os.remove(sampled_reads_file)
+        if os.path.exists(sampled_sam):
+            os.remove(sampled_sam)
 
     def convert_sam_to_bam(self,sam_file, threads):
         bam_file = sam_file.replace(".sam",".bam")

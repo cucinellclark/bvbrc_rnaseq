@@ -204,10 +204,14 @@ sub process_rnaseq {
     my $time2 = `date`;
     my $outdir = "$tmpdir";
     
-    # TODO test: Remove genome directory
+    # Remove genome directory
     my $ref_id   = $params->{reference_genome_id};
     my $ref_dir  = "$tmpdir/$ref_id";
     rmtree([ "$ref_dir" ]);
+
+    # Remove TPMCalculator directory
+    my $tpm_dir = "$tmpdir/TPMCalculator"
+    rmtree([ "$tpm_dir" ]);
 
     save_output_files($app,$outdir);
     write_output("Start: $time1"."End:   $time2", "$tmpdir/DONE");
