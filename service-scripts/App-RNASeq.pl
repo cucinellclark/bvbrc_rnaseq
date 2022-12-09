@@ -210,7 +210,7 @@ sub process_rnaseq {
     rmtree([ "$ref_dir" ]);
 
     # Remove TPMCalculator directory
-    my $tpm_dir = "$tmpdir/TPMCalculator"
+    my $tpm_dir = "$tmpdir/TPMCalculator";
     rmtree([ "$tpm_dir" ]);
 
     save_output_files($app,$outdir);
