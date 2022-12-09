@@ -715,6 +715,9 @@ class Alignment:
         else:
             sys.stderr.write("Bam file does not exist for Sample {0}:\ncheck error log file".format(sample.get_id()))
             return False
+        # TODO: next iteration of updates, remove sam file
+        #if os.path.exists(sam_file):
+        #    os.remove(sam_file)
 
     def run_alignment_stats(self, sample, threads):
         sample_dir = self.genome.get_sample_path(sample.get_id())
