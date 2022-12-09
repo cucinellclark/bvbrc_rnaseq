@@ -1071,8 +1071,14 @@ class Preprocess:
             if sample.get_type() == "paired": 
                 read_parts1 = os.path.basename(reads[0]).split(".")
                 read_parts2 = os.path.basename(reads[1]).split(".")
-                new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
-                new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
+                if read_parts1[-1] == 'gz':
+                    new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-2])+"_val_1.fq")
+                else:
+                    new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
+                if read_parts2[-1] == 'gz':
+                    new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-2])+"_val_2.fq")
+                else:
+                    new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
                 if not os.path.exists(new_r1) and os.path.exists(new_r1 + '.gz'):
                     new_r1 = new_r1 + '.gz'
                     new_r2 = new_r2 + '.gz'
@@ -1080,7 +1086,10 @@ class Preprocess:
                 trimmed_reads.append(new_r2)
             else:
                 read_parts = os.path.basename(reads[0]).split('.')
-                new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-1])+"_trimmed.fq")
+                if read_parts[0] == 'gz':
+                    new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-2])+"_trimmed.fq")
+                else:
+                    new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-1])+"_trimmed.fq")
                 if not os.path.exists(new_r) and os.path.exists(new_r+'.gz'):
                     new_r = new_r + '.gz'
                 trimmed_reads.append(new_r)
