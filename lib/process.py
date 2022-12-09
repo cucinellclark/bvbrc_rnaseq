@@ -715,6 +715,9 @@ class Alignment:
         else:
             sys.stderr.write("Bam file does not exist for Sample {0}:\ncheck error log file".format(sample.get_id()))
             return False
+        # TODO: next iteration of updates, remove sam file
+        #if os.path.exists(sam_file):
+        #    os.remove(sam_file)
 
     def run_alignment_stats(self, sample, threads):
         sample_dir = self.genome.get_sample_path(sample.get_id())
@@ -828,6 +831,11 @@ class Alignment:
         sample.add_sample_data("strand",strand)
         
         # TODO: remove sampled files and sampled sam
+        for sampled_reads_file in sampled_reads_list:
+            if os.path.exists(sampled_reads_file):
+                os.remove(sampled_reads_file)
+        if os.path.exists(sampled_sam):
+            os.remove(sampled_sam)
 
     def convert_sam_to_bam(self,sam_file, threads):
         bam_file = sam_file.replace(".sam",".bam")
@@ -1069,15 +1077,27 @@ class Preprocess:
             subprocess.check_call(trim_cmd)
             sample.set_command_status("trim","finished")
             if sample.get_type() == "paired": 
-                new_r1 = os.path.join(sample_dir,os.path.basename(reads[0]).split(".")[0]+"_val_1.fq")
-                new_r2 = os.path.join(sample_dir,os.path.basename(reads[1]).split(".")[0]+"_val_2.fq")
+                read_parts1 = os.path.basename(reads[0]).split(".")
+                read_parts2 = os.path.basename(reads[1]).split(".")
+                if read_parts1[-1] == 'gz':
+                    new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-2])+"_val_1.fq")
+                else:
+                    new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
+                if read_parts2[-1] == 'gz':
+                    new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-2])+"_val_2.fq")
+                else:
+                    new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
                 if not os.path.exists(new_r1) and os.path.exists(new_r1 + '.gz'):
                     new_r1 = new_r1 + '.gz'
                     new_r2 = new_r2 + '.gz'
                 trimmed_reads.append(new_r1)
                 trimmed_reads.append(new_r2)
             else:
-                new_r = os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq")
+                read_parts = os.path.basename(reads[0]).split('.')
+                if read_parts[0] == 'gz':
+                    new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-2])+"_trimmed.fq")
+                else:
+                    new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-1])+"_trimmed.fq")
                 if not os.path.exists(new_r) and os.path.exists(new_r+'.gz'):
                     new_r = new_r + '.gz'
                 trimmed_reads.append(new_r)

@@ -6,6 +6,8 @@
     "genome_type":"host",
     "reference_genome_id": "9606.33",
     "trimming":false,
+    "experimental_conditions":[],
+    "contrasts": []
     "paired_end_libs": [
         {
             "sample_id":"ERR188383_chrX",

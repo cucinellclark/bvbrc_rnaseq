@@ -20,7 +20,7 @@
         },
         {
             "condition": "cond2",
-            "sample_Id":"ERR188383_chrX",
+            "sample_id":"ERR188383_chrX",
             "read1": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/ERR188383_chrX_1.fastq.gz",
             "read2": "/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq/ERR188383_chrX_2.fastq.gz"
         }
