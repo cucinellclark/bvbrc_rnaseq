@@ -216,9 +216,9 @@ sub process_rnaseq {
     }
 
     # save diffexp stuff
-    my $diffexp_name = "diff_exp";
-    my $diffexp_folder = "$output/.$diffexp_name";
-    my $diffexp_file = "$output/$diffexp_name";
+    #my $diffexp_name = "diff_exp";
+    #my $diffexp_folder = "$output/.$diffexp_name";
+    #my $diffexp_file = "$output/$diffexp_name";
 
     # copy over diffexp stuff
     #if ( -e $diffexp_folder ) {
