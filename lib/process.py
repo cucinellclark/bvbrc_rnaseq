@@ -1063,7 +1063,7 @@ class Preprocess:
         print("Running command:\n {0}".format(" ".join(fastqc_cmd))) 
         try:
             # TODO: ENABLE
-            #subprocess.check_call(fastqc_cmd)
+            subprocess.check_call(fastqc_cmd)
             sample.set_command_status("fastqc","finished")
         except Exception as e:
             sys.stderr.write("FastQC encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))   
