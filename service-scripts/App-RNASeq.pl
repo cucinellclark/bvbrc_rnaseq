@@ -215,6 +215,16 @@ sub process_rnaseq {
         rmtree([ "$tpm_dir" ]);
     }
 
+    # save diffexp stuff
+    my $diffexp_name = "diff_exp";
+    my $diffexp_folder = "$output/.$diffexp_name";
+    my $diffexp_file = "$output/$diffexp_name";
+
+    # copy over diffexp stuff
+    #if ( -e $diffexp_folder ) {
+    #    $app->workspace->save_file_to_file("$diffexp_folder", {},"$output_folder/.$diffexp_name", "job_result", 1);
+    #}
+
     save_output_files($app,$outdir);
     write_output("Start: $time1"."End:   $time2", "$tmpdir/DONE");
 
@@ -262,8 +272,7 @@ sub run_bvbrc_rnaseq {
     my $ref_id   = $params->{reference_genome_id} or die "Reference genome is required\n";
     my $output_name = $params->{output_file} or die "Output name is required\n";
     my $host_ftp = defined($params->{host_ftp}) ? $params->{host_ftp} : undef;
-    print STDERR "here\n";
-    my $diffexp_name = defined($params->{diffexp_name}) ? $params->{diffexp_name} : "diff_exp";
+    my $diffexp_name = "diff_exp";
     my $diffexp_folder = "$outdir/.$diffexp_name";
     my $diffexp_file = "$outdir/$diffexp_name";
     my $ref_dir  = prepare_ref_data_rocket($ref_id, $tmpdir, $host, $host_ftp);
@@ -282,7 +291,7 @@ sub run_bvbrc_rnaseq {
     push @cmd, ("-p", $pstring);
     push @cmd, ("-o", $outdir);
     push @cmd, ("-g", $ref_dir);
-    push @cmd, ("-d", $diffexp_name);
+    push @cmd, ("-d", $diffexp_folder);
     push @cmd, ("--jfile", $jdesc);
     push @cmd, ("--sstring", $sstring);
     #if ($unit_test) {
@@ -837,6 +846,13 @@ sub verify_cmd {
 sub save_output_files
 {
     my($app, $output) = @_;
+
+    my $diffexp_name = "diff_exp";
+    my $diffexp_folder = "$output/.$diffexp_name";
+    my $diffexp_file = "$output/$diffexp_name";
+
+    # copy over diffexp stuff
+    #$app->workspace->save_file_to_file("$diffexp_folder", {},"$output/.$diffexp_name", "job_result", 1);
     
     my %suffix_map = (
               txt => 'txt',
@@ -863,6 +879,8 @@ sub save_output_files
     {
         next if $p =~ /^\./;
         next if $p =~ /\.fna\z/;  
+        next if $p eq $diffexp_folder;
+        next if $p eq $diffexp_file;
         my @cmd = ("p3-cp", "-r", @suffix_map, "$output/$p", "ws:" . $app->result_folder);
         print "@cmd\n";
         my $ok = IPC::Run::run(\@cmd);

@@ -946,6 +946,7 @@ class DiffExpImport:
             return False
         if os.path.exists(gmx_file):
             experiment_path=os.path.join(output_dir, map_args.d)
+            print(f'experiment_path={experiment_path}')
             subprocess.call(["mkdir","-p",experiment_path])
             transform_params = {"output_path":experiment_path, "xfile":gmx_file, "xformat":"tsv",\
                     "xsetup":"gene_matrix", "source_id_type":"patric_id",\
