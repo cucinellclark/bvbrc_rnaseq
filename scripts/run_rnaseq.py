@@ -87,9 +87,9 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
         diff_exp.set_genome(genome)
         diff_exp.run_differential_expression(output_dir,sample_list)
         # TODO: broken
-        if genome.get_genome_type() == 'bacteria':
-            diffexp_import.set_genome(genome)
-            diffexp_import.run_diff_exp_import(output_dir,map_args)
+        #if genome.get_genome_type() == 'bacteria':
+        #    diffexp_import.set_genome(genome)
+        #    diffexp_import.run_diff_exp_import(output_dir,map_args)
 
     # Queries: subsystems, kegg
     # output files are used in creating figures
