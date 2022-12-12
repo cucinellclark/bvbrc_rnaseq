@@ -10,7 +10,7 @@ from math import log
 import pandas as pd
 import numpy as np
 
-from bvbrc_api import getSubsystemsDataFrame,getPathwayDataFrame
+from bvbrc_api import getQueryDataText,getSubsystemsDataFrame,getPathwayDataFrame
 
 class DifferentialExpression:
 
@@ -205,31 +205,37 @@ class GenomeData:
             sys.stderr.write('No tpm\'s matrix in genome data: exiting create_system_figures\n')
             return False
         metadata = self.genome.get_genome_data('sample_metadata_file')
-        superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_Superclass_Distribution")
-        pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_PathwayClass_Distribution")
-        superclass_cmd = ["rnaseq_grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
-        pathway_cmd = ["rnaseq_grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
 
         try:
-            print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
-            # TODO: ENABLE
-            subprocess.check_call(superclass_cmd) 
-            #self.genome.add_genome_data('superclass_figure',superclass_figure+'.svg')
-            self.genome.add_genome_data('superclass_figure',superclass_figure+'.png')
+            superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_Superclass_Distribution")
+            superclass_cmd = ["rnaseq_grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
+            if os.path.exists(superclass_mapping):
+                print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
+                # TODO: ENABLE
+                subprocess.check_call(superclass_cmd) 
+                #self.genome.add_genome_data('superclass_figure',superclass_figure+'.svg')
+                self.genome.add_genome_data('superclass_figure',superclass_figure+'.png')
         except Exception as e:
             sys.stderr.write('Error creating superclass violin plots:\n{0}\n'.format(e))
 
         try:
-            print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
-            # TODO: ENABLE
-            subprocess.check_call(pathway_cmd) 
-            #self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
-            self.genome.add_genome_data('pathway_figure',pathway_figure+'.png')
+            pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_PathwayClass_Distribution")
+            pathway_cmd = ["rnaseq_grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
+            if os.path.exists(pathway_mapping):
+                print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
+                # TODO: ENABLE
+                subprocess.check_call(pathway_cmd) 
+                #self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
+                self.genome.add_genome_data('pathway_figure',pathway_figure+'.png')
         except Exception as e:
             sys.stderr.write('Error creating pathway violin plots:\n{0}\n'.format(e))
 
     def run_pathway(self, output_dir, session):
-        pathway_df = getPathwayDataFrame([self.genome.get_id()], session)
+        #pathway_df = getPathwayDataFrame([self.genome.get_id()], session)
+        base = "https://alpha.bv-brc.org/home/pathway/?http_download=true"
+        query = f"eq(genome_id,{self.genome.get_id()})&sort(+id)&limit(2500000)"
+        headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']}
+        pathway_df = pd.DataFrame(json.loads(getQueryDataText(base,query,headers)))
         if not pathway_df is None:
             mapping_table = pathway_df[['patric_id','pathway_class']]
             mapping_output = os.path.join(output_dir,self.genome.get_id()+"_pathway_mapping.tsv")
@@ -241,7 +247,15 @@ class GenomeData:
 
     # subsystem_df is a pandas dataframe
     def run_subsystems(self, output_dir, session):
-        subsystem_df = getSubsystemsDataFrame([self.genome.get_id()],session)
+        #subsystem_df = getSubsystemsDataFrame([self.genome.get_id()],session)
+        base = "https://alpha.bv-brc.org/home/subsystem/?http_download=true"
+        query = f"eq(genome_id,{self.genome.get_id()})&sort(+id)&limit(2500000)"
+        headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']} 
+        try:
+            subsystem_df = pd.DataFrame(json.loads(getQueryDataText(base,query,headers)))
+        except Exception as e:
+            sys.stderr.write(f'Error retrieving subsystems data:\n{e}\n')
+            return -1
         if not subsystem_df is None:
             mapping_table = subsystem_df[['patric_id','superclass']]
             mapping_output = os.path.join(output_dir,self.genome.get_id()+"_superclass_mapping.tsv")
