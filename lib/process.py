@@ -115,7 +115,7 @@ class DifferentialExpression:
 
         
 
-    def create_gmx_file(init_args, output_file):
+    def create_gmx_file(self, init_args, output_file):
         output_handle=open(output_file, 'w')
         if(len(init_args)<1):
             print ("Usage cuffdiff_to_genematrix.py  <cuffdiff files>")
