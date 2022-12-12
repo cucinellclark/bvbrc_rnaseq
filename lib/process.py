@@ -964,7 +964,8 @@ class DiffExpImport:
                sys.stderr.write("Running differential expression import failed.\n")
                #subprocess.call(["rm","-rf",experiment_path])
                return
-            diffexp_obj_file=os.path.join(output_dir, os.path.basename(map_args.d.lstrip(".")+"_obj_file"))
+            #diffexp_obj_file=os.path.join(output_dir, os.path.basename(map_args.d.lstrip(".")))
+            diffexp_obj_file=os.path.join(output_dir, os.path.basename(map_args.d))
             with open(diffexp_obj_file, 'w') as diffexp_job:
                 diffexp_job.write(json.dumps(diffexp_json))
             return True
