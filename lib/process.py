@@ -10,7 +10,7 @@ from math import log
 import pandas as pd
 import numpy as np
 
-from bvbrc_api import getSubsystemsDataFrame,getPathwayDataFrame
+from bvbrc_api import getQueryDataText,getSubsystemsDataFrame,getPathwayDataFrame
 
 class DifferentialExpression:
 
@@ -115,7 +115,7 @@ class DifferentialExpression:
 
         
 
-    def create_gmx_file(init_args, output_file):
+    def create_gmx_file(self, init_args, output_file):
         output_handle=open(output_file, 'w')
         if(len(init_args)<1):
             print ("Usage cuffdiff_to_genematrix.py  <cuffdiff files>")
@@ -205,31 +205,37 @@ class GenomeData:
             sys.stderr.write('No tpm\'s matrix in genome data: exiting create_system_figures\n')
             return False
         metadata = self.genome.get_genome_data('sample_metadata_file')
-        superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_Superclass_Distribution")
-        pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_PathwayClass_Distribution")
-        superclass_cmd = ["rnaseq_grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
-        pathway_cmd = ["rnaseq_grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
 
         try:
-            print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
-            # TODO: ENABLE
-            subprocess.check_call(superclass_cmd) 
-            #self.genome.add_genome_data('superclass_figure',superclass_figure+'.svg')
-            self.genome.add_genome_data('superclass_figure',superclass_figure+'.png')
+            superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_Superclass_Distribution")
+            superclass_cmd = ["rnaseq_grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
+            if os.path.exists(superclass_mapping):
+                print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
+                # TODO: ENABLE
+                subprocess.check_call(superclass_cmd) 
+                #self.genome.add_genome_data('superclass_figure',superclass_figure+'.svg')
+                self.genome.add_genome_data('superclass_figure',superclass_figure+'.png')
         except Exception as e:
             sys.stderr.write('Error creating superclass violin plots:\n{0}\n'.format(e))
 
         try:
-            print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
-            # TODO: ENABLE
-            subprocess.check_call(pathway_cmd) 
-            #self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
-            self.genome.add_genome_data('pathway_figure',pathway_figure+'.png')
+            pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_PathwayClass_Distribution")
+            pathway_cmd = ["rnaseq_grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
+            if os.path.exists(pathway_mapping):
+                print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
+                # TODO: ENABLE
+                subprocess.check_call(pathway_cmd) 
+                #self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
+                self.genome.add_genome_data('pathway_figure',pathway_figure+'.png')
         except Exception as e:
             sys.stderr.write('Error creating pathway violin plots:\n{0}\n'.format(e))
 
     def run_pathway(self, output_dir, session):
-        pathway_df = getPathwayDataFrame([self.genome.get_id()], session)
+        #pathway_df = getPathwayDataFrame([self.genome.get_id()], session)
+        base = "https://alpha.bv-brc.org/api/pathway/?http_download=true"
+        query = f"eq(genome_id,{self.genome.get_id()})&sort(+id)&limit(2500000)"
+        headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']}
+        pathway_df = pd.DataFrame(json.loads(getQueryDataText(base,query,headers)))
         if not pathway_df is None:
             mapping_table = pathway_df[['patric_id','pathway_class']]
             mapping_output = os.path.join(output_dir,self.genome.get_id()+"_pathway_mapping.tsv")
@@ -241,7 +247,15 @@ class GenomeData:
 
     # subsystem_df is a pandas dataframe
     def run_subsystems(self, output_dir, session):
-        subsystem_df = getSubsystemsDataFrame([self.genome.get_id()],session)
+        #subsystem_df = getSubsystemsDataFrame([self.genome.get_id()],session)
+        base = "https://alpha.bv-brc.org/api/subsystem/?http_download=true"
+        query = f"eq(genome_id,{self.genome.get_id()})&sort(+id)&limit(2500000)"
+        headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']} 
+        try:
+            subsystem_df = pd.DataFrame(json.loads(getQueryDataText(base,query,headers)))
+        except Exception as e:
+            sys.stderr.write(f'Error retrieving subsystems data:\n{e}\n')
+            return -1
         if not subsystem_df is None:
             mapping_table = subsystem_df[['patric_id','superclass']]
             mapping_output = os.path.join(output_dir,self.genome.get_id()+"_superclass_mapping.tsv")
@@ -332,7 +346,6 @@ class Quantify:
             return -1
         return 0
 
-    # TODO: change to multithraded htseq, -n parameter
     def run_htseq(self, sample_list, threads):
         # TODO: add strandedness parameter: -s
         # featurey_type: CDS or Gene
@@ -345,9 +358,11 @@ class Quantify:
             quant_cmd_list.append(quant_cmd)
             sample_dir = self.genome.get_sample_path(sample.get_id())
             sample_output_file = os.path.join(sample_dir,sample.get_id()+'.counts')
-            sample_details_list.append([sample_output_file, sample])
+            sample_err_file = os.path.join(sample_dir,sample.get_id()+'.htseq_err')
+            sample_details_list.append([sample_output_file, sample,sample_err_file])
         quant_args_list = list(zip(quant_cmd_list,sample_details_list)) 
         future_returns = []
+        # redirect stderr 
         with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as pool:
             future_returns = list(pool.map(self.run_htseq_job,quant_args_list))
         for f in future_returns:
@@ -362,12 +377,13 @@ class Quantify:
         sample_details = cmd_details[1]
         output_file = sample_details[0]
         sample = sample_details[1]
+        err_file = sample_details[2]
         sample.add_command("htseq"+"_"+self.genome.get_id(),cmd,"running")
         print('Running command:\n{0}\n'.format(' '.join(cmd)))
         try:
             # TODO: ENABLE
-            with open(output_file,'w') as o:
-               subprocess.check_call(cmd,stdout=o)
+            with open(output_file,'w') as o,open(err_file,'w') as e:
+               subprocess.check_call(cmd,stdout=o,stderr=e)
             sample.set_command_status("htseq"+"_"+self.genome.get_id(),"finished")
             sample.add_sample_data(self.genome.get_id()+"_gene_counts",output_file)
         except Exception as e:
@@ -713,11 +729,11 @@ class Alignment:
             sample.add_sample_data("bam",bam_file) 
             return True
         else:
-            sys.stderr.write("Bam file does not exist for Sample {0}:\ncheck error log file".format(sample.get_id()))
+            sys.stderr.write("Bam file does not exist for Sample {0}:\ncheck error log file\n".format(sample.get_id()))
             return False
-        # TODO: next iteration of updates, remove sam file
-        #if os.path.exists(sam_file):
-        #    os.remove(sam_file)
+        # remove sam file
+        if os.path.exists(sam_file):
+            os.remove(sam_file)
 
     def run_alignment_stats(self, sample, threads):
         sample_dir = self.genome.get_sample_path(sample.get_id())
@@ -841,20 +857,18 @@ class Alignment:
         bam_file = sam_file.replace(".sam",".bam")
         print("bam_file = {0}".format(bam_file))
         sam_to_bam_cmd = "samtools view -Su " + sam_file + " | samtools sort -o - - -@ " + str(threads) + " > " + bam_file
-        print("Running command:\n{0}".format(sam_to_bam_cmd))
         try:
+            print("Running command:\n{0}".format(sam_to_bam_cmd))
             # TODO: ENABLE
             subprocess.check_call(sam_to_bam_cmd,shell=True)
-            print('skip')
         except Exception as e:
             sys.stderr.write("Error in converting sam to bam file:\n{0}\n".format(e))
             return None
         index_cmd = "samtools index " + bam_file
-        print("Running command:\n{0}".format(index_cmd))
         try:
+            print("Running command:\n{0}".format(index_cmd))
             # TODO: ENABLE
             subprocess.check_call(index_cmd,shell=True)
-            print('skip')
         except Exception as e:
             sys.stderr.write("Error indexing bam file:\n{0}\n".format(e))
             return None
@@ -932,6 +946,7 @@ class DiffExpImport:
             return False
         if os.path.exists(gmx_file):
             experiment_path=os.path.join(output_dir, map_args.d)
+            print(f'experiment_path={experiment_path}')
             subprocess.call(["mkdir","-p",experiment_path])
             transform_params = {"output_path":experiment_path, "xfile":gmx_file, "xformat":"tsv",\
                     "xsetup":"gene_matrix", "source_id_type":"patric_id",\
