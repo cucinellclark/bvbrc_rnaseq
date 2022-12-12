@@ -263,8 +263,8 @@ sub run_bvbrc_rnaseq {
     my $output_name = $params->{output_file} or die "Output name is required\n";
     my $host_ftp = defined($params->{host_ftp}) ? $params->{host_ftp} : undef;
     print STDERR "here\n";
-    my $diffexp_name = defined($params->{diffexp_name}) ? $params->{diffexp_name} : ".diff_exp";
-    my $diffexp_folder = "$outdir/$diffexp_name";
+    my $diffexp_name = defined($params->{diffexp_name}) ? $params->{diffexp_name} : "diff_exp";
+    my $diffexp_folder = "$outdir/.$diffexp_name";
     my $diffexp_file = "$outdir/$diffexp_name";
     my $ref_dir  = prepare_ref_data_rocket($ref_id, $tmpdir, $host, $host_ftp);
     #my $unit_test = defined($params->{unit_test}) ? $params->{unit_test} : undef;
@@ -357,7 +357,7 @@ sub run_bvbrc_rnaseq {
 	push(@outputs, [$txt, 'txt']);
     }
     
-    push @outputs, [ "$outdir/$ref_id/gene_exp.gmx", 'diffexp_input_data' ] if -s "$outdir/$ref_id/gene_exp.gmx";
+    push @outputs, [ "$outdir/gene_exp.gmx", 'diffexp_input_data' ] if -s "$outdir/gene_exp.gmx";
     push @outputs, [ $diffexp_file, 'job_result' ] if -s $diffexp_file;
     push @outputs, [ $diffexp_folder, 'folder' ] if -e $diffexp_folder and -d $diffexp_folder;
     
