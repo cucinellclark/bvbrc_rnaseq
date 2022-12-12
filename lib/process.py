@@ -332,7 +332,6 @@ class Quantify:
             return -1
         return 0
 
-    # TODO: change to multithraded htseq, -n parameter
     def run_htseq(self, sample_list, threads):
         # TODO: add strandedness parameter: -s
         # featurey_type: CDS or Gene
@@ -345,9 +344,11 @@ class Quantify:
             quant_cmd_list.append(quant_cmd)
             sample_dir = self.genome.get_sample_path(sample.get_id())
             sample_output_file = os.path.join(sample_dir,sample.get_id()+'.counts')
-            sample_details_list.append([sample_output_file, sample])
+            sample_err_file = os.path.join(sample_dir,sample.get_id()+'.htseq_err')
+            sample_details_list.append([sample_output_file, sample,sample_err_file])
         quant_args_list = list(zip(quant_cmd_list,sample_details_list)) 
         future_returns = []
+        # redirect stderr 
         with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as pool:
             future_returns = list(pool.map(self.run_htseq_job,quant_args_list))
         for f in future_returns:
@@ -362,12 +363,13 @@ class Quantify:
         sample_details = cmd_details[1]
         output_file = sample_details[0]
         sample = sample_details[1]
+        err_file = sample_details[2]
         sample.add_command("htseq"+"_"+self.genome.get_id(),cmd,"running")
         print('Running command:\n{0}\n'.format(' '.join(cmd)))
         try:
             # TODO: ENABLE
-            with open(output_file,'w') as o:
-               subprocess.check_call(cmd,stdout=o)
+            with open(output_file,'w') as o,open(err_file,'w') as e:
+               subprocess.check_call(cmd,stdout=o,stderr=e)
             sample.set_command_status("htseq"+"_"+self.genome.get_id(),"finished")
             sample.add_sample_data(self.genome.get_id()+"_gene_counts",output_file)
         except Exception as e:
