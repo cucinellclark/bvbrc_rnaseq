@@ -87,8 +87,6 @@ class DifferentialExpression:
         vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.png')
         ev_cmd = ['rnaseq_volcano_plots',os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix)]
         contrast_file_list = []
-        import pdb
-        pdb.set_trace()
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
             cond1 = contrast.split(':')[0]

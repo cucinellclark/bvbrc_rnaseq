@@ -374,8 +374,6 @@ if __name__ == "__main__":
     # TODO:
     #   - check if diffexp is turned on, turn off if need be
     comparisons = experiment.Comparison() 
-    import pdb
-    pdb.set_trace()
     for con in job_data["contrasts"]:
          comparisons.add_contrast(con[0],con[1])
 
