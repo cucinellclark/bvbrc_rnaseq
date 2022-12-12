@@ -208,11 +208,15 @@ sub process_rnaseq {
         # Remove genome directory
         my $ref_id   = $params->{reference_genome_id};
         my $ref_dir  = "$tmpdir/$ref_id";
-        rmtree([ "$ref_dir" ]);
+        if ( -d $ref_dir ) {
+            rmtree([ "$ref_dir" ]);
+        }
 
         # Remove TPMCalculator directory
         my $tpm_dir = "$tmpdir/TPMCalculator";
-        rmtree([ "$tpm_dir" ]);
+        if ( -d $tpm_dir ) {
+            rmtree([ "$tpm_dir" ]);
+        }
     }
 
     # save diffexp stuff
