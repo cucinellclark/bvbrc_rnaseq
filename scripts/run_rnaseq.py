@@ -266,7 +266,6 @@ if __name__ == "__main__":
                 data_key = "hisat_index"
             else:
                 continue
-            # TODO: any file linking?
             genome.set_genome_dir(genome_dir)
             genome.add_genome_data(data_key,os.path.abspath(os.path.join(genome_dir,f)))
 
