@@ -276,9 +276,10 @@ sub run_bvbrc_rnaseq {
     my $ref_id   = $params->{reference_genome_id} or die "Reference genome is required\n";
     my $output_name = $params->{output_file} or die "Output name is required\n";
     my $host_ftp = defined($params->{host_ftp}) ? $params->{host_ftp} : undef;
-    my $diffexp_name = "diff_exp";
-    my $diffexp_folder = "$outdir/.$diffexp_name";
-    my $diffexp_file = "$outdir/$diffexp_name";
+    my $dsuffix = "_diffexp";
+    my $diffexp_name = ".$output_name$dsuffix";
+    my $diffexp_folder = "$outdir/$diffexp_name";
+    my $diffexp_file = "$outdir/$output_name$dsuffix";
     my $ref_dir  = prepare_ref_data_rocket($ref_id, $tmpdir, $host, $host_ftp);
     #my $unit_test = defined($params->{unit_test}) ? $params->{unit_test} : undef;
     
@@ -295,7 +296,7 @@ sub run_bvbrc_rnaseq {
     push @cmd, ("-p", $pstring);
     push @cmd, ("-o", $outdir);
     push @cmd, ("-g", $ref_dir);
-    push @cmd, ("-d", $diffexp_folder);
+    push @cmd, ("-d", $diffexp_name);
     push @cmd, ("--jfile", $jdesc);
     push @cmd, ("--sstring", $sstring);
     #if ($unit_test) {
