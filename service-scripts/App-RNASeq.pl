@@ -296,7 +296,7 @@ sub run_bvbrc_rnaseq {
     push @cmd, ("-p", $pstring);
     push @cmd, ("-o", $outdir);
     push @cmd, ("-g", $ref_dir);
-    push @cmd, ("-d", $diffexp_name);
+    push @cmd, ("-d", $diffexp_folder);
     push @cmd, ("--jfile", $jdesc);
     push @cmd, ("--sstring", $sstring);
     #if ($unit_test) {
