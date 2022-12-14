@@ -275,6 +275,7 @@ if __name__ == "__main__":
     experiment_dict['no_condition'] = no_condition
     condition_list = []
     for cond_str in job_data['experimental_conditions']:
+        cond_str = cond_str.replace(' ','_')
         condition_list.append(cond_str)
         new_condition = experiment.Condition(cond_str)
         experiment_dict[cond_str] = new_condition
@@ -286,6 +287,7 @@ if __name__ == "__main__":
                 condition = paired_sample['condition']
             else:
                 condition = 'no_condition'
+            condition = condition.replace(' ','_')
             sample_reads = [paired_sample['read1'],paired_sample['read2']]
             new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,condition)
             if condition:
