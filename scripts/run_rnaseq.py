@@ -380,7 +380,8 @@ if __name__ == "__main__":
     #   - check if diffexp is turned on, turn off if need be
     comparisons = experiment.Comparison() 
     for con in job_data["contrasts"]:
-         comparisons.add_contrast(con[0],con[1])
+        con = [x.replace(' ','_') for x in con]
+        comparisons.add_contrast(con[0],con[1])
 
     # TODO: Check if job_data contains 'cufflinks' flag: if true, run old pipeline
 
