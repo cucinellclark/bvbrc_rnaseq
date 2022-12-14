@@ -275,6 +275,7 @@ if __name__ == "__main__":
     experiment_dict['no_condition'] = no_condition
     condition_list = []
     for cond_str in job_data['experimental_conditions']:
+        cond_str = cond_str.replace(' ','_')
         condition_list.append(cond_str)
         new_condition = experiment.Condition(cond_str)
         experiment_dict[cond_str] = new_condition
@@ -286,8 +287,10 @@ if __name__ == "__main__":
                 condition = paired_sample['condition']
             else:
                 condition = 'no_condition'
+            condition = condition.replace(' ','_')
             sample_reads = [paired_sample['read1'],paired_sample['read2']]
-            new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,condition)
+            sample_id = paired_sample['sample_id'].replace(' ','_')
+            new_sample = experiment.Sample(sample_id,'paired',sample_reads,None,condition)
             if condition:
                 experiment_dict[condition].add_sample(new_sample)
 
@@ -298,8 +301,10 @@ if __name__ == "__main__":
                 condition = single_sample['condition']
             else:
                 condition = 'no_condition' 
+            condition = condition.replace(' ','_')
             sample_read = [single_sample['read']]
-            new_sample = experiment.Sample(single_sample['sample_id'],'single',sample_read,None,condition)
+            sample_id = single_sample['sample_id'].replace(' ','_')
+            new_sample = experiment.Sample(sample_id,'single',sample_read,None,condition)
             if condition:
                 experiment_dict[condition].add_sample(new_sample)
 
@@ -319,6 +324,7 @@ if __name__ == "__main__":
                 condition = sra_sample['condition']
             else:
                 condition = 'no_condition' 
+            condition = condition.replace(' ','_')
             srr_id = sra_sample['srr_accession'] 
             meta_file = os.path.join(sra_meta_dir,srr_id+'_meta.txt')
             reads_dir = {}
@@ -374,7 +380,8 @@ if __name__ == "__main__":
     #   - check if diffexp is turned on, turn off if need be
     comparisons = experiment.Comparison() 
     for con in job_data["contrasts"]:
-         comparisons.add_contrast(con[0],con[1])
+        con = [x.replace(' ','_') for x in con]
+        comparisons.add_contrast(con[0],con[1])
 
     # TODO: Check if job_data contains 'cufflinks' flag: if true, run old pipeline
 
