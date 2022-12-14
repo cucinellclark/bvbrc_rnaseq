@@ -289,7 +289,8 @@ if __name__ == "__main__":
                 condition = 'no_condition'
             condition = condition.replace(' ','_')
             sample_reads = [paired_sample['read1'],paired_sample['read2']]
-            new_sample = experiment.Sample(paired_sample['sample_id'],'paired',sample_reads,None,condition)
+            sample_id = paired_sample['sample_id'].replace(' ','_')
+            new_sample = experiment.Sample(sample_id,'paired',sample_reads,None,condition)
             if condition:
                 experiment_dict[condition].add_sample(new_sample)
 
@@ -300,8 +301,10 @@ if __name__ == "__main__":
                 condition = single_sample['condition']
             else:
                 condition = 'no_condition' 
+            condition = condition.replace(' ','_')
             sample_read = [single_sample['read']]
-            new_sample = experiment.Sample(single_sample['sample_id'],'single',sample_read,None,condition)
+            sample_id = single_sample['sample_id'].replace(' ','_')
+            new_sample = experiment.Sample(sample_id,'single',sample_read,None,condition)
             if condition:
                 experiment_dict[condition].add_sample(new_sample)
 
@@ -321,6 +324,7 @@ if __name__ == "__main__":
                 condition = sra_sample['condition']
             else:
                 condition = 'no_condition' 
+            condition = condition.replace(' ','_')
             srr_id = sra_sample['srr_accession'] 
             meta_file = os.path.join(sra_meta_dir,srr_id+'_meta.txt')
             reads_dir = {}
