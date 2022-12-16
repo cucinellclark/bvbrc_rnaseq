@@ -130,6 +130,7 @@ sub process_rnaseq {
     #
 
     $params->{experimental_conditions} //= [];
+    $params->{contrasts} //= [];
     
     my @outputs;
     my $prefix = $recipe;
