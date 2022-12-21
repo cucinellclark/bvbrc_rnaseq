@@ -123,6 +123,14 @@ sub process_rnaseq {
     #localize_params_local for testing: will not download files
     $params = localize_params($tmpdir, $params);
     #$params = localize_params_local($tmpdir, $params);
+
+
+    # 
+    # If experimental_conditions was not specified, default to the empty list.
+    #
+
+    $params->{experimental_conditions} //= [];
+    $params->{contrasts} //= [];
     
     my @outputs;
     my $prefix = $recipe;
@@ -246,9 +254,12 @@ sub run_bvbrc_rnaseq {
     my $cwd = getcwd();
     
     my $json = JSON::XS->new->pretty(1);
+
     #
     # Write job description.
     #
+
+
     my $jdesc = "$cwd/jobdesc.json";
     write_file($jdesc, $json->encode($params));
     
