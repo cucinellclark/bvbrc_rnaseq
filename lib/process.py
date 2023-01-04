@@ -461,9 +461,12 @@ class Quantify:
         # run rnaseqPrepDE.py 
         gene_matrix_file = os.path.join(output_dir,"gene_counts_matrix.csv")
         transcript_matrix_file = os.path.join(output_dir,"transcript_counts_matrix.csv")
-        avg_read_length = str(int(np.average(avg_len_list))) 
+        avg_read_length = int(np.average(avg_len_list)) 
+        if avg_read_length == 0:
+            sys.stderr.write('Error creating gene and transcript counts table: average read length is 0.\n')
+            return None
         # TODO: set path or import or something
-        prepde_cmd = ['rnaseqPrepDE','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
+        prepde_cmd = ['rnaseqPrepDE','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',str(avg_read_length)]
         try:
             print(' '.join(prepde_cmd))
             subprocess.check_call(prepde_cmd)
@@ -727,13 +730,16 @@ class Alignment:
         bam_file = self.convert_sam_to_bam(sam_file,threads)
         if bam_file:
             sample.add_sample_data("bam",bam_file) 
-            return True
         else:
+            sys.stderr.write("Bam file entry does not exist for Sample {0}:\ncheck error log file\n".format(sample.get_id()))
+            return False
+        if not os.path.exists(bam_file):
             sys.stderr.write("Bam file does not exist for Sample {0}:\ncheck error log file\n".format(sample.get_id()))
             return False
         # remove sam file
         if os.path.exists(sam_file):
             os.remove(sam_file)
+        return True
 
     def run_alignment_stats(self, sample, threads):
         sample_dir = self.genome.get_sample_path(sample.get_id())
@@ -742,23 +748,24 @@ class Alignment:
         stats_cmd = ["samtools","stats","--threads",str(threads),sample_bam]
         stats_output = os.path.join(sample_dir,sample.get_id()+".samtools_stats")
         sample.add_command("samtools_stats_"+self.genome.get_id(),stats_cmd,"running")
-        print("Running command:\n{0}".format(" ".join(stats_cmd)))
         try:
             # TODO: ENABLE
+            print("Running command:\n{0}".format(" ".join(stats_cmd)))
             with open(stats_output,"w") as so:
                 subprocess.check_call(stats_cmd,stdout=so)
             sample.set_command_status("samtools_stats_"+self.genome.get_id(),"finished")
         except Exception as e:
-            sys.stderr.write("Samtools stats encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
+            sys.stderr.write("Samtools stats encountered an error in Sample {0}:\ncheck error log file\n".format(sample.get_id()))
             sample.set_command_status("samtools_stats_"+self.genome.get_id(),e)
-        
-        sample.add_sample_data('avg_read_length',self.get_average_read_length_per_file(stats_output)) 
+       
+        avg_len = self.get_average_read_length_per_file(stats_output) 
+        sample.add_sample_data('avg_read_length',avg_len) 
 
         # samstat
         samstat_cmd = ["samstat",sample_bam]
         sample.add_command("samstat_"+self.genome.get_id(),samstat_cmd,"running")
-        print("Running command:\n{0}".format(" ".join(samstat_cmd)))
         try:
+            print("Running command:\n{0}".format(" ".join(samstat_cmd)))
             # TODO: ENABLE
             subprocess.check_call(samstat_cmd)
             sample.set_command_status("samstat_"+self.genome.get_id(),"finished")
@@ -768,12 +775,14 @@ class Alignment:
 
     #Reads the output from samtools stat and grabs the average read length value
     def get_average_read_length_per_file(self,stats_file):
+        avg_len = 0
         with open(stats_file,"r") as sf:
             for line in sf:
                 if "average length:" in line: 
                     line = line.strip().split()
                     avg_length = line[-1]
-                    return avg_length
+                    break
+        return avg_len 
 
     # TODO: incorporate checking the sample alignment results
     def run_sample_alignment(self,sample,threads):
@@ -1086,10 +1095,12 @@ class Preprocess:
         #    trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq.gz"))
         trim_cmd += reads
         sample.add_command("trim",trim_cmd,"running")
-        print("Running command:\n{0}".format(" ".join(trim_cmd)))
+        trim_galore_stderr = os.path.join(sample_dir,'trim_galore.stderr')
         try:
+            print("Running command:\n{0}".format(" ".join(trim_cmd)))
             # TODO: ENABLE
-            subprocess.check_call(trim_cmd)
+            with open(trim_galore_stderr,'w') as err:
+                subprocess.check_call(trim_cmd,stderr=err)
             sample.set_command_status("trim","finished")
             if sample.get_type() == "paired": 
                 read_parts1 = os.path.basename(reads[0]).split(".")
@@ -1102,20 +1113,29 @@ class Preprocess:
                     new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-2])+"_val_2.fq")
                 else:
                     new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
-                if not os.path.exists(new_r1) and os.path.exists(new_r1 + '.gz'):
+                if os.path.exists(new_r1 + '.gz'):
                     new_r1 = new_r1 + '.gz'
                     new_r2 = new_r2 + '.gz'
-                trimmed_reads.append(new_r1)
-                trimmed_reads.append(new_r2)
+                if not os.path.exists(new_r1):
+                    sys.stderr.write(f"trimmed reads file {new_r1} does not exist for {sample.get_id()}, using original reads file\n")
+                    trimmed_reads.append(reads[0])
+                    trimmed_reads.append(reads[1])
+                else:
+                    trimmed_reads.append(new_r1)
+                    trimmed_reads.append(new_r2)
             else:
                 read_parts = os.path.basename(reads[0]).split('.')
                 if read_parts[0] == 'gz':
                     new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-2])+"_trimmed.fq")
                 else:
                     new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-1])+"_trimmed.fq")
-                if not os.path.exists(new_r) and os.path.exists(new_r+'.gz'):
+                if os.path.exists(new_r+'.gz'):
                     new_r = new_r + '.gz'
-                trimmed_reads.append(new_r)
+                if not os.path.exists(new_r):
+                    sys.stderr.write(f"trimmed reads file {new_r} does not exist for {sample.get_id()}, using original reads file\n")
+                    trimmed_reads.append(reads[0])
+                else:
+                    trimmed_reads.append(new_r)
             sample.set_reads_list(trimmed_reads)
             for cutadapt_file in glob.glob('./*cutadapt.log'):
                 os.remove(cutadapt_file)  
