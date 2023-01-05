@@ -306,7 +306,8 @@ class Quantify:
             if self.genome.get_genome_type() == 'host':
                 tpm_cmd += ['-e']
             if self.genome.get_genome_type() == 'bacteria':
-                tpm_cmd += ['-k','gene_name']            
+                #tpm_cmd += ['-k','gene_name']            
+                tpm_cmd += ['-k','transcript_id']            
             tpm_output = os.path.join(self.genome.get_sample_path(sample.get_id()),'tpm_counts.tsv') 
             sample_details_list.append([tpm_output,sample])
             tpm_calc_list.append(tpm_cmd) 
