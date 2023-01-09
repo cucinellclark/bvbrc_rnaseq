@@ -940,7 +940,7 @@ class DiffExpImport:
             self.write_gmx_file(output_dir) 
         # elst cufflinks, file should already exist
         gmx_file = self.genome.get_genome_data('gmx') 
-        transform_script = 'expression_transform'
+        transform_script = 'expression_transform_bvbrc'
         if gmx_file is None:
             sys.stderr.write('gmx_file is null, exiting differential expression import\n')
             return False
