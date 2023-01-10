@@ -41,6 +41,7 @@ count.mtx <- read.table(counts.file,sep=count_sep,header=T,row.names=1,stringsAs
 #rownames(count.mtx) = gsub("gene-","",rownames(count.mtx))
 #rownames(count.mtx) = gsub("rna-","",rownames(count.mtx))
 metadata <- read.table(metadata.file,sep='\t',header=T,stringsAsFactors=TRUE)
+metadata$Condition <- factor(metadata$Condition,levels=as.character(unique(metadata$Condition)))
 
 print(head(count.mtx))
 print(head(metadata))
