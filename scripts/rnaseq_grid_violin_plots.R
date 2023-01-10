@@ -92,6 +92,7 @@ svg_height = num_rows + 5
 #create each plot and ad dit to a list of plots: do not render at this step: occurs when calling svglite() and do.call()
 legend <- NULL 
 plot_list = vector("list",length(systems)+1)
+print("here")
 for (i in 1:length(systems)) {
     curr.system = systems[i] 
     system.idx <- which(rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1])
