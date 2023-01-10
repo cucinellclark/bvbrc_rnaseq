@@ -107,11 +107,12 @@ for (i in 1:length(systems)) {
     curr.mtx$Genes <- rownames(curr.mtx)
     print("here2")
     melt.df = melt(curr.mtx,id.vars=c("Genes"),measure.vars=colnames(curr.mtx)[-c(length(colnames(curr.mtx)))]) 
-    print(unique(melt.df$Sample))
+    print(head(melt.df))
     print("here3")
     colnames(melt.df) <- c("Gene","Sample","Counts")
     melt.df$LogCounts <- log(melt.df$Counts+1)
     melt.df$Condition <- rep(0,length.out=nrow(melt.df))
+    print(unique(melt.df$Sample))
     print("here4")
     for (c in conditions) {
         print(c)
