@@ -111,13 +111,14 @@ for (i in 1:length(systems)) {
     colnames(melt.df) <- c("Gene","Sample","Counts")
     melt.df$LogCounts <- log(melt.df$Counts+1)
     melt.df$Condition <- rep(0,length.out=nrow(melt.df))
+    print("here4")
     for (c in conditions) {
         melt.df[melt.df$Sample %in% subset(metadata,subset=Condition==c)$Sample,]$Condition = c
     }
+    print("here5")
     x_axis_label = paste(toString(length(curr.mtx$Genes))," Genes",sep="")
     #vln_plot <- ggplot(melt.df,aes(x=Sample,y=LogCounts,fill=Condition))+geom_violin(trim=FALSE)+ylim(min_val,max_val)+ggtitle(curr.system)+ylab("TPM")+xlab(x_axis_label) 
     vln_plot <- ggplot(melt.df,aes(x=Sample,y=LogCounts,fill=Condition))+geom_violin(trim=FALSE)+ggtitle(curr.system)+ylab("TPM")+xlab(x_axis_label) 
-    print("here4")
     vln_plot = vln_plot + geom_boxplot(width=0.1,fill="white")
     if (is.null(legend)) {
         legend <- g_legend(vln_plot)
