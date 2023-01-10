@@ -81,8 +81,11 @@ class DifferentialExpression:
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
 
+        if output_dir[-1] != "/":
+            output_dir = output_dir + "/"
+
         deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_dir,self.genome.get_genome_data('report_img_path'),genome_type]
-        deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_dir,self.genome.get_genome_data('report_img_path'),genome_type]
+        #deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_dir,self.genome.get_genome_data('report_img_path'),genome_type]
         #vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.svg')
         vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),'volcano_plot.png')
         ev_cmd = ['rnaseq_volcano_plots',self.genome.get_genome_data('report_img_path')]
