@@ -117,7 +117,7 @@ for (i in 1:length(systems)) {
         print(c)
         print(subset(metadata,subset=Condition==c))
         print(sum(metadata$Condition == c))
-        melt.df[melt.df$Sample %in% subset(metadata,subset=Condition==c)$Sample,]$Condition = c
+        melt.df[melt.df$Sample %in% subset(metadata,Condition==c)$Sample,]$Condition = c
     }
     print("here5")
     x_axis_label = paste(toString(length(curr.mtx$Genes))," Genes",sep="")
