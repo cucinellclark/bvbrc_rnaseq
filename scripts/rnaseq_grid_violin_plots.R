@@ -115,7 +115,7 @@ for (i in 1:length(systems)) {
     print("here4")
     for (c in conditions) {
         print(c)
-        print(melt.df$Sample %in% subset(metadata,Condition==c)$Sample)
+        print(sum(melt.df$Sample %in% subset(metadata,Condition==c)$Sample))
         melt.df[melt.df$Sample %in% subset(metadata,Condition==c)$Sample,]$Condition = c
     }
     print("here5")
