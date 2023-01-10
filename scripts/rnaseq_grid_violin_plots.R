@@ -113,7 +113,9 @@ for (i in 1:length(systems)) {
     }
     x_axis_label = paste(toString(length(curr.mtx$Genes))," Genes",sep="")
     #vln_plot <- ggplot(melt.df,aes(x=Sample,y=LogCounts,fill=Condition))+geom_violin(trim=FALSE)+ylim(min_val,max_val)+ggtitle(curr.system)+ylab("TPM")+xlab(x_axis_label) 
+    print("here")
     vln_plot <- ggplot(melt.df,aes(x=Sample,y=LogCounts,fill=Condition))+geom_violin(trim=FALSE)+ggtitle(curr.system)+ylab("TPM")+xlab(x_axis_label) 
+    print("here1")
     vln_plot = vln_plot + geom_boxplot(width=0.1,fill="white")
     if (is.null(legend)) {
         legend <- g_legend(vln_plot)
@@ -123,7 +125,6 @@ for (i in 1:length(systems)) {
     plot_list[[i]] <- vln_plot
 }
 plot_list[[length(systems)+1]] <- legend
-print("here")
 
 ###Output PNG image
 #vln_png = paste(output.file,".svg",sep="")
