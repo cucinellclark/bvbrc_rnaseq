@@ -859,12 +859,6 @@ sub verify_cmd {
     system("which $cmd >/dev/null") == 0 or die "Command not found: $cmd\n";
 }
 
-sub is_folder_empty {
-    my $dirname = shift;
-    opendir(my $dh, $dirname) or die "Not a directory";
-    return scalar(grep { $_ ne "." && $_ ne ".." } readdir($dh)) == 0;
-}
-
 sub save_output_files
 {
     my($app, $output) = @_;
@@ -903,9 +897,6 @@ sub save_output_files
         next if $p =~ /\.fna\z/;  
         next if $p eq $diffexp_folder;
         next if $p eq $diffexp_file;
-        if ($p eq 'no_condition') {
-            next if is_folder_empty("$output/$p");
-        }
         my @cmd = ("p3-cp", "-r", @suffix_map, "$output/$p", "ws:" . $app->result_folder);
         print "@cmd\n";
         my $ok = IPC::Run::run(\@cmd);
