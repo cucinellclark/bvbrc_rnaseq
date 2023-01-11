@@ -151,6 +151,10 @@ class ReportManager:
         table_list.append('</table>')
         return '\n'.join(table_list)
 
+    def create_references(self):
+        reference_list = []
+        
+
     def create_html_header(self,genome_name):
         header = "<!DOCTYPE html><html><head>\n"
         header += "<title>BV-BRC RNASeq Report | {0}</title>\n".format(genome_name)
