@@ -69,6 +69,12 @@ class ReportManager:
         # TODO: add when svg API issue is fixed
         #if diffexp_flag:
 
+        # references
+        report_lines.append('<section>\n<h2>References</h2>')
+        reference_lines = self.create_references()
+        report_lines.append(reference_lines)
+        report_lines.append('</section>')
+
         report_lines.append('</body>')
         report_lines.append('</html>')
         report_html = '\n'.join(report_lines)
@@ -153,7 +159,38 @@ class ReportManager:
 
     def create_references(self):
         reference_list = []
-        
+        reference_list.append('<ol>') 
+        # bvbrc
+        reference_list.append('<li>' + 'test' + '</li>')
+        # multiqc
+        reference_list.append('<li>' + 'test' + '</li>')
+        # fastqc
+        reference_list.append('<li>' + 'test' + '</li>')
+        # trimgalore
+        reference_list.append('<li>' + 'test' + '</li>')
+        # seqtk
+        reference_list.append('<li>' + 'test' + '</li>')
+        # samtools
+        reference_list.append('<li>' + 'test' + '</li>')
+        # bowtie/hisat
+        reference_list.append('<li>' + 'test' + '</li>')
+        # stringtie
+        reference_list.append('<li>' + 'test' + '</li>')
+        # htseq
+        reference_list.append('<li>' + 'test' + '</li>')
+        # tpmcalculator
+        reference_list.append('<li>' + 'test' + '</li>')
+        # rseqc
+        reference_list.append('<li>' + 'test' + '</li>')
+        # deseq2
+        reference_list.append('<li>' + 'test' + '</li>')
+        # enhanced volcano
+        reference_list.append('<li>' + 'test' + '</li>')
+        # ggplot
+        reference_list.append('<li>' + 'test' + '</li>')
+        # reference_list.append('<li>' + '' + '</li>')
+        reference_list.append('</ol>') 
+        return '\n'.join(reference_list)
 
     def create_html_header(self,genome_name):
         header = "<!DOCTYPE html><html><head>\n"
