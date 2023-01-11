@@ -161,33 +161,61 @@ class ReportManager:
         reference_list = []
         reference_list.append('<ol>') 
         # bvbrc
-        reference_list.append('<li>' + 'test' + '</li>')
+        bvbrc_ref = "Introducing the Bacterial and Viral Bioinformatics Resource Center (BV-BRC): a resource combining PATRIC, IRD and ViPR. \
+                    Olson RD, Assaf R, Brettin T, Conrad N, Cucinell C, Davis JJ, Dempsey DM, Dickerman A, Dietrich EM, Kenyon RW, Kuscuoglu M, \
+                    Lefkowitz EJ, Lu J, Machi D, Macken C, Mao C, Niewiadomska A, Nguyen M, Olsen GJ, Overbeek JC, Parrello B, Parrello V, Porter JS, \
+                    Pusch GD, Shukla M, Singh I, Stewart L, Tan G, Thomas C, VanOeffelen M, Vonstein V, Wallace ZS, Warren AS, Wattam AR, Xia F, Yoo H, \
+                    Zhang Y, Zmasek CM, Scheuermann RH, Stevens RL. Nucleic Acids Res. 2022 Nov 9:gkac1003. doi: 10.1093/nar/gkac1003. PMID: 36350631"
+        reference_list.append('<li>' + bvbrc_ref + '</li>')
         # multiqc
-        reference_list.append('<li>' + 'test' + '</li>')
+        multiqc_ref = "MultiQC: Summarize analysis results for multiple tools and samples in a single report. Philip Ewels, Måns Magnusson, Sverker Lundin \
+                        and Max Käller. Bioinformatics (2016) doi: 10.1093/bioinformatics/btw354 PMID: 27312411 "
+        reference_list.append('<li>' + multiqc_ref + '</li>')
         # fastqc
-        reference_list.append('<li>' + 'test' + '</li>')
+        fastqc_ref = "Andrews, S. (2010). FastQC:  A Quality Control Tool for High Throughput Sequence Data [Online]. Available online at: http://www.bioinformatics.babraham.ac.uk/projects/fastqc/"
+        reference_list.append('<li>' + fastqc_ref + '</li>')
         # trimgalore
-        reference_list.append('<li>' + 'test' + '</li>')
+        trimgalore_ref = "FelixKrueger. (n.d.). Felixkrueger/Trimgalore: A wrapper around Cutadapt and FASTQC to consistently apply adapter and quality \
+                        trimming to FASTQ files, with extra functionality for RRBS Data. GitHub. https://github.com/FelixKrueger/TrimGalore"
+        reference_list.append('<li>' + trimgalore_ref + '</li>')
         # seqtk
+        seqtk_ref = "lh3. (n.d.). Lh3/SEQTK: Toolkit for processing sequences in FASTA/Q Formats. GitHub. https://github.com/lh3/seqtk"
         reference_list.append('<li>' + 'test' + '</li>')
         # samtools
-        reference_list.append('<li>' + 'test' + '</li>')
+        samtools_ref = "Heng Li, Bob Handsaker, Alec Wysoker, Tim Fennell, Jue Ruan, Nils Homer, Gabor Marth, Goncalo Abecasis, Richard Durbin, \
+                        1000 Genome Project Data Processing Subgroup, The Sequence Alignment/Map format and SAMtools, Bioinformatics, Volume 25, \
+                        Issue 16, 15 August 2009, Pages 2078–2079, https://doi.org/10.1093/bioinformatics/btp352"
+        reference_list.append('<li>' + samtools_ref + '</li>')
         # bowtie/hisat
-        reference_list.append('<li>' + 'test' + '</li>')
+        bowtie_ref = "Langmead B, Salzberg SL. Fast gapped-read alignment with Bowtie 2. Nat Methods. 2012 Mar 4;9(4):357-9. doi: 10.1038/nmeth.1923. PMID: 22388286; PMCID: PMC3322381."
+        hisat_ref = "Kim, D., Paggi, J.M., Park, C. et al. Graph-based genome alignment and genotyping with HISAT2 and HISAT-genotype. Nat Biotechnol 37, 907–915 (2019). https://doi.org/10.1038/s41587-019-0201-4"
+        reference_list.append('<li>' + bowtie_ref + '</li>')
+        reference_list.append('<li>' + hisat_ref + '</li>')
         # stringtie
-        reference_list.append('<li>' + 'test' + '</li>')
+        stringtie_ref = "Pertea M, Pertea GM, Antonescu CM, Chang TC, Mendell JT, Salzberg SL. StringTie enables improved reconstruction of a transcriptome from RNA-seq reads. \
+                        Nat Biotechnol. 2015 Mar;33(3):290-5. doi: 10.1038/nbt.3122. Epub 2015 Feb 18. PMID: 25690850; PMCID: PMC4643835."
+        reference_list.append('<li>' + stringtie_ref + '</li>')
         # htseq
-        reference_list.append('<li>' + 'test' + '</li>')
+        htseq_ref = "Anders S, Pyl PT, Huber W. HTSeq--a Python framework to work with high-throughput sequencing data. Bioinformatics. \
+                    2015 Jan 15;31(2):166-9. doi: 10.1093/bioinformatics/btu638. Epub 2014 Sep 25. PMID: 25260700; PMCID: PMC4287950."
+        reference_list.append('<li>' + htseq_ref + '</li>')
         # tpmcalculator
-        reference_list.append('<li>' + 'test' + '</li>')
+        tpmcalculator_ref = "Roberto Vera Alvarez, Lorinc Sandor Pongor, Leonardo Mariño-Ramírez, David Landsman, TPMCalculator: \
+                            one-step software to quantify mRNA abundance of genomic features, Bioinformatics, Volume 35, Issue 11, \
+                            1 June 2019, Pages 1960–1962, https://doi.org/10.1093/bioinformatics/bty896"
+        reference_list.append('<li>' + tpmcalculator_ref + '</li>')
         # rseqc
-        reference_list.append('<li>' + 'test' + '</li>')
+        rseqc_ref = "Wang L, Wang S, Li W. RSeQC: quality control of RNA-seq experiments. Bioinformatics. 2012 Aug 15;28(16):2184-5. doi: 10.1093/bioinformatics/bts356. Epub 2012 Jun 27. PMID: 22743226."
+        reference_list.append('<li>' + rseqc_ref + '</li>')
         # deseq2
-        reference_list.append('<li>' + 'test' + '</li>')
+        deseq_ref = "Love MI, Huber W, Anders S (2014). “Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2.” Genome Biology, 15, 550. doi: 10.1186/s13059-014-0550-8. "
+        reference_list.append('<li>' + deseq_ref + '</li>')
         # enhanced volcano
-        reference_list.append('<li>' + 'test' + '</li>')
+        ev_ref = "Blighe K, Rana S, Lewis M (2022). EnhancedVolcano: Publication-ready volcano plots with enhanced colouring and labeling. R package version 1.16.0, https://github.com/kevinblighe/EnhancedVolcano. "
+        reference_list.append('<li>' + ev_ref + '</li>')
         # ggplot
-        reference_list.append('<li>' + 'test' + '</li>')
+        ggplot_ref = "Wickham H (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York. ISBN 978-3-319-24277-4, https://ggplot2.tidyverse.org. "
+        reference_list.append('<li>' + ggplot_ref + '</li>')
         # reference_list.append('<li>' + '' + '</li>')
         reference_list.append('</ol>') 
         return '\n'.join(reference_list)
