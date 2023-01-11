@@ -904,7 +904,7 @@ sub save_output_files
         next if $p eq $diffexp_folder;
         next if $p eq $diffexp_file;
         if ($p eq 'no_condition') {
-            next if is_folder_empty($p);
+            next if is_folder_empty("$output/$p");
         }
         my @cmd = ("p3-cp", "-r", @suffix_map, "$output/$p", "ws:" . $app->result_folder);
         print "@cmd\n";
