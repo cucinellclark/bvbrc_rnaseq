@@ -495,7 +495,7 @@ class Quantify:
         elif self.recipe == 'Host':
             return self.create_tpm_table_stringtie(output_dir,sample_list)
         elif self.recipe == 'cufflinks':
-            # TODO: cuffnorm not working
+            # TODO: testing cuffnorm 
             return self.create_fpkm_table_cufflinks(sample_list)
             #return None
 
