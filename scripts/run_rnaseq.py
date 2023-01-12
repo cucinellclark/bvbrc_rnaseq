@@ -271,8 +271,6 @@ if __name__ == "__main__":
 
     # sample_list = [] # maybe don't store this, access samples by condition like in original
     experiment_dict = {}
-    no_condition = experiment.Condition('no_condition')
-    experiment_dict['no_condition'] = no_condition
     condition_list = []
     for cond_str in job_data['experimental_conditions']:
         cond_str = cond_str.replace(' ','_')
@@ -286,6 +284,9 @@ if __name__ == "__main__":
             if 'condition' in paired_sample:
                 condition = paired_sample['condition']
             else:
+                if 'no_condition' not in experiment_dict:
+                    no_condition = experiment.Condition('no_condition')
+                    experiment_dict['no_condition'] = no_condition
                 condition = 'no_condition'
             condition = condition.replace(' ','_')
             sample_reads = [paired_sample['read1'],paired_sample['read2']]
@@ -300,6 +301,9 @@ if __name__ == "__main__":
             if 'condition' in single_sample:
                 condition = single_sample['condition']
             else:
+                if 'no_condition' not in experiment_dict:
+                    no_condition = experiment.Condition('no_condition')
+                    experiment_dict['no_condition'] = no_condition
                 condition = 'no_condition' 
             condition = condition.replace(' ','_')
             sample_read = [single_sample['read']]
@@ -323,6 +327,9 @@ if __name__ == "__main__":
             if 'condition' in sra_sample:
                 condition = sra_sample['condition']
             else:
+                if 'no_condition' not in experiment_dict:
+                    no_condition = experiment.Condition('no_condition')
+                    experiment_dict['no_condition'] = no_condition
                 condition = 'no_condition' 
             condition = condition.replace(' ','_')
             srr_id = sra_sample['srr_accession'] 
