@@ -496,11 +496,11 @@ class Quantify:
             return self.create_tpm_table_stringtie(output_dir,sample_list)
         elif self.recipe == 'cufflinks':
             # TODO: testing cuffnorm 
-            return self.create_fpkm_table_cufflinks(sample_list)
+            return self.create_fpkm_table_cufflinks(output_dir,sample_list)
             #return None
 
     # outputs to directory 'cuffnorm_output'
-    def create_fpkm_table_cufflinks(self,sample_list):
+    def create_fpkm_table_cufflinks(self,output_dir,sample_list):
         threads = 8
         merged_gtf = self.genome.get_genome_data('merge_gtf')
         cuffnorm_outdir = 'cuffnorm_output'
@@ -517,8 +517,10 @@ class Quantify:
         for sample_condition in sam_dict:
             cuffnorm_cmd += [','.join(sam_dict[sample_condition])]
         try:
+            cuffnorm_err = os.path.join(output_dir,'cuffnorm_output.err') 
             print('Running command:\n{0}\n'.format(' '.join(cuffnorm_cmd)))
-            subprocess.check_call(cuffnorm_cmd)
+            with open(cuffnorm_err,'w') as err:
+                subprocess.check_call(cuffnorm_cmd,stderr=cuffnorm_err)
         except Exception as e:
             sys.stderr.write('Error running stringtie:\n{0}\n'.format(e))
             return -1
