@@ -507,7 +507,7 @@ class Quantify:
         if not os.path.exists(cuffnorm_outdir):
             os.mkdir(cuffnorm_outdir)
         # TODO: add library-type
-        cuffnorm_cmd = ['cuffnorm','-p',str(threads),'-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf]
+        cuffnorm_cmd = ['cuffnorm','-p','1','-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf]
         sam_dict = {}
         for sample in sample_list:
             sample_condition = sample.get_condition() 
@@ -1097,15 +1097,9 @@ class Preprocess:
             if sample.get_type() == "paired": 
                 read_parts1 = os.path.basename(reads[0]).split(".")
                 read_parts2 = os.path.basename(reads[1]).split(".")
-                if read_parts1[-1] == 'gz':
-                    new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-2])+"_val_1.fq")
-                else:
-                    new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
-                if read_parts2[-1] == 'gz':
-                    new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-2])+"_val_2.fq")
-                else:
-                    new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
-                if not os.path.exists(new_r1) and os.path.exists(new_r1 + '.gz'):
+                new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
+                new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
+                if os.path.exists(new_r1 + '.gz'):
                     new_r1 = new_r1 + '.gz'
                     new_r2 = new_r2 + '.gz'
                 trimmed_reads.append(new_r1)
