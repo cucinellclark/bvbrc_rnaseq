@@ -600,6 +600,9 @@ class Quantify:
             with open(fpkm_metadata_file,'w') as o:
                 o.write('\n'.join(fpkm_metadata))
             self.genome.add_genome_data('fpkm_metadata_file',fpkm_metadata_file)
+        except Exception as e:
+            sys.stderr.write('Error creating fpkm metadata table:\n{0}\n'.format(e))
+            return -1
 
     def create_tpm_table_tpmcalculator(self, output_dir, sample_list):
         genome_df = None
