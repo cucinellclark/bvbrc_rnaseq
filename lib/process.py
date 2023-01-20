@@ -576,7 +576,7 @@ class Quantify:
             if not os.path.exists(fpkm_file):
                 sys.stderr.write('Error running cuffnorm: genes.fpkm_tracking does not exist\n')
                 return -1
-            print(f'fpkm_file = {fpkm_file')
+            print(f'fpkm_file = {fpkm_file}')
             fpkm_data = pd.read_csv(fpkm_file,sep='\t',header=0)
             import pdb
             pdb.set_trace()
