@@ -572,8 +572,6 @@ class Quantify:
             return -1
         # create fpkm matrix
         try:
-            import pdb
-            pdb.set_trace()
             fpkm_file = os.path.join(output_dir,'genes.fpkm_tracking')
             if not os.path.exists(fpkm_file):
                 sys.stderr.write('Error running cuffnorm: genes.fpkm_tracking does not exist\n')
