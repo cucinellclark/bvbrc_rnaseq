@@ -37,9 +37,6 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
             for sample in experiment_dict[condition].get_sample_list():
                 preprocess.run_trimming(sample, 8)
 
-    import pdb
-    pdb.set_trace()
-
     ### Sampled align against genome
     # TODO: assess strandedness with one genome?
     alignment = process.Alignment()
