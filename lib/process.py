@@ -1099,21 +1099,26 @@ class Preprocess:
             if sample.get_type() == "paired": 
                 read_parts1 = os.path.basename(reads[0]).split(".")
                 read_parts2 = os.path.basename(reads[1]).split(".")
-                new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
-                new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
-                if os.path.exists(new_r1 + '.gz'):
-                    new_r1 = new_r1 + '.gz'
-                    new_r2 = new_r2 + '.gz'
+                #new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
+                new_r1 = glob.glob(os.path.join(sample_dir,'*_val_1.*'))[0]
+                #new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
+                new_r1 = glob.glob(os.path.join(sample_dir,'*_val_2.*'))[0]
+                #if os.path.exists(new_r1 + '.gz'):
+                #    new_r1 = new_r1 + '.gz'
+                #    new_r2 = new_r2 + '.gz'
                 trimmed_reads.append(new_r1)
                 trimmed_reads.append(new_r2)
             else:
                 read_parts = os.path.basename(reads[0]).split('.')
+                '''
                 if read_parts[0] == 'gz':
                     new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-2])+"_trimmed.fq")
                 else:
                     new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-1])+"_trimmed.fq")
                 if not os.path.exists(new_r) and os.path.exists(new_r+'.gz'):
                     new_r = new_r + '.gz'
+                '''
+                new_r = glob.glob(os.path.join(sample_dir,'*_trimmed.*'))[0]
                 trimmed_reads.append(new_r)
             sample.set_reads_list(trimmed_reads)
             for cutadapt_file in glob.glob('./*cutadapt.log'):
