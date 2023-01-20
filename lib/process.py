@@ -1102,7 +1102,7 @@ class Preprocess:
                 #new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
                 new_r1 = glob.glob(os.path.join(sample_dir,'*_val_1.*'))[0]
                 #new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
-                new_r1 = glob.glob(os.path.join(sample_dir,'*_val_2.*'))[0]
+                new_r2 = glob.glob(os.path.join(sample_dir,'*_val_2.*'))[0]
                 #if os.path.exists(new_r1 + '.gz'):
                 #    new_r1 = new_r1 + '.gz'
                 #    new_r2 = new_r2 + '.gz'
