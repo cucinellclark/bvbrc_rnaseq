@@ -572,9 +572,11 @@ class Quantify:
             return -1
         # create fpkm matrix
         try:
+            import pdb
+            pdb.set_trace()
             fpkm_file = os.path.join(output_dir,'genes.fpkm_tracking')
             if not os.path.exists(fpkm_file):
-                sys.stderr.write('Error running stringtie:\n{0}\n'.format(e))
+                sys.stderr.write('Error running cuffnorm: genes.fpkm_tracking does not exist\n')
                 return -1
             fpkm_data = pd.read_csv(fpkm_file,sep='\t',header=0)
             fpkm_data.drop(['tracking_id','class_code','nearest_ref_id','gene_id','tss_id','locus','length','coverage'],axis=1,inplace=True)
