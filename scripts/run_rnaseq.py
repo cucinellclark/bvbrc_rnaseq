@@ -95,6 +95,7 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
     # output files are used in creating figures
     if True:
         genome_data = process.GenomeData()
+        genome_data.set_recipe(map_args.recipe)
         if genome.get_genome_type() == 'bacteria':
             genome_data.set_genome(genome)
             genome_data.run_queries(output_dir,session)

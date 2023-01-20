@@ -189,6 +189,7 @@ class DifferentialExpression:
 class GenomeData:
 
     genome = None
+    recipe = None
 
     def __init__(self):
         print("Creating GenomeData manager")
@@ -196,16 +197,28 @@ class GenomeData:
     def set_genome(self,g):
         self.genome = g
 
+    def set_recipe(self,r):
+        self.recipe = r
+
     def run_queries(self, output_dir, session):
         self.run_subsystems(output_dir, session)
         self.run_pathway(output_dir, session)
 
     def create_system_figures(self, output_dir):
+        if self.recipe == 'HTSeq-DESeq':
+            self.create_tpm_figures(output_dir)
+        elif self.recipe == 'cufflinks':
+            self.create_fpkm_figures(output_dir)
+        else:
+            sys.stderr.write('Invalid recipe: exiting create system figures\n')
+            return -1
+
+    def create_tpm_figures(self, output_dir):
         superclass_mapping = self.genome.get_genome_data('superclass_mapping')
         pathway_mapping = self.genome.get_genome_data('pathway_mapping')
         genome_counts = self.genome.get_genome_data("tpm")
         if genome_counts is None:
-            sys.stderr.write('No tpm\'s matrix in genome data: exiting create_system_figures\n')
+            sys.stderr.write('No tpm\'s matrix in genome data: exiting create_tpm_figures\n')
             return False
         metadata = self.genome.get_genome_data('sample_metadata_file')
 
@@ -224,6 +237,37 @@ class GenomeData:
         try:
             pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"PathwayClass_Distribution")
             pathway_cmd = ["rnaseq_grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
+            if os.path.exists(pathway_mapping):
+                print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
+                # TODO: ENABLE
+                subprocess.check_call(pathway_cmd) 
+                #self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
+                self.genome.add_genome_data('pathway_figure',pathway_figure+'.png')
+        except Exception as e:
+            sys.stderr.write('Error creating pathway violin plots:\n{0}\n'.format(e))
+
+    def create_fpkm_figres(self, output_dir):
+        superclass_mapping = self.genome.get_genome_data('superclass_mapping')
+        pathway_mapping = self.genome.get_genome_data('pathway_mapping')
+        genome_counts = self.genome.get_genome_data("fpkm")
+        if genome_counts is None:
+            sys.stderr.write('No fpkm\'s matrix in genome data: exiting create_fpkm_figures\n')
+            return False
+        metadata = self.genome.get_genome_data('fpkm_metadata_file')
+        try:
+            superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"Superclass_Distribution")
+            superclass_cmd = ["rnaseq_grid_violin_plots_cufflinks",superclass_mapping,genome_counts,metadata,superclass_figure]
+            if os.path.exists(superclass_mapping):
+                print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
+                # TODO: ENABLE
+                subprocess.check_call(superclass_cmd) 
+                #self.genome.add_genome_data('superclass_figure',superclass_figure+'.svg')
+                self.genome.add_genome_data('superclass_figure',superclass_figure+'.png')
+        except Exception as e:
+            sys.stderr.write('Error creating superclass violin plots:\n{0}\n'.format(e))
+        try:
+            pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"PathwayClass_Distribution")
+            pathway_cmd = ["rnaseq_grid_violin_plots_cufflinks",pathway_mapping,genome_counts,metadata,pathway_figure]
             if os.path.exists(pathway_mapping):
                 print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
                 # TODO: ENABLE
@@ -509,10 +553,12 @@ class Quantify:
         # TODO: add library-type
         cuffnorm_cmd = ['cuffnorm','-p','1','-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf]
         sam_dict = {}
+        condition_list = []
         for sample in sample_list:
             sample_condition = sample.get_condition() 
             if sample_condition not in sam_dict:
                 sam_dict[sample_condition] = []
+                condition_list.append(sample_condition)
             sam_dict[sample_condition].append(sample.get_sample_data('bam'))
         for sample_condition in sam_dict:
             cuffnorm_cmd += [','.join(sam_dict[sample_condition])]
@@ -522,8 +568,38 @@ class Quantify:
             with open(cuffnorm_err,'w') as err:
                 subprocess.check_call(cuffnorm_cmd,stderr=cuffnorm_err)
         except Exception as e:
-            sys.stderr.write('Error running stringtie:\n{0}\n'.format(e))
+            sys.stderr.write('Error running cuffnorm:\n{0}\n'.format(e))
             return -1
+        # create fpkm matrix
+        try:
+            fpkm_file = os.path.join(output_dir,'genes.fpkm_tracking')
+            if not os.path.exists(fpkm_file):
+                sys.stderr.write('Error running stringtie:\n{0}\n'.format(e))
+                return -1
+            fpkm_data = pd.read_csv(fpkm_file,sep='\t',header=0)
+            fpkm_data.drop(['tracking_id','class_code','nearest_ref_id','gene_id','tss_id','locus','length','coverage'],axis=1,inplace=True)
+            new_columns = {"gene_short_name":"Gene_ID"}
+            for idx,cond in enumerate(condition_list):
+                new_columns["q"+str(idx)+"_FPKM"] = cond 
+                #q1_FPKM  q1_conf_lo  q1_conf_hi q1_status 
+                drop_cols = ["q"+str(idx)+"_conf_lo","q"+str(idx)+"_conf_hi","q"+str(idx)+"_conf_status"]
+                fpkm_data.drop(drop_cols,axis=1,inplace=True)
+            fpkm_data.rename(new_columns,axis=1,inplace=True)
+            fpkm_output = os.path.join(output_dir,"fpkm_counts_matrix.tsv")
+            fpkm_data.to_csv(fpkm_output,sep='\t',index=False)
+            self.genome.add_genome_data('fpkm',fpkm_output)
+        except Exception as e:
+            sys.stderr.write('Error parsing fpkm table:\n{0}\n'.format(e))
+            return -1
+        # create fpkm metadata
+        try:
+            fpkm_metadata_file = os.path.join(output_dir,'fpkm_metadata.tsv')
+            fpkm_metadata = ['Sample\tCondition']
+            for cond in condition_list:
+                fpkm_metadata.append(f'{cond}\t{cond}')
+            with open(fpkm_metadata_file,'w') as o:
+                o.write('\n'.join(fpkm_metadata))
+            self.genome.add_genome_data('fpkm_metadata_file',fpkm_metadata_file)
 
     def create_tpm_table_tpmcalculator(self, output_dir, sample_list):
         genome_df = None
