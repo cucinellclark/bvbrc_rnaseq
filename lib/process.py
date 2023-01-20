@@ -584,6 +584,8 @@ class Quantify:
                 #q1_FPKM  q1_conf_lo  q1_conf_hi q1_status 
                 drop_cols = ["q"+str(idx+1)+"_conf_lo","q"+str(idx+1)+"_conf_hi","q"+str(idx+1)+"_status"]
                 fpkm_data.drop(drop_cols,axis=1,inplace=True)
+            import pdb
+            pdb.set_trace()
             fpkm_data.rename(new_columns,axis=1,inplace=True)
             fpkm_output = os.path.join(output_dir,"fpkm_counts_matrix.tsv")
             fpkm_data.to_csv(fpkm_output,sep='\t',index=False)
