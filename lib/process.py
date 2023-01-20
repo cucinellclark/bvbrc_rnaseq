@@ -246,7 +246,7 @@ class GenomeData:
         except Exception as e:
             sys.stderr.write('Error creating pathway violin plots:\n{0}\n'.format(e))
 
-    def create_fpkm_figres(self, output_dir):
+    def create_fpkm_figures(self, output_dir):
         superclass_mapping = self.genome.get_genome_data('superclass_mapping')
         pathway_mapping = self.genome.get_genome_data('pathway_mapping')
         genome_counts = self.genome.get_genome_data("fpkm")
