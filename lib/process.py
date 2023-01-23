@@ -578,8 +578,10 @@ class Quantify:
         cuffnorm_cmd = ['cuffnorm','-p','1','-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf]
         sam_dict = {}
         condition_list = []
+        sample_id_list = []
         for sample in sample_list:
             sample_condition = sample.get_condition() 
+            sample_id_list.append(sample.get_id())
             if sample_condition not in sam_dict:
                 sam_dict[sample_condition] = []
                 condition_list.append(sample_condition)
@@ -605,8 +607,6 @@ class Quantify:
                 sys.stderr.write(f'Error running cuffnorm: {attr_file} oes not exist\n')
                 return -1
             # print(f'fpkm_file = {fpkm_file}')
-            import pdb
-            pdb.set_trace()
             attr_dict = {}
             with open(attr_file,'r') as af: 
                 af_data = af.readlines()
@@ -616,10 +616,11 @@ class Quantify:
                         continue 
                     line_parts = line.strip().split('\t')
                     attr_dict[line_parts[0]] = line_parts[4]
-            pdb.set_trace()
             fpkm_output_list = []
-            fpkm_header = ["Gene_ID"] + condition_list
+            fpkm_header = ["Gene_ID"] + sample_id_list 
             fpkm_output_list.append('\t'.join(fpkm_header))
+            import pdb
+            pdb.set_trace()
             with open(fpkm_file,'r') as ff: 
                 ff_data = ff.readlines()
                 for idx,line in ff_data:
