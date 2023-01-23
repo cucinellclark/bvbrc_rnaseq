@@ -605,6 +605,8 @@ class Quantify:
                 sys.stderr.write(f'Error running cuffnorm: {attr_file} oes not exist\n')
                 return -1
             # print(f'fpkm_file = {fpkm_file}')
+            import pdb
+            pdb.set_trace()
             attr_dict = {}
             with open(attr_file,'r') as af: 
                 af_data = af.readlines()
@@ -614,6 +616,7 @@ class Quantify:
                         continue 
                     line_parts = line.strip().split('\t')
                     attr_dict[line_parts[0]] = line_parts[4]
+            pdb.set_trace()
             fpkm_output_list = []
             fpkm_header = ["Gene_ID"] + condition_list
             fpkm_output_list.append('\t'.join(fpkm_header))
@@ -622,9 +625,10 @@ class Quantify:
                 for idx,line in ff_data:
                     if idx == 0:
                         continue
-                    line_parts = line.strip().split('\t')
+                    line_parts = line.strip().split()
                     new_line = attr_dict[line_parts[0]] + '\t' + '\t'.join(line_parts[1:])
                     fpkm_output_list.append(new_line)
+            pdb.set_trace()
             fpkm_output = os.path.join(output_dir,"fpkm_counts_matrix.tsv")
             fpkm_output_data = '\n'.join(fpkm_output_list)
             with open(fpkm_output,'w') as o:
