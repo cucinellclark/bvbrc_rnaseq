@@ -574,7 +574,7 @@ class Quantify:
         try:
             fpkm_file = os.path.join(output_dir,'genes.fpkm_tracking')
             if not os.path.exists(fpkm_file):
-                sys.stderr.write('Error running cuffnorm: genes.fpkm_tracking does not exist\n')
+                sys.stderr.write(f'Error running cuffnorm: {fpkm_file} oes not exist\n')
                 return -1
             print(f'fpkm_file = {fpkm_file}')
             fpkm_data = pd.read_csv(fpkm_file,sep='\t',header=0)
