@@ -565,8 +565,8 @@ class Quantify:
         try:
             cuffnorm_err = os.path.join(output_dir,'cuffnorm_output.err') 
             print('Running command:\n{0}\n'.format(' '.join(cuffnorm_cmd)))
-            with open(cuffnorm_err,'w') as err:
-                subprocess.check_call(cuffnorm_cmd,stderr=err)
+            #with open(cuffnorm_err,'w') as err:
+            #    subprocess.check_call(cuffnorm_cmd,stderr=err)
         except Exception as e:
             sys.stderr.write('Error running cuffnorm:\n{0}\n'.format(e))
             return -1
