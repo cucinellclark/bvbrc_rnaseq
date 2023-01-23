@@ -614,9 +614,9 @@ class Quantify:
                         continue 
                     line_parts = line.strip().split('\t')
                     attr_dict[line_parts[0]] = line_parts[4]
-            fpkm_output_data = []
+            fpkm_output_list = []
             fpkm_header = ["Gene_ID"] + condition_list
-            fpkm_output_data.append('\t'.join(fpkm_header))
+            fpkm_output_list.append('\t'.join(fpkm_header))
             with open(fpkm_file,'r') as ff: 
                 ff_data = ff.readlines()
                 for idx,line in ff_data:
@@ -624,10 +624,11 @@ class Quantify:
                         continue
                     line_parts = line.strip().split('\t')
                     new_line = attr_dict[line_parts[0]] + '\t' + '\t'.join(line_parts[1:])
-                    fpkm_output_data.append(new_line)
+                    fpkm_output_list.append(new_line)
             fpkm_output = os.path.join(output_dir,"fpkm_counts_matrix.tsv")
+            fpkm_output_data = '\n'.join(fpkm_output_list)
             with open(fpkm_output,'w') as o:
-                o.write(f"{'\n'.join(fpkm_output_data)}")
+                o.write(fpkm_output_data)
             self.genome.add_genome_data('fpkm',fpkm_output)
         except Exception as e:
             sys.stderr.write('Error parsing fpkm table:\n{0}\n'.format(e))
