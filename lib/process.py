@@ -611,25 +611,22 @@ class Quantify:
             with open(attr_file,'r') as af: 
                 af_data = af.readlines()
                 af_headers = af_data[0].strip().split('\t')
-                for idx,line in enumerate(af_data):
+                for idx,af_line in enumerate(af_data):
                     if idx == 0:
                         continue 
-                    line_parts = line.strip().split('\t')
-                    attr_dict[line_parts[0]] = line_parts[4]
+                    af_line_parts = af_line.strip().split('\t')
+                    attr_dict[af_line_parts[0]] = af_line_parts[4]
             fpkm_output_list = []
             fpkm_header = ["Gene_ID"] + sample_id_list 
             fpkm_output_list.append('\t'.join(fpkm_header))
-            import pdb
-            pdb.set_trace()
             with open(fpkm_file,'r') as ff: 
                 ff_data = ff.readlines()
-                for idx,line in ff_data:
+                for idx,ff_line in ff_data:
                     if idx == 0:
                         continue
-                    line_parts = line.strip().split()
-                    new_line = attr_dict[line_parts[0]] + '\t' + '\t'.join(line_parts[1:])
+                    ff_line_parts = ff_line.strip().split()
+                    new_line = attr_dict[ff_line_parts[0]] + '\t' + '\t'.join(ff_line_parts[1:])
                     fpkm_output_list.append(new_line)
-            pdb.set_trace()
             fpkm_output = os.path.join(output_dir,"fpkm_counts_matrix.tsv")
             fpkm_output_data = '\n'.join(fpkm_output_list)
             with open(fpkm_output,'w') as o:
