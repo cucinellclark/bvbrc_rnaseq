@@ -540,8 +540,7 @@ class Quantify:
             return self.create_tpm_table_stringtie(output_dir,sample_list)
         elif self.recipe == 'cufflinks':
             # TODO: testing cuffnorm 
-            # Don't need to run cuffnorm to get fpkm file
-            # return self.create_fpkm_table_cufflinks(output_dir,sample_list)
+            return self.create_fpkm_table_cufflinks(output_dir,sample_list)
             #return None
 
     # outputs to directory 'cuffnorm_output'
