@@ -24,7 +24,7 @@ class ReportManager:
         multiqc_cmd += ["--ignore","\"*deseq2.tsv\"","--ignore","\"*gmx\""]
         try:
             print(' '.join(multiqc_cmd))
-            subprocess.check_call(multiqc_cmd,shell=True)
+            subprocess.check_call(' '.join(multiqc_cmd),shell=True)
         except Exception as e:
             sys.stderr.write('Error running multiqc:\n{0}'.format(e)) 
             return -1
