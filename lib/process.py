@@ -540,10 +540,35 @@ class Quantify:
             return self.create_tpm_table_stringtie(output_dir,sample_list)
         elif self.recipe == 'cufflinks':
             # TODO: testing cuffnorm 
-            return self.create_fpkm_table_cufflinks(output_dir,sample_list)
+            # Don't need to run cuffnorm to get fpkm file
+            # return self.create_fpkm_table_cufflinks(output_dir,sample_list)
             #return None
 
     # outputs to directory 'cuffnorm_output'
+    '''
+    Singularity> head cuffnorm_output/genes.attr_table
+    tracking_id     class_code      nearest_ref_id  gene_id gene_short_name tss_id  locus   length
+    XLOC_000001     -       -       XLOC_000001     fig|83333.113.peg.1     TSS1    CP011343:2-98   -
+    XLOC_000002     -       -       XLOC_000002     fig|83333.113.peg.3     TSS2    CP011343:336-2799       -
+    XLOC_000003     -       -       XLOC_000003     fig|83333.113.peg.4     TSS3    CP011343:2800-3733      -
+    XLOC_000004     -       -       XLOC_000004     fig|83333.113.peg.5     TSS4    CP011343:3733-5020      -
+    XLOC_000005     -       -       XLOC_000005     fig|83333.113.peg.6     TSS5    CP011343:5233-5530      -
+    XLOC_001891     -       -       XLOC_001891     fig|83333.113.peg.7     TSS2221 CP011343:5682-6459      -
+    XLOC_001892     -       -       XLOC_001892     fig|83333.113.peg.8     TSS2222 CP011343:6528-7959      -
+    XLOC_000006     -       -       XLOC_000006     fig|83333.113.peg.9     TSS6    CP011343:8237-9191      -
+    XLOC_000007     -       -       XLOC_000007     fig|83333.113.peg.10    TSS7    CP011343:9305-9893      -
+    Singularity> head cuffnorm_output/genes.fpkm_table
+    tracking_id     q1_0    q1_1    q2_0    q2_1
+    XLOC_000001     94.4326 411.436 324.554 465.107
+    XLOC_000002     1309.42 808.721 666.08  332.012
+    XLOC_000003     1369.94 955.475 481.63  278.526
+    XLOC_000004     765.261 483.503 318.863 200.07
+    XLOC_000005     143.168 125.668 110.933 95.3841
+    XLOC_001891     88.4559 61.3316 108.339 79.1806
+    XLOC_001892     108.975 78.4857 78.6246 111.22
+    XLOC_000006     2015.39 1598.07 1586.89 1428.59
+    XLOC_000007     159.417 146.087 330.611 201.07 
+    '''
     def create_fpkm_table_cufflinks(self,output_dir,sample_list):
         threads = 8
         merged_gtf = self.genome.get_genome_data('merge_gtf')
@@ -565,34 +590,45 @@ class Quantify:
         try:
             cuffnorm_err = os.path.join(output_dir,'cuffnorm_output.err') 
             print('Running command:\n{0}\n'.format(' '.join(cuffnorm_cmd)))
-            #with open(cuffnorm_err,'w') as err:
-            #    subprocess.check_call(cuffnorm_cmd,stderr=err)
+            with open(cuffnorm_err,'w') as err:
+                subprocess.check_call(cuffnorm_cmd,stderr=err)
         except Exception as e:
             sys.stderr.write('Error running cuffnorm:\n{0}\n'.format(e))
             return -1
         # create fpkm matrix
         try:
-            fpkm_file = os.path.join(output_dir,'genes.fpkm_tracking')
+            fpkm_file = os.path.join(output_dir,'cuffnorm_output/genes.fpkm_table')
             if not os.path.exists(fpkm_file):
                 sys.stderr.write(f'Error running cuffnorm: {fpkm_file} oes not exist\n')
                 return -1
-            print(f'fpkm_file = {fpkm_file}')
-            fpkm_data = pd.read_csv(fpkm_file,sep='\t',header=0)
-            import pdb
-            pdb.set_trace()
-            fpkm_data.drop(['tracking_id','class_code','nearest_ref_id','gene_id','tss_id','locus','length','coverage'],axis=1,inplace=True)
-            new_columns = {"gene_short_name":"Gene_ID"}
-            drop_cols = []
-            for idx,cond in enumerate(condition_list):
-                new_columns["q"+str(idx+1)+"_FPKM"] = cond 
-                #q1_FPKM  q1_conf_lo  q1_conf_hi q1_status 
-                drop_cols += ["q"+str(idx+1)+"_conf_lo","q"+str(idx+1)+"_conf_hi","q"+str(idx+1)+"_status"]
-            import pdb
-            pdb.set_trace()
-            fpkm_data.drop(drop_cols,axis=1,inplace=True)
-            fpkm_data.rename(new_columns,axis=1,inplace=True)
+            attr_file = os.path.join(output_dir,'cuffnorm_output/genes.attr_table')
+            if not os.path.exists(attr_file):
+                sys.stderr.write(f'Error running cuffnorm: {attr_file} oes not exist\n')
+                return -1
+            # print(f'fpkm_file = {fpkm_file}')
+            attr_dict = {}
+            with open(attr_file,'r') as af: 
+                af_data = af.readlines()
+                af_headers = af_data[0].strip().split('\t')
+                for idx,line in enumerate(af_data):
+                    if idx == 0:
+                        continue 
+                    line_parts = line.strip().split('\t')
+                    attr_dict[line_parts[0]] = line_parts[4]
+            fpkm_output_data = []
+            fpkm_header = ["Gene_ID"] + condition_list
+            fpkm_output_data.append('\t'.join(fpkm_header))
+            with open(fpkm_file,'r') as ff: 
+                ff_data = ff.readlines()
+                for idx,line in ff_data:
+                    if idx == 0:
+                        continue
+                    line_parts = line.strip().split('\t')
+                    new_line = attr_dict[line_parts[0]] + '\t' + '\t'.join(line_parts[1:])
+                    fpkm_output_data.append(new_line)
             fpkm_output = os.path.join(output_dir,"fpkm_counts_matrix.tsv")
-            fpkm_data.to_csv(fpkm_output,sep='\t',index=False)
+            with open(fpkm_output,'w') as o:
+                o.write(f"{'\n'.join(fpkm_output_data)}")
             self.genome.add_genome_data('fpkm',fpkm_output)
         except Exception as e:
             sys.stderr.write('Error parsing fpkm table:\n{0}\n'.format(e))
