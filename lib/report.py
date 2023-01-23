@@ -21,7 +21,7 @@ class ReportManager:
         if debug_multiqc:
             multiqc_cmd += ["--lint"] 
         # ignore files with certain extensions
-        multiqc_cmd += ["--ignore","\"*deseq2.tsv\""]
+        multiqc_cmd += ["--ignore","\"*deseq2.tsv\"","--ignore","\"*gmx\""]
         try:
             print(' '.join(multiqc_cmd))
             subprocess.check_call(multiqc_cmd)
