@@ -544,30 +544,6 @@ class Quantify:
             #return None
 
     # outputs to directory 'cuffnorm_output'
-    '''
-    Singularity> head cuffnorm_output/genes.attr_table
-    tracking_id     class_code      nearest_ref_id  gene_id gene_short_name tss_id  locus   length
-    XLOC_000001     -       -       XLOC_000001     fig|83333.113.peg.1     TSS1    CP011343:2-98   -
-    XLOC_000002     -       -       XLOC_000002     fig|83333.113.peg.3     TSS2    CP011343:336-2799       -
-    XLOC_000003     -       -       XLOC_000003     fig|83333.113.peg.4     TSS3    CP011343:2800-3733      -
-    XLOC_000004     -       -       XLOC_000004     fig|83333.113.peg.5     TSS4    CP011343:3733-5020      -
-    XLOC_000005     -       -       XLOC_000005     fig|83333.113.peg.6     TSS5    CP011343:5233-5530      -
-    XLOC_001891     -       -       XLOC_001891     fig|83333.113.peg.7     TSS2221 CP011343:5682-6459      -
-    XLOC_001892     -       -       XLOC_001892     fig|83333.113.peg.8     TSS2222 CP011343:6528-7959      -
-    XLOC_000006     -       -       XLOC_000006     fig|83333.113.peg.9     TSS6    CP011343:8237-9191      -
-    XLOC_000007     -       -       XLOC_000007     fig|83333.113.peg.10    TSS7    CP011343:9305-9893      -
-    Singularity> head cuffnorm_output/genes.fpkm_table
-    tracking_id     q1_0    q1_1    q2_0    q2_1
-    XLOC_000001     94.4326 411.436 324.554 465.107
-    XLOC_000002     1309.42 808.721 666.08  332.012
-    XLOC_000003     1369.94 955.475 481.63  278.526
-    XLOC_000004     765.261 483.503 318.863 200.07
-    XLOC_000005     143.168 125.668 110.933 95.3841
-    XLOC_001891     88.4559 61.3316 108.339 79.1806
-    XLOC_001892     108.975 78.4857 78.6246 111.22
-    XLOC_000006     2015.39 1598.07 1586.89 1428.59
-    XLOC_000007     159.417 146.087 330.611 201.07 
-    '''
     def create_fpkm_table_cufflinks(self,output_dir,sample_list):
         threads = 8
         merged_gtf = self.genome.get_genome_data('merge_gtf')
@@ -635,20 +611,6 @@ class Quantify:
         except Exception as e:
             sys.stderr.write('Error parsing fpkm table:\n{0}\n'.format(e))
             return -1
-        # create fpkm metadata
-        '''
-        try:
-            fpkm_metadata_file = os.path.join(output_dir,'fpkm_metadata.tsv')
-            fpkm_metadata = ['Sample\tCondition']
-            for cond in condition_list:
-                fpkm_metadata.append(f'{cond}\t{cond}')
-            with open(fpkm_metadata_file,'w') as o:
-                o.write('\n'.join(fpkm_metadata))
-            self.genome.add_genome_data('fpkm_metadata_file',fpkm_metadata_file)
-        except Exception as e:
-            sys.stderr.write('Error creating fpkm metadata table:\n{0}\n'.format(e))
-            return -1
-        '''
 
     def create_tpm_table_tpmcalculator(self, output_dir, sample_list):
         genome_df = None
