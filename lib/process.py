@@ -624,6 +624,8 @@ class Quantify:
                 for idx,ff_line in ff_data:
                     if idx == 0:
                         continue
+                    import pdb
+                    pdb.set_trace()
                     ff_line_parts = ff_line.strip().split()
                     new_line = attr_dict[ff_line_parts[0]] + '\t' + '\t'.join(ff_line_parts[1:])
                     fpkm_output_list.append(new_line)
