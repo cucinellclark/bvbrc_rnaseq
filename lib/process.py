@@ -253,7 +253,7 @@ class GenomeData:
         if genome_counts is None:
             sys.stderr.write('No fpkm\'s matrix in genome data: exiting create_fpkm_figures\n')
             return False
-        metadata = self.genome.get_genome_data('fpkm_metadata_file')
+        metadata = self.genome.get_genome_data('sample_metadata_file')
         try:
             superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"Superclass_Distribution")
             superclass_cmd = ["rnaseq_grid_violin_plots_cufflinks",superclass_mapping,genome_counts,metadata,superclass_figure]
@@ -636,6 +636,7 @@ class Quantify:
             sys.stderr.write('Error parsing fpkm table:\n{0}\n'.format(e))
             return -1
         # create fpkm metadata
+        '''
         try:
             fpkm_metadata_file = os.path.join(output_dir,'fpkm_metadata.tsv')
             fpkm_metadata = ['Sample\tCondition']
@@ -647,6 +648,7 @@ class Quantify:
         except Exception as e:
             sys.stderr.write('Error creating fpkm metadata table:\n{0}\n'.format(e))
             return -1
+        '''
 
     def create_tpm_table_tpmcalculator(self, output_dir, sample_list):
         genome_df = None
