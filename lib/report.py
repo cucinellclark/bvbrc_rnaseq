@@ -20,6 +20,8 @@ class ReportManager:
             multiqc_cmd += ["-f"]
         if debug_multiqc:
             multiqc_cmd += ["--lint"] 
+        # ignore files with certain extensions
+        multiqc_cmd += ["--ignore","*deseq.tsv"]
         try:
             subprocess.check_call(multiqc_cmd)
         except Exception as e:
