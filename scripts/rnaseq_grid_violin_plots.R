@@ -109,7 +109,7 @@ for (i in 1:length(systems)) {
     melt.df$LogCounts <- log(melt.df$Counts+1)
     melt.df$Condition <- rep(0,length.out=nrow(melt.df))
     for (c in conditions) {
-        melt.df[melt.df$Sample %in% subset(metadata,subset=Condition==c)$Sample,]$Condition = c
+        melt.df[melt.df$Sample %in% subset(metadata,Condition==c)$Sample,]$Condition = c
     }
     x_axis_label = paste(toString(length(curr.mtx$Genes))," Genes",sep="")
     #vln_plot <- ggplot(melt.df,aes(x=Sample,y=LogCounts,fill=Condition))+geom_violin(trim=FALSE)+ylim(min_val,max_val)+ggtitle(curr.system)+ylab("TPM")+xlab(x_axis_label) 

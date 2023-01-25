@@ -32,8 +32,7 @@ class DifferentialExpression:
 
     def run_differential_expression(self,output_dir,sample_list):
         if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host':
-            output_prefix = self.genome.get_id()+"_"
-            return self.run_deseq2(output_dir,output_prefix)
+            return self.run_deseq2(output_dir)
         elif self.recipe == 'cufflinks':
             return self.run_cuffdiff(output_dir,sample_list)
         else:
@@ -76,22 +75,26 @@ class DifferentialExpression:
         return meta_file
 
     # TODO: don't let colons exist in the condition names on UI
-    def run_deseq2(self,output_dir,output_prefix): 
+    def run_deseq2(self,output_dir): 
         contrast_list = self.comparisons.get_contrast_list() 
         gene_counts = self.genome.get_genome_data(self.genome.get_id()+"_gene_counts")
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
 
-        deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,os.path.join(output_dir,output_prefix),self.genome.get_genome_data('report_img_path'),genome_type]
+        if output_dir[-1] != "/":
+            output_dir = output_dir + "/"
+
+        deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_dir,self.genome.get_genome_data('report_img_path'),genome_type]
+        #deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_dir,self.genome.get_genome_data('report_img_path'),genome_type]
         #vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.svg')
-        vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.png')
-        ev_cmd = ['rnaseq_volcano_plots',os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix)]
+        vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),'volcano_plot.png')
+        ev_cmd = ['rnaseq_volcano_plots',self.genome.get_genome_data('report_img_path')]
         contrast_file_list = []
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
             cond1 = contrast.split(':')[0]
             cond2 = contrast.split(':')[1]
-            diffexp_file = os.path.join(output_dir,output_prefix + cond1 + '_vs_' + cond2 + '.deseq2.tsv') 
+            diffexp_file = os.path.join(output_dir,cond1 + '_vs_' + cond2 + '.deseq2.tsv') 
             ev_cmd = ev_cmd + [diffexp_file,contrast.replace(':','_vs_')]
             contrast_file_list.append(diffexp_file)
         try:
@@ -207,7 +210,7 @@ class GenomeData:
         metadata = self.genome.get_genome_data('sample_metadata_file')
 
         try:
-            superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_Superclass_Distribution")
+            superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"Superclass_Distribution")
             superclass_cmd = ["rnaseq_grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
             if os.path.exists(superclass_mapping):
                 print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
@@ -219,7 +222,7 @@ class GenomeData:
             sys.stderr.write('Error creating superclass violin plots:\n{0}\n'.format(e))
 
         try:
-            pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_PathwayClass_Distribution")
+            pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"PathwayClass_Distribution")
             pathway_cmd = ["rnaseq_grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
             if os.path.exists(pathway_mapping):
                 print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
@@ -238,7 +241,7 @@ class GenomeData:
         pathway_df = pd.DataFrame(json.loads(getQueryDataText(base,query,headers)))
         if not pathway_df is None:
             mapping_table = pathway_df[['patric_id','pathway_class']]
-            mapping_output = os.path.join(output_dir,self.genome.get_id()+"_pathway_mapping.tsv")
+            mapping_output = os.path.join(output_dir,"pathway_mapping.tsv")
             mapping_table.to_csv(mapping_output,sep='\t',index=False)
             self.genome.add_genome_data('pathway_mapping',mapping_output)
         else:
@@ -258,7 +261,7 @@ class GenomeData:
             return -1
         if not subsystem_df is None:
             mapping_table = subsystem_df[['patric_id','superclass']]
-            mapping_output = os.path.join(output_dir,self.genome.get_id()+"_superclass_mapping.tsv")
+            mapping_output = os.path.join(output_dir,"superclass_mapping.tsv")
             mapping_table.to_csv(mapping_output,sep='\t',index=False)
             self.genome.add_genome_data('superclass_mapping',mapping_output)
         else:

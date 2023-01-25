@@ -859,7 +859,6 @@ sub verify_cmd {
     system("which $cmd >/dev/null") == 0 or die "Command not found: $cmd\n";
 }
 
-# TODO: figure out how to modify this function so it only saves the files I want it to
 sub save_output_files
 {
     my($app, $output) = @_;
