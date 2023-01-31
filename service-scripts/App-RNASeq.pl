@@ -65,13 +65,13 @@ sub check_memory_requirements
    foreach my $item (@{$params->{paired_end_libs}}) {
       my $r1 = $ws->stat($item->{read1});
       my $r2 = $ws->stat($item->{read2});
-      my $r1_size = $r1->size
-      my $r2_size = $r2->size
+      my $r1_size = $r1->size;
+      my $r2_size = $r2->size;
       if ($ws->file_is_gzipped($item->{read1})) {
-        $r1_size = $r1_size + $comp_factor*$r1_size
+        $r1_size = $r1_size + $comp_factor*$r1_size;
       }
       if ($ws->file_is_gzipped($item->{read2})) {
-        $r2_size = $r2_size + $comp_factor*$r2_size
+        $r2_size = $r2_size + $comp_factor*$r2_size;
       }
       $total_mem = $total_mem + $r1_size + $r2_size;
    }
@@ -80,7 +80,7 @@ sub check_memory_requirements
       my $r = $ws->stat($item->{read});
       my $r_size = $r->size;
       if ($ws->file_is_gzipped($item->{read})) {
-        $r_size = $r_size + $comp_factor*$r_size
+        $r_size = $r_size + $comp_factor*$r_size;
       }
       $total_mem = $total_mem + $r_size;
    }
