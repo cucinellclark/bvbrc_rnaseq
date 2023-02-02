@@ -37,6 +37,10 @@ for (diffexp_file in deseq_files) {
         plot_list[[plot_index]] <- ev_img
     }
 }
+if (plot_index == 0) {
+    print("No volcano plots were created: exiting")
+    stop()
+}
 
 numContrasts = length(deseq_files)
 png_height = 480*numContrasts
