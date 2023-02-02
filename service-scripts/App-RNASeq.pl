@@ -41,7 +41,6 @@ sub preflight
 {
     my($app, $app_def, $raw_params, $params) = @_;
     my $mem_req = check_memory_requirements($app,$params);
-    print 'mem_req = ' . $mem_req . '\n';
     my $pf = {
 	cpu => 8,
 	memory => $mem_req,
