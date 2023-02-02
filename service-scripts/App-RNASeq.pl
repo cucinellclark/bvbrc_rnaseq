@@ -41,6 +41,7 @@ sub preflight
 {
     my($app, $app_def, $raw_params, $params) = @_;
     my $mem_req = check_memory_requirements($app,$params);
+    print 'mem_req = ' . $mem_req . '\n';
     my $pf = {
 	cpu => 8,
 	memory => $mem_req,
@@ -60,7 +61,7 @@ sub check_memory_requirements
    my $mem_threshold = 50000000000; #50GB 
    my $total_mem = 0;
    my $ws = $app->workspace;
-   my $comp_factor = 0.5; # compression factor
+   my $comp_factor = 3; # compression factor
    #paired_end libs
    foreach my $item (@{$params->{paired_end_libs}}) {
       my $r1 = $ws->stat($item->{read1});
@@ -68,10 +69,10 @@ sub check_memory_requirements
       my $r1_size = $r1->size;
       my $r2_size = $r2->size;
       if ($ws->file_is_gzipped($item->{read1})) {
-        $r1_size = $r1_size + $comp_factor*$r1_size;
+        $r1_size = $comp_factor*$r1_size;
       }
       if ($ws->file_is_gzipped($item->{read2})) {
-        $r2_size = $r2_size + $comp_factor*$r2_size;
+        $r2_size = $comp_factor*$r2_size;
       }
       $total_mem = $total_mem + $r1_size + $r2_size;
    }
