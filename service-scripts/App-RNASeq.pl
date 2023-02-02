@@ -80,7 +80,7 @@ sub check_memory_requirements
       my $r = $ws->stat($item->{read});
       my $r_size = $r->size;
       if ($ws->file_is_gzipped($item->{read})) {
-        $r_size = $r_size + $comp_factor*$r_size;
+        $r_size = $comp_factor*$r_size;
       }
       $total_mem = $total_mem + $r_size;
    }
