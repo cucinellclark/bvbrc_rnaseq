@@ -19,6 +19,8 @@ valid_recipes = ['HTSeq-DESeq','cufflinks','Host']
 
 def main(genome, experiment_dict, tool_params, output_dir, comparisons, session, map_args):
 
+    # TODO: assess reads and terminate gracefully if reads are not set up correctly
+
     # setup folder structure and genome databases
     setup(output_dir, experiment_dict, genome)
     diffexp_flag = comparisons.check_diffexp() 

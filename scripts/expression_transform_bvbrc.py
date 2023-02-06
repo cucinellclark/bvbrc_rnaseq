@@ -162,6 +162,10 @@ def process_table(target_file, param_type, die, target_format="start", tries=0):
         temp_handle=open(target_file, 'r')
         target_sep=csv.Sniffer().sniff("\n".join(list(islice(temp_handle,10))))
         temp_handle.close()
+    # target_sep shouldn't be empty, but if it is just use tsv
+    if not target_sep:
+        target_sep = {}
+        target_sep["delimeter"] = "\t"
     if target_sep.delimiter=="\t":
         target_format="tsv"
         sys.stdout.write("guessing "+target_format+" format\n")
