@@ -813,9 +813,10 @@ class Alignment:
                 print(aof.read())
             sample.add_sample_data('sam',sam_file)
             sample.add_sample_data(self.genome.get_id()+'_align_stats',align_output_file)
+            sample.set_alignment_status(True)
             sample.set_command_status("align"+"_"+self.genome.get_id(),"finished")
         except Exception as e:
-            sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
+            sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file\n".format(sample.get_id()))
             sample.set_command_status("align"+"_"+self.genome.get_id(),e)
             return False
         

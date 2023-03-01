@@ -45,8 +45,7 @@ class ReportManager:
         report_lines.append(report_summary)
         report_lines.append('</section>')
 
-        # TODO: Link to multiqc report for basic sample summary statistics
-        # - how to make link aware of other file while in workspace?
+        # Link to multiqc report for basic sample summary statistics
         report_lines.append('<section>\n<h2>MultiQC Report Link</h2>')
         report_lines.append(self.create_multiqc_link(workspace_dir))
         report_lines.append('</section>')
@@ -71,6 +70,20 @@ class ReportManager:
         # differential expression section if turned on
         # TODO: add when svg API issue is fixed
         #if diffexp_flag:
+
+        # check for error output
+        error_section_flag = False
+        for condition in experiment_dict:
+            for sample in experiment_dict[condition].get_sample_list():
+                # check each of the error flags
+                alignment_success = sample.get_alignment_status()
+                if not alignment_sucess:
+                    error_section_flag = True
+        if error_section_flag:
+            report_lines.append('<section>\n<h2>Errors</h2>')
+            error_lines = self.create_error_section(experiment_dict,genome)
+            report_lines.append(error_lines)
+            report_lines.append('</section>')
 
         # references
         report_lines.append('<section>\n<h2>References</h2>')
@@ -139,7 +152,6 @@ class ReportManager:
         table_list.append("<tbody>")
         #table_list.append("<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Quality</td>\n<td>Alignment</td>\n</tr>")
         table_list.append("<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Alignment</td>\n</tr>")
-        # TODO: add quality and alignment stats
         # TODO: store stats in sample objects
         for condition in experiment_dict:
             if condition == 'no_condition':
@@ -151,14 +163,36 @@ class ReportManager:
                 align_file = sample.get_sample_data(genome.get_id()+'_align_stats')
                 align_str = 'ALIGNMENT'
                 if os.path.exists(align_file):
-                    with open(align_file,'r') as af:
-                        align_text = af.readlines()
-                        align_str = align_text[-1].split(' ')[0]
+                    if sample.get_alignment_status():
+                        with open(align_file,'r') as af:
+                            align_text = af.readlines()
+                            align_str = align_text[-1].split(' ')[0]
+                    else:
+                        align_str = 'Error during alignment'
+                else:
+                    align_str = 'Error: no alignment stats'
                 new_line = f"<tr>\n<td>{condition_str}</td>\n<td>{sample.get_id()}</td>\n<td>{align_str}</td>"
                 table_list.append(new_line)
         table_list.append("</tbody>")
         table_list.append('</table>')
         return '\n'.join(table_list)
+
+    def create_error_section(self,experiment_dict,genome):
+        error_list = []
+        # alignment errors 
+        error_list.append('<h2>Alignment Errors</h2>')
+        for condition in experiment_dict:
+            for sample in experiment_dict[condition].get_sample_list():
+                if not sample.get_alignment_status():
+                    error_list.append(f'<h1>Alignment Error for Sample {sample.get_id()}</h1>') 
+                    align_file = sample.get_sample_data(genome.get_id()+'_align_stats') 
+                    error_list.append('<p>')
+                    if os.path.exists(align_file):
+                        with open(align_file,'r') as af:
+                            align_text = af.readlines()
+                            error_list.append(align_text)
+                    error_list.append('</p>')
+        return '\n'.join(error_list)
 
     def create_references(self):
         reference_list = []
