@@ -162,7 +162,7 @@ class ReportManager:
                 #new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>QUALITY</td>\n<td>ALIGNMENT</td>"
                 align_file = sample.get_sample_data(genome.get_id()+'_align_stats')
                 align_str = 'ALIGNMENT'
-                if os.path.exists(align_file):
+                if align_file and os.path.exists(align_file):
                     if sample.get_alignment_status():
                         with open(align_file,'r') as af:
                             align_text = af.readlines()
