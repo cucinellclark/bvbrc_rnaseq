@@ -941,12 +941,12 @@ class Alignment:
                 subprocess.check_call(infer_cmd,stdout=o) 
             sample.set_command_status("infer_strand","finished")
             sample.add_sample_data("infer_strand_file",infer_file)
+            strand = self.infer_strand_from_file(sample.get_sample_data("infer_strand_file"))
+            sample.add_sample_data("strand",strand)
         except Exception as e:
             sys.stderr.write("Infer strand encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
             sample.set_command_status("infer_strand",e)
             return False
-        strand = self.infer_strand_from_file(sample.get_sample_data("infer_strand_file"))
-        sample.add_sample_data("strand",strand)
         
         # TODO: remove sampled files and sampled sam
         for sampled_reads_file in sampled_reads_list:
