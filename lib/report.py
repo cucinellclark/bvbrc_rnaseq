@@ -199,7 +199,10 @@ class ReportManager:
                     if os.path.exists(align_file):
                         with open(align_file,'r') as af:
                             align_text = af.readlines()
-                            error_list.append('\n'.join(align_text))
+                            #error_list.append('\n'.join(align_text))
+                        for line in align_text:
+                            error_list.append(line)
+                            error_list.append('<br>')
                     else:
                         error_list.append('Error, alignment stats file doesnt exist')
                     error_list.append('</p>')
@@ -219,7 +222,10 @@ class ReportManager:
                 if os.path.exists(align_file):
                     with open(align_file,'r') as af:
                         align_text = af.readlines()
-                        align_list.append('\n'.join(align_text))
+                        for line in align_text:
+                            align_list.append(line)
+                            align_list.append('<br>')
+                        #align_list.append('\n'.join(align_text))
                 else:
                     align_list.append('Error, alignment stats file doesnt exist')
                 align_list.append('</p>')
