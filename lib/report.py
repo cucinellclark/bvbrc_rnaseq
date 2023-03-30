@@ -77,7 +77,7 @@ class ReportManager:
             for sample in experiment_dict[condition].get_sample_list():
                 # check each of the error flags
                 alignment_success = sample.get_alignment_status()
-                if not alignment_sucess:
+                if not alignment_success:
                     error_section_flag = True
         if error_section_flag:
             report_lines.append('<section>\n<h2>Errors</h2>')

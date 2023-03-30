@@ -948,7 +948,6 @@ class Alignment:
             sample.set_command_status("infer_strand",e)
             return False
         
-        # TODO: remove sampled files and sampled sam
         for sampled_reads_file in sampled_reads_list:
             if os.path.exists(sampled_reads_file):
                 os.remove(sampled_reads_file)

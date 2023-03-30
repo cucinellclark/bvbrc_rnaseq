@@ -74,6 +74,7 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
         report_stats['recipe'] = map_args.recipe
         report_manager.run_multiqc(output_dir)
         report_manager.create_report(genome, output_dir, experiment_dict, report_stats, map_args.workspace_dir, diffexp_flag)
+        sys.exit(0)
 
     # HTSeq(bacteria), Stringtie(host)
     # TODO: some sort of check to make sure everything finished
