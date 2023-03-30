@@ -254,7 +254,6 @@ class ReportManager:
         reference_list.append('<li>' + trimgalore_ref + '</li>')
         # seqtk
         seqtk_ref = "lh3. (n.d.). Lh3/SEQTK: Toolkit for processing sequences in FASTA/Q Formats. GitHub. https://github.com/lh3/seqtk"
-        reference_list.append('<li>' + 'test' + '</li>')
         # samtools
         samtools_ref = "Heng Li, Bob Handsaker, Alec Wysoker, Tim Fennell, Jue Ruan, Nils Homer, Gabor Marth, Goncalo Abecasis, Richard Durbin, \
                         1000 Genome Project Data Processing Subgroup, The Sequence Alignment/Map format and SAMtools, Bioinformatics, Volume 25, \
