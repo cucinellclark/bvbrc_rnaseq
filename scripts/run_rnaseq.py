@@ -58,6 +58,8 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
                 alignment.run_alignment_stats(sample, 8)
             else:
                 alignment_all_good = False
+    import pdb
+    pdb.set_trace()
     if not alignment_all_good:
         report_manager = report.ReportManager()
         # number of samples and conditions
