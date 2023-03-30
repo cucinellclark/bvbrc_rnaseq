@@ -834,6 +834,29 @@ class Alignment:
             os.remove(sam_file)
         return True
 
+    def check_alignment(self, sample):
+        # threshold for number of unique read alignments required by each sample to continue the pipeline
+        counts_threshold = 1000
+        sample_align_file = sample.get_sample_data(self.genome.get_id()+'_align_stats')
+        if os.path.exists(sample_align_file):
+            try:
+                with open(sample_align_file) as saf:
+                    align_data = saf.readlines()
+                for line in align_data:
+                    if 'aligned exactly 1 time' in line:
+                        unique_counts = line.split()[0]
+                        if int(unique_counts) < counts_threshold:
+                            return False
+                return True
+            #407 (0.04%) aligned exactly 1 time
+            except Exception as err:
+                sys.stderr.write(f"Error checking alignment stats file {sample.get_id()}:\n{err}\n")
+                sys.stderr.write("Skipping assessment and hope it works\n")
+                return True
+        else:
+            print(f"alignmnt stats output file does not exist for sample {sample.get_id()}, skipping assessment and hope it works")
+            return True
+
     def run_alignment_stats(self, sample, threads):
         sample_dir = self.genome.get_sample_path(sample.get_id())
         sample_bam = sample.get_sample_data("bam")

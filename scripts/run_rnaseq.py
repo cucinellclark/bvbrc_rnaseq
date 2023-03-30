@@ -52,14 +52,13 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
     alignment_all_good = True
     for condition in experiment_dict:
         for sample in experiment_dict[condition].get_sample_list():
-            # TODO: error checking after alignment?
-            align_result = alignment.run_alignment(sample, 8)
-            if align_result:
+            align_complete = alignment.run_alignment(sample, 8)
+            align_result = alignment.check_alignment(sample)
+            if align_complete and align_result:
                 alignment.run_alignment_stats(sample, 8)
             else:
                 alignment_all_good = False
-    import pdb
-    pdb.set_trace()
+
     if not alignment_all_good:
         report_manager = report.ReportManager()
         # number of samples and conditions
