@@ -846,15 +846,19 @@ class Alignment:
                     if 'aligned exactly 1 time' in line:
                         unique_counts = line.split()[0]
                         if int(unique_counts) < counts_threshold:
+                            sample.set_alignment_check(False)
                             return False
+                sample.set_alignment_check(True)
                 return True
             #407 (0.04%) aligned exactly 1 time
             except Exception as err:
                 sys.stderr.write(f"Error checking alignment stats file {sample.get_id()}:\n{err}\n")
                 sys.stderr.write("Skipping assessment and hope it works\n")
+                sample.set_alignment_check(False)
                 return True
         else:
             print(f"alignmnt stats output file does not exist for sample {sample.get_id()}, skipping assessment and hope it works")
+            sample.set_alignment_check(False)
             return True
 
     def run_alignment_stats(self, sample, threads):

@@ -185,6 +185,7 @@ class Sample:
     command_status_dict = None #TODO: values "running", "finished" or an execution error
     # flags for different parts in the pipeline
     alignment_success = False
+    alignment_check = False
 
     # Initialize Sample class object
     # Parameters:
@@ -263,6 +264,12 @@ class Sample:
 
     def set_alignment_status(self, status):
         self.alignment_success = status
+
+    def set_alignment_check(self, status):
+        self.alignment_check = status
+
+    def get_alignment_check(self):
+        return self.alignment_check
 
     # TODO: make more robust
     def __repr__(self): 

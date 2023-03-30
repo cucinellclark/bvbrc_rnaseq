@@ -73,12 +73,21 @@ class ReportManager:
 
         # check for error output
         error_section_flag = False
+        bad_alignment_flag = False 
         for condition in experiment_dict:
             for sample in experiment_dict[condition].get_sample_list():
                 # check each of the error flags
                 alignment_success = sample.get_alignment_status()
+                alignment_check = sample.get_alignment_check()
                 if not alignment_success:
                     error_section_flag = True
+                if not alignment_check:
+                    bad_alignment_flag = True
+        if bad_alignment_flag:
+            report_lines.append('<section>\n<h2>Alignment Results</h2>')
+            align_lines = self.create_bad_align_section(experiment_dict,genome)
+            report_lines.append(align_lines)
+            report_lines.append('</section>')
         if error_section_flag:
             report_lines.append('<section>\n<h2>Errors</h2>')
             error_lines = self.create_error_section(experiment_dict,genome)
@@ -191,8 +200,30 @@ class ReportManager:
                         with open(align_file,'r') as af:
                             align_text = af.readlines()
                             error_list.append(align_text)
+                    else:
+                        error_list.append('Error, alignment stats file doesnt exist')
                     error_list.append('</p>')
         return '\n'.join(error_list)
+
+    def create_bad_align_section(self,experiment_dict,genome):
+        align_list = []
+        align_list.append('<h2>Alignment Results')
+        for condition in experiment_list:
+            for sample in experiment_dict[condition].get_sample_list():
+                if not sample.get_alignment_check():
+                    align_list.append(f"<h1>{sample.get_id()} FAILS the alignment check</h1>")
+                else:
+                    align_list.append(f"<h1>{sample.get_id()} PASSES the alignment check</h1>")
+                align_file = sample.get_sample_data(genome.get_id()+'_align_stats')
+                align_list.append('<p>')
+                if os.path.exists(align_file):
+                    with open(align_file,'r') as af:
+                        align_text = af.readlines()
+                        align_list.append(align_text)
+                else:
+                    align_list.append('Error, alignment stats file doesnt exist')
+                align_list.append('</p>')
+        return '\n'.join(align_list)
 
     def create_references(self):
         reference_list = []
