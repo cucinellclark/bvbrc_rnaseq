@@ -49,11 +49,33 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
 
     ### Align against genome
     alignment.set_genome(genome) 
+    alignment_all_good = True
     for condition in experiment_dict:
         for sample in experiment_dict[condition].get_sample_list():
-            # TODO: error checking after alignment?
-            alignment.run_alignment(sample, 8)
-            alignment.run_alignment_stats(sample, 8)
+            align_complete = alignment.run_alignment(sample, 8)
+            align_result = alignment.check_alignment(sample)
+            if align_complete and align_result:
+                alignment.run_alignment_stats(sample, 8)
+            else:
+                alignment_all_good = False
+
+    if not alignment_all_good:
+        report_manager = report.ReportManager()
+        # number of samples and conditions
+        report_stats = {}
+        sample_count = 0
+        condition_count = 0
+        for condition in experiment_dict:
+            sample_count += len(experiment_dict[condition].get_sample_list())
+            if condition != 'no_condition':
+                condition_count += 1
+        report_stats['num_samples'] = sample_count
+        report_stats['num_conditions'] = condition_count
+        # get recipe
+        report_stats['recipe'] = map_args.recipe
+        report_manager.run_multiqc(output_dir)
+        report_manager.create_report(genome, output_dir, experiment_dict, report_stats, map_args.workspace_dir, diffexp_flag)
+        sys.exit(0)
 
     # HTSeq(bacteria), Stringtie(host)
     # TODO: some sort of check to make sure everything finished
@@ -88,7 +110,6 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
         diffexp_import.set_recipe(map_args.recipe)
         diff_exp.set_genome(genome)
         diff_exp.run_differential_expression(output_dir,sample_list)
-        # TODO: broken
         if genome.get_genome_type() == 'bacteria':
             diffexp_import.set_genome(genome)
             diffexp_import.run_diff_exp_import(output_dir,map_args)
@@ -122,8 +143,9 @@ def main(genome, experiment_dict, tool_params, output_dir, comparisons, session,
         report_manager.create_report(genome, output_dir, experiment_dict, report_stats, map_args.workspace_dir, diffexp_flag)
 
     # TODO: Add command output and status 
-    # TODO: Add file cleanup
+    # File cleanup in perl
     print("done")
+    return True
 
 # sets up initial condition, sample, genome folder structure
 # folder stucture is: output_dir/condition/sample/genome

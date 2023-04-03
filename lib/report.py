@@ -45,8 +45,7 @@ class ReportManager:
         report_lines.append(report_summary)
         report_lines.append('</section>')
 
-        # TODO: Link to multiqc report for basic sample summary statistics
-        # - how to make link aware of other file while in workspace?
+        # Link to multiqc report for basic sample summary statistics
         report_lines.append('<section>\n<h2>MultiQC Report Link</h2>')
         report_lines.append(self.create_multiqc_link(workspace_dir))
         report_lines.append('</section>')
@@ -71,6 +70,29 @@ class ReportManager:
         # differential expression section if turned on
         # TODO: add when svg API issue is fixed
         #if diffexp_flag:
+
+        # check for error output
+        error_section_flag = False
+        bad_alignment_flag = False 
+        for condition in experiment_dict:
+            for sample in experiment_dict[condition].get_sample_list():
+                # check each of the error flags
+                alignment_success = sample.get_alignment_status()
+                alignment_check = sample.get_alignment_check()
+                if not alignment_success:
+                    error_section_flag = True
+                if not alignment_check:
+                    bad_alignment_flag = True
+        if bad_alignment_flag:
+            report_lines.append('<section>\n<h2>Alignment Results</h2>')
+            align_lines = self.create_bad_align_section(experiment_dict,genome)
+            report_lines.append(align_lines)
+            report_lines.append('</section>')
+        if error_section_flag:
+            report_lines.append('<section>\n<h2>Errors</h2>')
+            error_lines = self.create_error_section(experiment_dict,genome)
+            report_lines.append(error_lines)
+            report_lines.append('</section>')
 
         # references
         report_lines.append('<section>\n<h2>References</h2>')
@@ -139,7 +161,6 @@ class ReportManager:
         table_list.append("<tbody>")
         #table_list.append("<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Quality</td>\n<td>Alignment</td>\n</tr>")
         table_list.append("<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Alignment</td>\n</tr>")
-        # TODO: add quality and alignment stats
         # TODO: store stats in sample objects
         for condition in experiment_dict:
             if condition == 'no_condition':
@@ -150,15 +171,65 @@ class ReportManager:
                 #new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>QUALITY</td>\n<td>ALIGNMENT</td>"
                 align_file = sample.get_sample_data(genome.get_id()+'_align_stats')
                 align_str = 'ALIGNMENT'
-                if os.path.exists(align_file):
-                    with open(align_file,'r') as af:
-                        align_text = af.readlines()
-                        align_str = align_text[-1].split(' ')[0]
+                if align_file and os.path.exists(align_file):
+                    if sample.get_alignment_status():
+                        with open(align_file,'r') as af:
+                            align_text = af.readlines()
+                            align_str = align_text[-1].split(' ')[0]
+                    else:
+                        align_str = 'Error during alignment'
+                else:
+                    align_str = 'Error: no alignment stats'
                 new_line = f"<tr>\n<td>{condition_str}</td>\n<td>{sample.get_id()}</td>\n<td>{align_str}</td>"
                 table_list.append(new_line)
         table_list.append("</tbody>")
         table_list.append('</table>')
         return '\n'.join(table_list)
+
+    def create_error_section(self,experiment_dict,genome):
+        error_list = []
+        # alignment errors 
+        error_list.append('<h2>Alignment Errors</h2>')
+        for condition in experiment_dict:
+            for sample in experiment_dict[condition].get_sample_list():
+                if not sample.get_alignment_status():
+                    error_list.append(f'<h1>Alignment Error for Sample {sample.get_id()}</h1>') 
+                    align_file = sample.get_sample_data(genome.get_id()+'_align_stats') 
+                    error_list.append('<p>')
+                    if os.path.exists(align_file):
+                        with open(align_file,'r') as af:
+                            align_text = af.readlines()
+                            #error_list.append('\n'.join(align_text))
+                        for line in align_text:
+                            error_list.append(line)
+                            error_list.append('<br>')
+                    else:
+                        error_list.append('Error, alignment stats file doesnt exist')
+                    error_list.append('</p>')
+        return '\n'.join(error_list)
+
+    def create_bad_align_section(self,experiment_dict,genome):
+        align_list = []
+        align_list.append('<h2>Alignment Results')
+        for condition in experiment_dict:
+            for sample in experiment_dict[condition].get_sample_list():
+                if not sample.get_alignment_check():
+                    align_list.append(f"<h1>{sample.get_id()} FAILS the alignment check</h1>")
+                else:
+                    align_list.append(f"<h1>{sample.get_id()} PASSES the alignment check</h1>")
+                align_file = sample.get_sample_data(genome.get_id()+'_align_stats')
+                align_list.append('<p>')
+                if os.path.exists(align_file):
+                    with open(align_file,'r') as af:
+                        align_text = af.readlines()
+                        for line in align_text:
+                            align_list.append(line)
+                            align_list.append('<br>')
+                        #align_list.append('\n'.join(align_text))
+                else:
+                    align_list.append('Error, alignment stats file doesnt exist')
+                align_list.append('</p>')
+        return '\n'.join(align_list)
 
     def create_references(self):
         reference_list = []
@@ -183,7 +254,6 @@ class ReportManager:
         reference_list.append('<li>' + trimgalore_ref + '</li>')
         # seqtk
         seqtk_ref = "lh3. (n.d.). Lh3/SEQTK: Toolkit for processing sequences in FASTA/Q Formats. GitHub. https://github.com/lh3/seqtk"
-        reference_list.append('<li>' + 'test' + '</li>')
         # samtools
         samtools_ref = "Heng Li, Bob Handsaker, Alec Wysoker, Tim Fennell, Jue Ruan, Nils Homer, Gabor Marth, Goncalo Abecasis, Richard Durbin, \
                         1000 Genome Project Data Processing Subgroup, The Sequence Alignment/Map format and SAMtools, Bioinformatics, Volume 25, \

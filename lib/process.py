@@ -813,9 +813,10 @@ class Alignment:
                 print(aof.read())
             sample.add_sample_data('sam',sam_file)
             sample.add_sample_data(self.genome.get_id()+'_align_stats',align_output_file)
+            sample.set_alignment_status(True)
             sample.set_command_status("align"+"_"+self.genome.get_id(),"finished")
         except Exception as e:
-            sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
+            sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file\n".format(sample.get_id()))
             sample.set_command_status("align"+"_"+self.genome.get_id(),e)
             return False
         
@@ -832,6 +833,33 @@ class Alignment:
         if os.path.exists(sam_file):
             os.remove(sam_file)
         return True
+
+    def check_alignment(self, sample):
+        # threshold for number of unique read alignments required by each sample to continue the pipeline
+        counts_threshold = 1000
+        sample_align_file = sample.get_sample_data(self.genome.get_id()+'_align_stats')
+        if os.path.exists(sample_align_file):
+            try:
+                with open(sample_align_file) as saf:
+                    align_data = saf.readlines()
+                for line in align_data:
+                    if 'aligned exactly 1 time' in line:
+                        unique_counts = line.split()[0]
+                        if int(unique_counts) < counts_threshold:
+                            sample.set_alignment_check(False)
+                            return False
+                sample.set_alignment_check(True)
+                return True
+            #407 (0.04%) aligned exactly 1 time
+            except Exception as err:
+                sys.stderr.write(f"Error checking alignment stats file {sample.get_id()}:\n{err}\n")
+                sys.stderr.write("Skipping assessment and hope it works\n")
+                sample.set_alignment_check(False)
+                return True
+        else:
+            print(f"alignmnt stats output file does not exist for sample {sample.get_id()}, skipping assessment and hope it works")
+            sample.set_alignment_check(False)
+            return True
 
     def run_alignment_stats(self, sample, threads):
         sample_dir = self.genome.get_sample_path(sample.get_id())
@@ -940,14 +968,13 @@ class Alignment:
                 subprocess.check_call(infer_cmd,stdout=o) 
             sample.set_command_status("infer_strand","finished")
             sample.add_sample_data("infer_strand_file",infer_file)
+            strand = self.infer_strand_from_file(sample.get_sample_data("infer_strand_file"))
+            sample.add_sample_data("strand",strand)
         except Exception as e:
             sys.stderr.write("Infer strand encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
             sample.set_command_status("infer_strand",e)
             return False
-        strand = self.infer_strand_from_file(sample.get_sample_data("infer_strand_file"))
-        sample.add_sample_data("strand",strand)
         
-        # TODO: remove sampled files and sampled sam
         for sampled_reads_file in sampled_reads_list:
             if os.path.exists(sampled_reads_file):
                 os.remove(sampled_reads_file)
