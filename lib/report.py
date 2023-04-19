@@ -57,15 +57,15 @@ class ReportManager:
         report_lines.append('</section>')
 
         # Any figures in report_images
-        if genome.get_genome_type() == 'bacteria':
-            report_lines.append('<section>\n<h2>Subsystems Distribution</h2>')
-            report_subsystems = self.get_subsystem_figure(genome)
-            report_lines.append(report_subsystems)
-            report_lines.append('</section>')
-            report_lines.append('<section>\n<h2>Pathways Distribution</h2>')
-            report_pathways = self.get_pathway_figure(genome)
-            report_lines.append(report_pathways)
-            report_lines.append('</section>')
+        #if genome.get_genome_type() == 'bacteria':
+        #    report_lines.append('<section>\n<h2>Subsystems Distribution</h2>')
+        #    report_subsystems = self.get_subsystem_figure(genome)
+        #    report_lines.append(report_subsystems)
+        #    report_lines.append('</section>')
+        #    report_lines.append('<section>\n<h2>Pathways Distribution</h2>')
+        #    report_pathways = self.get_pathway_figure(genome)
+        #    report_lines.append(report_pathways)
+        #    report_lines.append('</section>')
 
         # differential expression section if turned on
         # TODO: add when svg API issue is fixed

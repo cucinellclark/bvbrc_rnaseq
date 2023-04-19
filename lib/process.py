@@ -843,7 +843,7 @@ class Alignment:
                 with open(sample_align_file) as saf:
                     align_data = saf.readlines()
                 for line in align_data:
-                    if 'aligned exactly 1 time' in line:
+                    if 'aligned concordantly exactly 1 time' in line:
                         unique_counts = line.split()[0]
                         if int(unique_counts) < counts_threshold:
                             sample.set_alignment_check(False)
