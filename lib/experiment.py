@@ -32,7 +32,7 @@ class Genome:
         self.genome_data = {}
         # get genome id prefix
         if genome_query:
-            base = f'https://alpha.bv-brc.org/api/genome/?'
+            base = f'https://www.bv-brc.org/api/genome/?'
             query = f'eq(genome_id,{gi})'
             headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']}
             print('genome_query:\nurl = {0}\n{1}\n'.format(base+query,headers))
