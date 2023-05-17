@@ -279,7 +279,7 @@ class GenomeData:
 
     def run_pathway(self, output_dir, session):
         #pathway_df = getPathwayDataFrame([self.genome.get_id()], session)
-        base = "https://alpha.bv-brc.org/api/pathway/?http_download=true"
+        base = "https://www.bv-brc.org/api/pathway/?http_download=true"
         query = f"eq(genome_id,{self.genome.get_id()})&sort(+id)&limit(2500000)"
         headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']}
         pathway_df = pd.DataFrame(json.loads(getQueryDataText(base,query,headers)))
@@ -295,7 +295,7 @@ class GenomeData:
     # subsystem_df is a pandas dataframe
     def run_subsystems(self, output_dir, session):
         #subsystem_df = getSubsystemsDataFrame([self.genome.get_id()],session)
-        base = "https://alpha.bv-brc.org/api/subsystem/?http_download=true"
+        base = "https://www.bv-brc.org/api/subsystem/?http_download=true"
         query = f"eq(genome_id,{self.genome.get_id()})&sort(+id)&limit(2500000)"
         headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']} 
         try:
