@@ -337,7 +337,6 @@ if __name__ == "__main__":
             if condition:
                 experiment_dict[condition].add_sample(new_sample)
 
-    # TODO: test this
     # put sra-fastq files in <output_dir>/SRA_Fastq/
     # put sra-metadata files in <output_dir>/SRA_Meta/
     # set type to paired or single here
