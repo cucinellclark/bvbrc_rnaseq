@@ -544,7 +544,7 @@ class Quantify:
         #        genome_df = sample_df
         #    else:
         #        genome_df = genome_df.join(sample_df)
-        headers = ['Gene_ID']
+        headers = ['Gene_Id']
         for sample in sample_list:
             headers.append(sample.get_id())
         output_file = os.path.join(output_dir,'gene_counts_matrix.tsv')
