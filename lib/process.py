@@ -326,12 +326,12 @@ class Quantify:
     def set_recipe(self,r):
         self.recipe = r
 
-    def run_quantification(self, sample_list, threads):
+    def run_quantification(self, sample_list, threads, output_dir):
         if self.recipe is None:
             sys.stderr.write('Recipe is None: set recipe with set_recipe()')
             return False
         if self.recipe == 'HTSeq-DESeq':
-            htseq_ret = self.run_htseq(sample_list, threads)
+            htseq_ret = self.run_htseq(sample_list, threads, output_dir)
             if htseq_ret != 0:
                 return htseq_ret
             return self.run_tpmcalc(sample_list, threads)
@@ -393,30 +393,42 @@ class Quantify:
             return -1
         return 0
 
-    def run_htseq(self, sample_list, threads):
+    def run_htseq(self, sample_list, threads, output_dir):
         # TODO: add strandedness parameter: -s
         # featurey_type: CDS or Gene
         quant_cmd_list = [] 
         annotation_file = self.genome.get_genome_data('annotation')
-        sample_details_list = []
+        #sample_details_list = []
+        quant_cmd = ['htseq-count','-n',str(threads),'-t','gene','-f','bam','-r','pos','-i','ID','--mode','union']
         for sample in sample_list:
             bam_file = sample.get_sample_data('bam')
-            quant_cmd = ['htseq-count','-n',str(threads),'-t','gene','-f','bam','-r','pos','-i','ID',bam_file,annotation_file]
-            quant_cmd_list.append(quant_cmd)
+            quant_cmd_list.append(bam_file)
             sample_dir = self.genome.get_sample_path(sample.get_id())
-            sample_output_file = os.path.join(sample_dir,sample.get_id()+'.counts')
-            sample_err_file = os.path.join(sample_dir,sample.get_id()+'.htseq_err')
-            sample_details_list.append([sample_output_file, sample,sample_err_file])
-        quant_args_list = list(zip(quant_cmd_list,sample_details_list)) 
-        future_returns = []
+            #sample_output_file = os.path.join(sample_dir,sample.get_id()+'.counts')
+            #sample_err_file = os.path.join(sample_dir,sample.get_id()+'.htseq_err')
+            #sample_details_list.append([sample_output_file, sample,sample_err_file])
+        quant_cmd.append(annotation_file)
+        try:
+            print('Running command:\n{0}\n'.format(' '.join(quant_cmd)))
+            output_file = os.path.join(output_dir,'gene_counts_matrix.tsv')
+            err_file = os.path.join(output_dir,'htseq.err')
+            with open(output_file,'w') as o, open(err_file,'w') as e:
+               subprocess.check_call(quant_cmd,stdout=o,stderr=e)
+            self.genome.add_genome_data(self.genome.get_id()+'_gene_counts',output_file)
+        except Exception as e:
+            sys.stderr.write('Error running parallel htseq job:\n{0}\n'.format(e))
+            return -1
+        #quant_args_list = list(zip(quant_cmd_list,sample_details_list)) 
+        #future_returns = []
         # redirect stderr 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as pool:
-            future_returns = list(pool.map(self.run_htseq_job,quant_args_list))
-        for f in future_returns:
-            if f != 0:
-                sys.stderr.write('Error in HTSeq-count: check logs\n')
-                sys.stderr.write('{0}\n'.format(future_returns))
-                return -1
+        #with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as pool:
+        #    future_returns = list(pool.map(self.run_htseq_job,quant_args_list))
+        #for f in future_returns:
+        #    if f != 0:
+        #        sys.stderr.write('Error in HTSeq-count: check logs\n')
+        #        sys.stderr.write('{0}\n'.format(future_returns))
+        #        return -1
+        
         return 0 
             
     def run_htseq_job(self,cmd_details):
@@ -441,7 +453,8 @@ class Quantify:
     
     def create_genome_counts_table(self,output_dir,sample_list):
         if self.recipe == 'HTSeq-DESeq':
-            return self.create_genome_counts_table_htseq(output_dir,sample_list)
+            #return self.create_genome_counts_table_htseq(output_dir,sample_list)
+            return self.genome.get_genome_data(self.genome.get_id()+'_gene_counts')
         elif self.recipe == 'Host':
             return self.create_genome_counts_table_stringtie(output_dir,sample_list)
         elif self.recipe == 'cufflinks':
