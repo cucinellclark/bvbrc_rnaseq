@@ -548,9 +548,7 @@ class Quantify:
         for sample in sample_list:
             headers.append(sample.get_id())
         output_file = os.path.join(output_dir,'gene_counts_matrix.tsv')
-        genome_df = pd.read_csv(self.genome.get_genome_data(self.genome.get_id()+'_gene_counts'),header=None)
-        import pdb
-        pdb.set_trace()
+        genome_df = pd.read_csv(self.genome.get_genome_data(self.genome.get_id()+'_gene_counts'),header=None,sep='\t')
         genome_df.columns = headers
         genome_df.to_csv(output_file,sep='\t')
         self.genome.add_genome_data(self.genome.get_id()+'_gene_counts',output_file)
