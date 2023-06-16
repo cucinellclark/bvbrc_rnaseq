@@ -404,6 +404,7 @@ class Quantify:
             bam_file = sample.get_sample_data('bam')
             quant_cmd_list.append(bam_file)
             sample_dir = self.genome.get_sample_path(sample.get_id())
+            quant_cmd.append(bam_file)
             #sample_output_file = os.path.join(sample_dir,sample.get_id()+'.counts')
             #sample_err_file = os.path.join(sample_dir,sample.get_id()+'.htseq_err')
             #sample_details_list.append([sample_output_file, sample,sample_err_file])
