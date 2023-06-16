@@ -395,7 +395,7 @@ class Quantify:
 
     def run_htseq(self, sample_list, threads, output_dir):
         # TODO: add strandedness parameter: -s
-        # featurey_type: CDS or Gene
+        # feature_type: CDS or Gene
         quant_cmd_list = [] 
         annotation_file = self.genome.get_genome_data('annotation')
         #sample_details_list = []
@@ -454,8 +454,7 @@ class Quantify:
     
     def create_genome_counts_table(self,output_dir,sample_list):
         if self.recipe == 'HTSeq-DESeq':
-            #return self.create_genome_counts_table_htseq(output_dir,sample_list)
-            return self.genome.get_genome_data(self.genome.get_id()+'_gene_counts')
+            return self.create_genome_counts_table_htseq(output_dir,sample_list)
         elif self.recipe == 'Host':
             return self.create_genome_counts_table_stringtie(output_dir,sample_list)
         elif self.recipe == 'cufflinks':
@@ -538,14 +537,19 @@ class Quantify:
             sys.exit(-1)
         
     def create_genome_counts_table_htseq(self,output_dir,sample_list):
-        genome_df = None
+        #genome_df = None
+        #for sample in sample_list:
+        #    sample_df = pd.read_csv(sample.get_sample_data(self.genome.get_id()+"_gene_counts"),delim_whitespace=True,index_col=0,header=None,names=[sample.get_id()])
+        #    if genome_df is None:
+        #        genome_df = sample_df
+        #    else:
+        #        genome_df = genome_df.join(sample_df)
+        headers = ['Gene_ID']
         for sample in sample_list:
-            sample_df = pd.read_csv(sample.get_sample_data(self.genome.get_id()+"_gene_counts"),delim_whitespace=True,index_col=0,header=None,names=[sample.get_id()])
-            if genome_df is None:
-                genome_df = sample_df
-            else:
-                genome_df = genome_df.join(sample_df)
+            headers.append(sample.get_id())
         output_file = os.path.join(output_dir,'gene_counts_matrix.tsv')
+        genome_df = pd.read_csv(self.genome.get_genome_data(self.genome.get_id()+'_gene_counts'),header=None)
+        genome_df.columns = headers
         genome_df.to_csv(output_file,sep='\t')
         self.genome.add_genome_data(self.genome.get_id()+'_gene_counts',output_file)
         return output_file
