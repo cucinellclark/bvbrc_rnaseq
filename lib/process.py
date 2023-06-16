@@ -629,15 +629,16 @@ class Quantify:
             return -1
 
     def create_tpm_table_tpmcalculator(self, output_dir, sample_list):
-        genome_df = None
-        for sample in sample_list:
-            sample_df = pd.read_csv(sample.get_sample_data(self.genome.get_id()+'_tpm_out'),delim_whitespace=True)
-            sample_df = sample_df[['Gene_Id','TPM']]
-            sample_df.rename(columns={'Gene_Id':'Gene_Id','TPM':sample.get_id()}, inplace=True)
-            if genome_df is None:
-                genome_df = sample_df
-            else:
-                genome_df = genome_df.merge(sample_df,how='outer',on='Gene_Id')
+        #genome_df = None
+        #for sample in sample_list:
+        #    sample_df = pd.read_csv(sample.get_sample_data(self.genome.get_id()+'_tpm_out'),delim_whitespace=True)
+        #    sample_df = sample_df[['Gene_Id','TPM']]
+        #    sample_df.rename(columns={'Gene_Id':'Gene_Id','TPM':sample.get_id()}, inplace=True)
+        #    if genome_df is None:
+        #        genome_df = sample_df
+        #    else:
+        #        genome_df = genome_df.merge(sample_df,how='outer',on='Gene_Id')
+        genome_df = pd.read_csv(self.genome.get_genome_data(self.genome.get_id()+'_gene_counts'),delim_whitespace=True)
         genome_df = genome_df.fillna(0)
         genome_df.set_index('Gene_Id',inplace=True)
         output_file = os.path.join(output_dir,"tpm_counts_matrix.tsv")
