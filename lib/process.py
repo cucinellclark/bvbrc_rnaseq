@@ -32,8 +32,7 @@ class DifferentialExpression:
 
     def run_differential_expression(self,output_dir,sample_list):
         if self.recipe == 'HTSeq-DESeq' or self.recipe == 'Host':
-            output_prefix = self.genome.get_id()+"_"
-            return self.run_deseq2(output_dir,output_prefix)
+            return self.run_deseq2(output_dir)
         elif self.recipe == 'cufflinks':
             return self.run_cuffdiff(output_dir,sample_list)
         else:
@@ -76,22 +75,26 @@ class DifferentialExpression:
         return meta_file
 
     # TODO: don't let colons exist in the condition names on UI
-    def run_deseq2(self,output_dir,output_prefix): 
+    def run_deseq2(self,output_dir): 
         contrast_list = self.comparisons.get_contrast_list() 
         gene_counts = self.genome.get_genome_data(self.genome.get_id()+"_gene_counts")
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data('sample_metadata_file')
 
-        deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,os.path.join(output_dir,output_prefix),self.genome.get_genome_data('report_img_path'),genome_type]
+        if output_dir[-1] != "/":
+            output_dir = output_dir + "/"
+
+        deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_dir,self.genome.get_genome_data('report_img_path'),genome_type]
+        #deseq_cmd = ['run_deseq2_bvbrc',gene_counts,meta_file,output_dir,self.genome.get_genome_data('report_img_path'),genome_type]
         #vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.svg')
-        vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix+'volcano_plot.png')
-        ev_cmd = ['rnaseq_volcano_plots',os.path.join(self.genome.get_genome_data('report_img_path'),output_prefix)]
+        vp_figure = os.path.join(self.genome.get_genome_data('report_img_path'),'volcano_plot.png')
+        ev_cmd = ['rnaseq_volcano_plots',self.genome.get_genome_data('report_img_path')]
         contrast_file_list = []
         for contrast in contrast_list:
             deseq_cmd = deseq_cmd + [contrast]
             cond1 = contrast.split(':')[0]
             cond2 = contrast.split(':')[1]
-            diffexp_file = os.path.join(output_dir,output_prefix + cond1 + '_vs_' + cond2 + '.deseq2.tsv') 
+            diffexp_file = os.path.join(output_dir,cond1 + '_vs_' + cond2 + '.deseq2.tsv') 
             ev_cmd = ev_cmd + [diffexp_file,contrast.replace(':','_vs_')]
             contrast_file_list.append(diffexp_file)
         try:
@@ -186,6 +189,7 @@ class DifferentialExpression:
 class GenomeData:
 
     genome = None
+    recipe = None
 
     def __init__(self):
         print("Creating GenomeData manager")
@@ -193,21 +197,33 @@ class GenomeData:
     def set_genome(self,g):
         self.genome = g
 
+    def set_recipe(self,r):
+        self.recipe = r
+
     def run_queries(self, output_dir, session):
         self.run_subsystems(output_dir, session)
         self.run_pathway(output_dir, session)
 
     def create_system_figures(self, output_dir):
+        if self.recipe == 'HTSeq-DESeq':
+            self.create_tpm_figures(output_dir)
+        elif self.recipe == 'cufflinks':
+            self.create_fpkm_figures(output_dir)
+        else:
+            sys.stderr.write('Invalid recipe: exiting create system figures\n')
+            return -1
+
+    def create_tpm_figures(self, output_dir):
         superclass_mapping = self.genome.get_genome_data('superclass_mapping')
         pathway_mapping = self.genome.get_genome_data('pathway_mapping')
         genome_counts = self.genome.get_genome_data("tpm")
         if genome_counts is None:
-            sys.stderr.write('No tpm\'s matrix in genome data: exiting create_system_figures\n')
+            sys.stderr.write('No tpm\'s matrix in genome data: exiting create_tpm_figures\n')
             return False
         metadata = self.genome.get_genome_data('sample_metadata_file')
 
         try:
-            superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_Superclass_Distribution")
+            superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"Superclass_Distribution")
             superclass_cmd = ["rnaseq_grid_violin_plots",superclass_mapping,genome_counts,metadata,superclass_figure]
             if os.path.exists(superclass_mapping):
                 print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
@@ -219,8 +235,39 @@ class GenomeData:
             sys.stderr.write('Error creating superclass violin plots:\n{0}\n'.format(e))
 
         try:
-            pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),self.genome.get_id()+"_PathwayClass_Distribution")
+            pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"PathwayClass_Distribution")
             pathway_cmd = ["rnaseq_grid_violin_plots",pathway_mapping,genome_counts,metadata,pathway_figure]
+            if os.path.exists(pathway_mapping):
+                print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
+                # TODO: ENABLE
+                subprocess.check_call(pathway_cmd) 
+                #self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
+                self.genome.add_genome_data('pathway_figure',pathway_figure+'.png')
+        except Exception as e:
+            sys.stderr.write('Error creating pathway violin plots:\n{0}\n'.format(e))
+
+    def create_fpkm_figures(self, output_dir):
+        superclass_mapping = self.genome.get_genome_data('superclass_mapping')
+        pathway_mapping = self.genome.get_genome_data('pathway_mapping')
+        genome_counts = self.genome.get_genome_data("fpkm")
+        if genome_counts is None:
+            sys.stderr.write('No fpkm\'s matrix in genome data: exiting create_fpkm_figures\n')
+            return False
+        metadata = self.genome.get_genome_data('sample_metadata_file')
+        try:
+            superclass_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"Superclass_Distribution")
+            superclass_cmd = ["rnaseq_grid_violin_plots_cufflinks",superclass_mapping,genome_counts,metadata,superclass_figure]
+            if os.path.exists(superclass_mapping):
+                print('Running command:\n{0}'.format(' '.join(superclass_cmd)))
+                # TODO: ENABLE
+                subprocess.check_call(superclass_cmd) 
+                #self.genome.add_genome_data('superclass_figure',superclass_figure+'.svg')
+                self.genome.add_genome_data('superclass_figure',superclass_figure+'.png')
+        except Exception as e:
+            sys.stderr.write('Error creating superclass violin plots:\n{0}\n'.format(e))
+        try:
+            pathway_figure = os.path.join(self.genome.get_genome_data('report_img_path'),"PathwayClass_Distribution")
+            pathway_cmd = ["rnaseq_grid_violin_plots_cufflinks",pathway_mapping,genome_counts,metadata,pathway_figure]
             if os.path.exists(pathway_mapping):
                 print('Running command:\n{0}'.format(' '.join(pathway_cmd)))
                 # TODO: ENABLE
@@ -232,13 +279,13 @@ class GenomeData:
 
     def run_pathway(self, output_dir, session):
         #pathway_df = getPathwayDataFrame([self.genome.get_id()], session)
-        base = "https://alpha.bv-brc.org/api/pathway/?http_download=true"
+        base = "https://www.bv-brc.org/api/pathway/?http_download=true"
         query = f"eq(genome_id,{self.genome.get_id()})&sort(+id)&limit(2500000)"
         headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']}
         pathway_df = pd.DataFrame(json.loads(getQueryDataText(base,query,headers)))
         if not pathway_df is None:
             mapping_table = pathway_df[['patric_id','pathway_class']]
-            mapping_output = os.path.join(output_dir,self.genome.get_id()+"_pathway_mapping.tsv")
+            mapping_output = os.path.join(output_dir,"pathway_mapping.tsv")
             mapping_table.to_csv(mapping_output,sep='\t',index=False)
             self.genome.add_genome_data('pathway_mapping',mapping_output)
         else:
@@ -248,7 +295,7 @@ class GenomeData:
     # subsystem_df is a pandas dataframe
     def run_subsystems(self, output_dir, session):
         #subsystem_df = getSubsystemsDataFrame([self.genome.get_id()],session)
-        base = "https://alpha.bv-brc.org/api/subsystem/?http_download=true"
+        base = "https://www.bv-brc.org/api/subsystem/?http_download=true"
         query = f"eq(genome_id,{self.genome.get_id()})&sort(+id)&limit(2500000)"
         headers = {"accept":"application/json", "content-type":"application/rqlquery+x-www-form-urlencoded", 'Authorization': session.headers['Authorization']} 
         try:
@@ -258,7 +305,7 @@ class GenomeData:
             return -1
         if not subsystem_df is None:
             mapping_table = subsystem_df[['patric_id','superclass']]
-            mapping_output = os.path.join(output_dir,self.genome.get_id()+"_superclass_mapping.tsv")
+            mapping_output = os.path.join(output_dir,"superclass_mapping.tsv")
             mapping_table.to_csv(mapping_output,sep='\t',index=False)
             self.genome.add_genome_data('superclass_mapping',mapping_output)
         else:
@@ -461,9 +508,12 @@ class Quantify:
         # run rnaseqPrepDE.py 
         gene_matrix_file = os.path.join(output_dir,"gene_counts_matrix.csv")
         transcript_matrix_file = os.path.join(output_dir,"transcript_counts_matrix.csv")
-        avg_read_length = str(int(np.average(avg_len_list))) 
+        avg_read_length = int(np.average(avg_len_list)) 
+        if avg_read_length == 0:
+            sys.stderr.write('Error creating gene and transcript counts table: average read length is 0.\n')
+            return None
         # TODO: set path or import or something
-        prepde_cmd = ['rnaseqPrepDE','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',avg_read_length]
+        prepde_cmd = ['rnaseqPrepDE','-i',path_file,'-g',gene_matrix_file,'-t',transcript_matrix_file,'l',str(avg_read_length)]
         try:
             print(' '.join(prepde_cmd))
             subprocess.check_call(prepde_cmd)
@@ -492,32 +542,77 @@ class Quantify:
         elif self.recipe == 'Host':
             return self.create_tpm_table_stringtie(output_dir,sample_list)
         elif self.recipe == 'cufflinks':
-            # TODO: cuffnorm not working
-            #return self.create_fpkm_table_cufflinks(sample_list)
-            return None
+            # TODO: testing cuffnorm 
+            return self.create_fpkm_table_cufflinks(output_dir,sample_list)
+            #return None
 
     # outputs to directory 'cuffnorm_output'
-    def create_fpkm_table_cufflinks(self,sample_list):
+    def create_fpkm_table_cufflinks(self,output_dir,sample_list):
         threads = 8
         merged_gtf = self.genome.get_genome_data('merge_gtf')
         cuffnorm_outdir = 'cuffnorm_output'
         if not os.path.exists(cuffnorm_outdir):
             os.mkdir(cuffnorm_outdir)
         # TODO: add library-type
-        cuffnorm_cmd = ['cuffnorm','-p',str(threads),'-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf]
+        cuffnorm_cmd = ['cuffnorm','-p','1','-o',cuffnorm_outdir,'-library-norm-method','classic-fpkm',merged_gtf]
         sam_dict = {}
+        condition_list = []
+        sample_id_list = []
         for sample in sample_list:
             sample_condition = sample.get_condition() 
+            sample_id_list.append(sample.get_id())
             if sample_condition not in sam_dict:
                 sam_dict[sample_condition] = []
-            sam_dict[sample_condition].append(sample.get_sample_data('sam'))
+                condition_list.append(sample_condition)
+            sam_dict[sample_condition].append(sample.get_sample_data('bam'))
         for sample_condition in sam_dict:
             cuffnorm_cmd += [','.join(sam_dict[sample_condition])]
-        print('Running command:\n{0}\n'.format(' '.join(cuffnorm_cmd)))
         try:
-            subprocess.check_call(cuffnorm_cmd)
+            cuffnorm_err = os.path.join(output_dir,'cuffnorm_output.err') 
+            print('Running command:\n{0}\n'.format(' '.join(cuffnorm_cmd)))
+            with open(cuffnorm_err,'w') as err:
+                subprocess.check_call(cuffnorm_cmd,stderr=err)
         except Exception as e:
-            sys.stderr.write('Error running stringtie:\n{0}\n'.format(e))
+            sys.stderr.write('Error running cuffnorm:\n{0}\n'.format(e))
+            return -1
+        # create fpkm matrix
+        try:
+            fpkm_file = os.path.join(output_dir,'cuffnorm_output/genes.fpkm_table')
+            if not os.path.exists(fpkm_file):
+                sys.stderr.write(f'Error running cuffnorm: {fpkm_file} oes not exist\n')
+                return -1
+            attr_file = os.path.join(output_dir,'cuffnorm_output/genes.attr_table')
+            if not os.path.exists(attr_file):
+                sys.stderr.write(f'Error running cuffnorm: {attr_file} oes not exist\n')
+                return -1
+            # print(f'fpkm_file = {fpkm_file}')
+            attr_dict = {}
+            with open(attr_file,'r') as af: 
+                af_data = af.readlines()
+                af_headers = af_data[0].strip().split('\t')
+                for idx,af_line in enumerate(af_data):
+                    if idx == 0:
+                        continue 
+                    af_line_parts = af_line.strip().split('\t')
+                    attr_dict[af_line_parts[0]] = af_line_parts[4]
+            fpkm_output_list = []
+            fpkm_header = ["Gene_ID"] + sample_id_list 
+            fpkm_output_list.append('\t'.join(fpkm_header))
+            with open(fpkm_file,'r') as ff: 
+                ff_data = ff.readlines()
+                for idx,ff_line in enumerate(ff_data):
+                    if idx == 0:
+                        continue
+                    ff_line_parts = ff_line.strip().split()
+                    new_line = attr_dict[ff_line_parts[0]] + '\t' + '\t'.join(ff_line_parts[1:])
+                    fpkm_output_list.append(new_line)
+            fpkm_output = os.path.join(output_dir,"fpkm_counts_matrix.tsv")
+            fpkm_output_data = '\n'.join(fpkm_output_list)
+            with open(fpkm_output,'w') as o:
+                o.write(fpkm_output_data)
+            self.genome.add_genome_data('fpkm',fpkm_output)
+        except Exception as e:
+            sys.stderr.write('Error parsing fpkm table:\n{0}\n'.format(e))
             return -1
 
     def create_tpm_table_tpmcalculator(self, output_dir, sample_list):
@@ -718,22 +813,53 @@ class Alignment:
                 print(aof.read())
             sample.add_sample_data('sam',sam_file)
             sample.add_sample_data(self.genome.get_id()+'_align_stats',align_output_file)
+            sample.set_alignment_status(True)
             sample.set_command_status("align"+"_"+self.genome.get_id(),"finished")
         except Exception as e:
-            sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
+            sys.stderr.write("Sample-alignment encountered an error in Sample {0}:\ncheck error log file\n".format(sample.get_id()))
             sample.set_command_status("align"+"_"+self.genome.get_id(),e)
             return False
         
         bam_file = self.convert_sam_to_bam(sam_file,threads)
         if bam_file:
             sample.add_sample_data("bam",bam_file) 
-            return True
         else:
+            sys.stderr.write("Bam file entry does not exist for Sample {0}:\ncheck error log file\n".format(sample.get_id()))
+            return False
+        if not os.path.exists(bam_file):
             sys.stderr.write("Bam file does not exist for Sample {0}:\ncheck error log file\n".format(sample.get_id()))
             return False
         # remove sam file
         if os.path.exists(sam_file):
             os.remove(sam_file)
+        return True
+
+    def check_alignment(self, sample):
+        # threshold for number of unique read alignments required by each sample to continue the pipeline
+        counts_threshold = 1000
+        sample_align_file = sample.get_sample_data(self.genome.get_id()+'_align_stats')
+        if os.path.exists(sample_align_file):
+            try:
+                with open(sample_align_file) as saf:
+                    align_data = saf.readlines()
+                for line in align_data:
+                    if 'aligned concordantly exactly 1 time' in line:
+                        unique_counts = line.split()[0]
+                        if int(unique_counts) < counts_threshold:
+                            sample.set_alignment_check(False)
+                            return False
+                sample.set_alignment_check(True)
+                return True
+            #407 (0.04%) aligned exactly 1 time
+            except Exception as err:
+                sys.stderr.write(f"Error checking alignment stats file {sample.get_id()}:\n{err}\n")
+                sys.stderr.write("Skipping assessment and hope it works\n")
+                sample.set_alignment_check(False)
+                return True
+        else:
+            print(f"alignmnt stats output file does not exist for sample {sample.get_id()}, skipping assessment and hope it works")
+            sample.set_alignment_check(False)
+            return True
 
     def run_alignment_stats(self, sample, threads):
         sample_dir = self.genome.get_sample_path(sample.get_id())
@@ -742,23 +868,24 @@ class Alignment:
         stats_cmd = ["samtools","stats","--threads",str(threads),sample_bam]
         stats_output = os.path.join(sample_dir,sample.get_id()+".samtools_stats")
         sample.add_command("samtools_stats_"+self.genome.get_id(),stats_cmd,"running")
-        print("Running command:\n{0}".format(" ".join(stats_cmd)))
         try:
             # TODO: ENABLE
+            print("Running command:\n{0}".format(" ".join(stats_cmd)))
             with open(stats_output,"w") as so:
                 subprocess.check_call(stats_cmd,stdout=so)
             sample.set_command_status("samtools_stats_"+self.genome.get_id(),"finished")
         except Exception as e:
-            sys.stderr.write("Samtools stats encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
+            sys.stderr.write("Samtools stats encountered an error in Sample {0}:\ncheck error log file\n".format(sample.get_id()))
             sample.set_command_status("samtools_stats_"+self.genome.get_id(),e)
-        
-        sample.add_sample_data('avg_read_length',self.get_average_read_length_per_file(stats_output)) 
+       
+        avg_len = self.get_average_read_length_per_file(stats_output) 
+        sample.add_sample_data('avg_read_length',avg_len) 
 
         # samstat
         samstat_cmd = ["samstat",sample_bam]
         sample.add_command("samstat_"+self.genome.get_id(),samstat_cmd,"running")
-        print("Running command:\n{0}".format(" ".join(samstat_cmd)))
         try:
+            print("Running command:\n{0}".format(" ".join(samstat_cmd)))
             # TODO: ENABLE
             subprocess.check_call(samstat_cmd)
             sample.set_command_status("samstat_"+self.genome.get_id(),"finished")
@@ -768,12 +895,14 @@ class Alignment:
 
     #Reads the output from samtools stat and grabs the average read length value
     def get_average_read_length_per_file(self,stats_file):
+        avg_len = 0
         with open(stats_file,"r") as sf:
             for line in sf:
                 if "average length:" in line: 
                     line = line.strip().split()
                     avg_length = line[-1]
-                    return avg_length
+                    break
+        return avg_len 
 
     # TODO: incorporate checking the sample alignment results
     def run_sample_alignment(self,sample,threads):
@@ -839,14 +968,13 @@ class Alignment:
                 subprocess.check_call(infer_cmd,stdout=o) 
             sample.set_command_status("infer_strand","finished")
             sample.add_sample_data("infer_strand_file",infer_file)
+            strand = self.infer_strand_from_file(sample.get_sample_data("infer_strand_file"))
+            sample.add_sample_data("strand",strand)
         except Exception as e:
             sys.stderr.write("Infer strand encountered an error in Sample {0}:\ncheck error log file".format(sample.get_id()))
             sample.set_command_status("infer_strand",e)
             return False
-        strand = self.infer_strand_from_file(sample.get_sample_data("infer_strand_file"))
-        sample.add_sample_data("strand",strand)
         
-        # TODO: remove sampled files and sampled sam
         for sampled_reads_file in sampled_reads_list:
             if os.path.exists(sampled_reads_file):
                 os.remove(sampled_reads_file)
@@ -1086,35 +1214,23 @@ class Preprocess:
         #    trimmed_reads.append(os.path.join(sample_dir,os.path.basename(reads[0]).split('.')[0]+"_trimmed.fq.gz"))
         trim_cmd += reads
         sample.add_command("trim",trim_cmd,"running")
-        print("Running command:\n{0}".format(" ".join(trim_cmd)))
+        trim_galore_stderr = os.path.join(sample_dir,'trim_galore.stderr')
         try:
+            print("Running command:\n{0}".format(" ".join(trim_cmd)))
             # TODO: ENABLE
-            subprocess.check_call(trim_cmd)
+            with open(trim_galore_stderr,'w') as err:
+                subprocess.check_call(trim_cmd,stderr=err)
             sample.set_command_status("trim","finished")
             if sample.get_type() == "paired": 
                 read_parts1 = os.path.basename(reads[0]).split(".")
                 read_parts2 = os.path.basename(reads[1]).split(".")
-                if read_parts1[-1] == 'gz':
-                    new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-2])+"_val_1.fq")
-                else:
-                    new_r1 = os.path.join(sample_dir,'.'.join(read_parts1[0:len(read_parts1)-1])+"_val_1.fq")
-                if read_parts2[-1] == 'gz':
-                    new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-2])+"_val_2.fq")
-                else:
-                    new_r2 = os.path.join(sample_dir,'.'.join(read_parts2[0:len(read_parts2)-1])+"_val_2.fq")
-                if not os.path.exists(new_r1) and os.path.exists(new_r1 + '.gz'):
-                    new_r1 = new_r1 + '.gz'
-                    new_r2 = new_r2 + '.gz'
+                new_r1 = glob.glob(os.path.join(sample_dir,'*_val_1.*'))[0]
+                new_r2 = glob.glob(os.path.join(sample_dir,'*_val_2.*'))[0]
                 trimmed_reads.append(new_r1)
                 trimmed_reads.append(new_r2)
             else:
                 read_parts = os.path.basename(reads[0]).split('.')
-                if read_parts[0] == 'gz':
-                    new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-2])+"_trimmed.fq")
-                else:
-                    new_r = os.path.join(sample_dir,'.'.join(read_parts[0:len(read_parts)-1])+"_trimmed.fq")
-                if not os.path.exists(new_r) and os.path.exists(new_r+'.gz'):
-                    new_r = new_r + '.gz'
+                new_r = glob.glob(os.path.join(sample_dir,'*_trimmed.*'))[0]
                 trimmed_reads.append(new_r)
             sample.set_reads_list(trimmed_reads)
             for cutadapt_file in glob.glob('./*cutadapt.log'):

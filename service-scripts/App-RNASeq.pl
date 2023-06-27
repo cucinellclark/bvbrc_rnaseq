@@ -60,16 +60,29 @@ sub check_memory_requirements
    my $mem_threshold = 50000000000; #50GB 
    my $total_mem = 0;
    my $ws = $app->workspace;
+   my $comp_factor = 3; # compression factor
    #paired_end libs
    foreach my $item (@{$params->{paired_end_libs}}) {
       my $r1 = $ws->stat($item->{read1});
       my $r2 = $ws->stat($item->{read2});
-      $total_mem = $total_mem + $r1->size + $r1->size;
+      my $r1_size = $r1->size;
+      my $r2_size = $r2->size;
+      if ($ws->file_is_gzipped($item->{read1})) {
+        $r1_size = $comp_factor*$r1_size;
+      }
+      if ($ws->file_is_gzipped($item->{read2})) {
+        $r2_size = $comp_factor*$r2_size;
+      }
+      $total_mem = $total_mem + $r1_size + $r2_size;
    }
    #single_end libs
    foreach my $item (@{$params->{single_end_libs}}) { 
       my $r = $ws->stat($item->{read});
-      $total_mem = $total_mem + $r->size;
+      my $r_size = $r->size;
+      if ($ws->file_is_gzipped($item->{read})) {
+        $r_size = $comp_factor*$r_size;
+      }
+      $total_mem = $total_mem + $r_size;
    }
    #bam libs
    foreach my $item (@{$params->{bam_libs}}) {
@@ -859,7 +872,6 @@ sub verify_cmd {
     system("which $cmd >/dev/null") == 0 or die "Command not found: $cmd\n";
 }
 
-# TODO: figure out how to modify this function so it only saves the files I want it to
 sub save_output_files
 {
     my($app, $output) = @_;
