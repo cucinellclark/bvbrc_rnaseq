@@ -1038,17 +1038,20 @@ class DiffExpImport:
         contrast_list = []
         gene_count_dict = {}
         gene_set = set()
-        for contrast_file in contrast_file_list:
-            contrast_name = os.path.basename(contrast_file).replace(".tsv","")
-            contrast_list.append(contrast_name)
-            gene_count_dict[contrast_name] = {}
-            with open(contrast_file,"r") as cf:
-                next(cf)
-                for line in cf:
-                    gene,baseMean,log2FC,lfcSE,stat,pvalue,padj = line.strip().split("\t")
-                    # strip 'gene-' from identifiers for host
-                    gene_set.add(gene.replace("gene-",""))
-                    gene_count_dict[contrast_name][gene] = log2FC
+        if contrast_file_list is None:
+            print('Skipping contrast file export; contrast_file_list is None')
+        else:
+            for contrast_file in contrast_file_list:
+                contrast_name = os.path.basename(contrast_file).replace(".tsv","")
+                contrast_list.append(contrast_name)
+                gene_count_dict[contrast_name] = {}
+                with open(contrast_file,"r") as cf:
+                    next(cf)
+                    for line in cf:
+                        gene,baseMean,log2FC,lfcSE,stat,pvalue,padj = line.strip().split("\t")
+                        # strip 'gene-' from identifiers for host
+                        gene_set.add(gene.replace("gene-",""))
+                        gene_count_dict[contrast_name][gene] = log2FC
         gmx_output = os.path.join(output_dir,'gene_exp.gmx')
         self.genome.add_genome_data('gmx',gmx_output)
         # TODO: rewrite this?
