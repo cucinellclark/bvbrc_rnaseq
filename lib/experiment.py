@@ -132,7 +132,7 @@ class Genome:
                 # return True
             except Exception as e:
                 sys.stderr.write(
-                    "bowtie build failed for genome {0}\n".format(self.get_id())
+                    f"bowtie build failed for genome {self.get_id()}\n"
                 )
                 print("error: {0}".format(e))
                 return False
@@ -237,7 +237,7 @@ class Sample:
         self.sample_id = si
         self.sample_type = st
         # TODO: change sample type based on SRA single or paired
-        if not self.sample_type in self.valid_sample_types:
+        if self.sample_type not in self.valid_sample_types:
             print(
                 "{0} not a valid sample type: {1}".format(
                     self.sample_type, ",".join(self.valid_sample_types)
@@ -273,7 +273,7 @@ class Sample:
         self.sample_data[key] = data
 
     def get_sample_data(self, key):
-        if not key in self.sample_data:
+        if key not in self.sample_data:
             print("{0} not in sample {1}".format(key, self.sample_id))
             return None
         else:
