@@ -900,7 +900,7 @@ class Alignment:
             for line in sf:
                 if "average length:" in line: 
                     line = line.strip().split()
-                    avg_length = line[-1]
+                    avg_len = line[-1]
                     break
         return avg_len 
 
