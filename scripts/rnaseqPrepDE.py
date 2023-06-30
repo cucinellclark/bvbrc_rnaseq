@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-import re, csv, sys, os, glob, warnings, itertools
+import re
+import csv
+import sys
+import os
+import glob
+import warnings
+import itertools
 from math import ceil
 from optparse import OptionParser
 from operator import itemgetter
@@ -341,7 +347,7 @@ for q, s in enumerate(samples):
             v = l.split("\t")
             if v[2] == "transcript":
                 if transcript_len > 0:
-                    ##                        transcriptList.append((g_id, t_id, int(ceil(coverage*transcript_len/read_len))))
+                    #                        transcriptList.append((g_id, t_id, int(ceil(coverage*transcript_len/read_len))))
                     t_dict.setdefault(t_id, {})
                     t_dict[t_id].setdefault(
                         s[0], int(ceil(coverage * transcript_len / read_len))

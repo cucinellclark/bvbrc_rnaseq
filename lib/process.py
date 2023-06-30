@@ -1054,7 +1054,7 @@ class Quantify:
                     "Can't copy %s to %s: %s\n" % (sample_bam, bam_tmp, err)
                 )
 
-            if bam_to_use == None:
+            if bam_to_use is None:
                 try:
                     tmpfd, bam_tmp = tempfile.mkstemp(prefix="CUFFL.", dir=".")
                     os.close(tmpfd)
@@ -1069,7 +1069,7 @@ class Quantify:
                         "Can't copy %s to %s: %s\n" % (sample_bam, bam_tmp, err)
                     )
 
-            if bam_to_use == None:
+            if bam_to_use is None:
                 sys.stderr.write("Can't copy %s to tmp space\n" % (sample_bam))
                 bam_to_use = sample_bam
                 bam_tmp = None
@@ -1091,7 +1091,7 @@ class Quantify:
                 )
                 return False
 
-            if bam_tmp != None:
+            if bam_tmp is not None:
                 sys.stderr.write("remove temp %s\n" % (bam_tmp))
                 os.unlink(bam_tmp)
         return True

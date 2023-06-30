@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 
 # library modules
-import subprocess, sys, os
+import subprocess
+import sys
+import os
 
 
 class ReportManager:
@@ -138,7 +140,7 @@ class ReportManager:
         if workspace_path[-1] != "/":
             workspace_path += "/"
         url = url_base + workspace_path + "multiqc_report.html"
-        link_text = f'<a href="multiqc_report.html" target="_parent">multiqc report link</a>'
+        link_text = '<a href="multiqc_report.html" target="_parent">multiqc report link</a>'
         return link_text
 
     def get_subsystem_figure(self, genome):

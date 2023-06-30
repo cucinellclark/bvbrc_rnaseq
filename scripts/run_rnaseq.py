@@ -28,7 +28,7 @@ def main(
     setup(output_dir, experiment_dict, genome)
     diffexp_flag = comparisons.check_diffexp()
 
-    ### process data independently of genomes
+    # process data independently of genomes
     # Fastqc
     preprocess = process.Preprocess()
     for condition in experiment_dict:
@@ -42,7 +42,7 @@ def main(
             for sample in experiment_dict[condition].get_sample_list():
                 preprocess.run_trimming(sample, 8)
 
-    ### Sampled align against genome
+    # Sampled align against genome
     # TODO: assess strandedness with one genome?
     alignment = process.Alignment()
     alignment.set_genome(genome)
@@ -50,7 +50,7 @@ def main(
         for sample in experiment_dict[condition].get_sample_list():
             alignment.run_sample_alignment(sample, 8)
 
-    ### Align against genome
+    # Align against genome
     alignment.set_genome(genome)
     alignment_all_good = True
     for condition in experiment_dict:
@@ -223,7 +223,7 @@ def setup(output_dir, experiment_dict, genome):
             os.mkdir(genome_data_dir)
         else:
             print("{0} already exists".format(genome_data_dir))
-        genome.setup_genome_database(genome_data_dir) 
+        genome.setup_genome_database(genome_data_dir)
     """
     genome.setup_genome_database()
 

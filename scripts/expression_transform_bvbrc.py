@@ -210,7 +210,7 @@ def process_table(
         starting = True
         fileName, fileExtension = os.path.splitext(target_file)
         target_format = fileExtension.replace(".", "").lower()
-    if starting and not target_format in set(["csv", "tsv", "xls", "xlsx"]):
+    if starting and target_format not in set(["csv", "tsv", "xls", "xlsx"]):
         # temp_handle=open(target_file, 'rb')
         temp_handle = open(target_file, "r")
         target_sep = csv.Sniffer().sniff(
@@ -551,7 +551,7 @@ def make_map_query(id_list, form_data, server_setup, chunk_size):
 
 
 def chunker(seq, size):
-    return (seq[pos : pos + size] for pos in range(0, len(seq), size))
+    return (seq[pos: pos + size] for pos in range(0, len(seq), size))
 
 
 def map_gene_ids(cur_table, form_data, server_setup, host=False):

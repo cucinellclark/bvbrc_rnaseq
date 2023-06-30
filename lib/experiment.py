@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
-import sys, os, subprocess
-import requests
-import json, io
+import sys
+import os
+import subprocess
+import json
+import io
 import bvbrc_api as bvb
 
 
@@ -37,7 +39,7 @@ class Genome:
         self.genome_id = gi
         self.genome_ref_id = gi
         self.genome_type = gt
-        if not self.genome_type in self.valid_genome_types:
+        if self.genome_type not in self.valid_genome_types:
             print(
                 "{0} is not a valid genome type:\n{1}".format(
                     self.genome_type, ",".join(self.valid_genome_types)
@@ -48,7 +50,7 @@ class Genome:
         self.genome_data = {}
         # get genome id prefix
         if genome_query:
-            base = f"https://www.bv-brc.org/api/genome/?"
+            base = "https://www.bv-brc.org/api/genome/?"
             query = f"eq(genome_id,{gi})"
             headers = {
                 "accept": "application/json",
@@ -79,7 +81,7 @@ class Genome:
         #    print("{0} not a valid genome data type:\n{1}".format(key,",".join(self.valid_data_types)))
 
     def get_genome_data(self, key):
-        if not key in self.genome_data:
+        if key not in self.genome_data:
             print("{0} not in genome {1}".format(key, self.genome_id))
             return None
         else:
