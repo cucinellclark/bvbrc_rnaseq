@@ -84,8 +84,7 @@ class DifferentialExpression:
     # TODO: don't let colons exist in the condition names on UI
     def run_deseq2(self, output_dir):
         contrast_list = self.comparisons.get_contrast_list()
-        gene_counts = self.genome.get_genome_data(
-            f"{self.genome.get_id()}_gene_counts")
+        gene_counts = self.genome.get_genome_data(f"{self.genome.get_id()}_gene_counts")
         genome_type = self.genome.get_genome_type()
         meta_file = self.genome.get_genome_data("sample_metadata_file")
 
@@ -286,9 +285,7 @@ class GenomeData:
                     "superclass_figure", superclass_figure + ".png"
                 )
         except Exception as e:
-            sys.stderr.write(
-                "Error creating superclass violin plots:\n{0}\n".format(e)
-                )
+            sys.stderr.write("Error creating superclass violin plots:\n{0}\n".format(e))
 
         try:
             pathway_figure = os.path.join(
@@ -309,9 +306,7 @@ class GenomeData:
                 # self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
                 self.genome.add_genome_data("pathway_figure", pathway_figure + ".png")
         except Exception as e:
-            sys.stderr.write(
-                "Error creating pathway violin plots:\n{0}\n".format(e)
-                )
+            sys.stderr.write("Error creating pathway violin plots:\n{0}\n".format(e))
 
     def create_fpkm_figures(self, output_dir):
         superclass_mapping = self.genome.get_genome_data("superclass_mapping")
@@ -319,8 +314,7 @@ class GenomeData:
         genome_counts = self.genome.get_genome_data("fpkm")
         if genome_counts is None:
             sys.stderr.write(
-                "No fpkm's matrix in genome data: ",
-                "exiting create_fpkm_figures\n"
+                "No fpkm's matrix in genome data: ", "exiting create_fpkm_figures\n"
             )
             return False
         metadata = self.genome.get_genome_data("sample_metadata_file")
@@ -345,9 +339,7 @@ class GenomeData:
                     "superclass_figure", superclass_figure + ".png"
                 )
         except Exception as e:
-            sys.stderr.write(
-                "Error creating superclass violin plots:\n{0}\n".format(e)
-                )
+            sys.stderr.write("Error creating superclass violin plots:\n{0}\n".format(e))
         try:
             pathway_figure = os.path.join(
                 self.genome.get_genome_data("report_img_path"),
@@ -367,9 +359,7 @@ class GenomeData:
                 # self.genome.add_genome_data('pathway_figure',pathway_figure+'.svg')
                 self.genome.add_genome_data("pathway_figure", pathway_figure + ".png")
         except Exception as e:
-            sys.stderr.write(
-                "Error creating pathway violin plots:\n{0}\n".format(e)
-                )
+            sys.stderr.write("Error creating pathway violin plots:\n{0}\n".format(e))
 
     def run_pathway(self, output_dir, session):
         # pathway_df = getPathwayDataFrame([self.genome.get_id()], session)
@@ -685,7 +675,7 @@ class Quantify:
             sys.stderr.write(
                 "Error in rnaseqPrepDE.py: ",
                 "cannot generate genome counts or transcript counts file",
-                e
+                e,
             )
             sys.exit(-1)
 
@@ -765,7 +755,8 @@ class Quantify:
                 )
             if not os.path.exists(fpkm_file):
                 sys.stderr.write(
-                    f"Error running cuffnorm: {fpkm_file} does not exist\n")
+                    f"Error running cuffnorm: {fpkm_file} does not exist\n"
+                )
                 return -1
             attr_file = os.path.join(
                 output_dir,
@@ -956,8 +947,7 @@ class Quantify:
             if not os.path.exists(gtf_output) or True:
                 sample.add_command(
                     f"stringtie_merged_{self.genome.get_id()}",
-                    quant_cmd,
-                    "running"
+                    quant_cmd, "running"
                 )
                 print("Running command:\n{0}\n".format(" ".join(quant_cmd)))
                 try:
@@ -966,13 +956,17 @@ class Quantify:
                         "stringtie_merged_" + self.genome.get_id(), "finished"
                     )
                     sample.add_sample_data(
-                        self.genome.get_id() + "_merged_transcripts", gtf_output
+                        self.genome.get_id() + "_merged_transcripts",
+                        gtf_output
                     )
                     sample.add_sample_data(
-                        self.genome.get_id() + "_merged_gene_counts", gene_output
+                        self.genome.get_id() + "_merged_gene_counts",
+                        gene_output
                     )
                 except Exception as e:
-                    sys.stderr.write("Error running stringtie-merged:\n{0}\n".format(e))
+                    sys.stderr.write(
+                        "Error running stringtie-merged:\n{0}\n".format(e)
+                        )
                     sample.set_command_status(
                         "stringtie_merged_" + self.genome.get_id(), e
                     )
@@ -1086,9 +1080,7 @@ class Alignment:
         reads_list = sample.get_reads_as_list()
         sam_file = os.path.join(sample_dir, sample.get_id() + ".sam")
         if self.genome.get_genome_type() == "bacteria":
-            align_cmd = [
-                "bowtie2",
-                "-x", self.genome.get_genome_data("bowtie_prefix")]
+            align_cmd = ["bowtie2", "-x", self.genome.get_genome_data("bowtie_prefix")]
         else:
             align_cmd = [
                 "hisat2",
@@ -1104,11 +1096,7 @@ class Alignment:
         elif sample.sample_type == "single":
             align_cmd += ["-U", reads_list[0]]
         align_cmd += ["-S", sam_file, "-p", str(threads)]
-        sample.add_command(
-            f"align_{self.genome.get_id()}",
-            align_cmd,
-            "running"
-            )
+        sample.add_command(f"align_{self.genome.get_id()}", align_cmd, "running")
         align_output_file = sam_file.replace(".sam", ".align_stdout")
         print("Running command:\n{0}".format(" ".join(align_cmd)))
         try:
@@ -1124,15 +1112,12 @@ class Alignment:
                 self.genome.get_id() + "_align_stats", align_output_file
             )
             sample.set_alignment_status(True)
-            sample.set_command_status(
-                "align_" + self.genome.get_id(),
-                "finished"
-                )
+            sample.set_command_status("align_" + self.genome.get_id(), "finished")
         except Exception as e:
             sys.stderr.write(
                 "Sample-alignment encountered an error in Sample ",
-                f"{sample.get_id()}:\ncheck error log file\n"
-                )
+                f"{sample.get_id()}:\ncheck error log file\n",
+            )
             sample.set_command_status("align" + "_" + self.genome.get_id(), e)
             return False
 
@@ -1142,14 +1127,14 @@ class Alignment:
         else:
             sys.stderr.write(
                 "Bam file entry does not exist for Sample ",
-                f"{sample.get_id()}:\ncheck error log file\n"
+                f"{sample.get_id()}:\ncheck error log file\n",
             )
             return False
         if not os.path.exists(bam_file):
             sys.stderr.write(
                 "Bam file does not exist for Sample ",
                 str(sample.get_id()),
-                ":\ncheck error log file\n"
+                ":\ncheck error log file\n",
             )
             return False
         # remove sam file
@@ -1320,8 +1305,8 @@ class Alignment:
             sys.stderr.write(
                 "Sample-alignment encountered an error ",
                 f"in Sample {sample.get_id()}:",
-                "\ncheck error log file"
-                )
+                "\ncheck error log file",
+            )
             sample.set_command_status("sample_align", e)
             return False
 
@@ -1351,8 +1336,8 @@ class Alignment:
         except Exception as e:
             sys.stderr.write(
                 "Infer strand encountered an error in ",
-                f"Sample {sample.get_id()}:\ncheck error log file"
-                )
+                f"Sample {sample.get_id()}:\ncheck error log file",
+            )
             sample.set_command_status("infer_strand", e)
             return False
 
@@ -1378,9 +1363,7 @@ class Alignment:
             # TODO: ENABLE
             subprocess.check_call(sam_to_bam_cmd, shell=True)
         except Exception as e:
-            sys.stderr.write(
-                "Error in converting sam to bam file:\n{0}\n".format(e)
-                )
+            sys.stderr.write("Error in converting sam to bam file:\n{0}\n".format(e))
             return None
         index_cmd = "samtools index " + bam_file
         try:
