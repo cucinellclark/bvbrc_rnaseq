@@ -29,11 +29,11 @@ pd.options.mode.chained_assignment = None
 """
 {xformat:"csv || tsv || xls ||  xlsx",
 xsetup:"gene_matrix || gene_list",
-source_id_type:"refseq_locus_tag || alt_locus_tag || feature_id || gi || gene_id || protein_id || seed_id", 
-data_type: "Transcriptomics || Proteomics || Phenomics", 
-title: "User input", 
+source_id_type:"refseq_locus_tag || alt_locus_tag || feature_id || gi || gene_id || protein_id || seed_id",
+data_type: "Transcriptomics || Proteomics || Phenomics",
+title: "User input",
 desc: "User input",
-organism: "user input", 
+organism: "user input",
 pmid: "user_input",
 output_path: "path",
 "metadata_format":"csv || tsv || xls ||  xlsx"}
@@ -140,7 +140,10 @@ def fix_headers(cur_table, parameter_type, die):
         target_setup = (
             "gene_list"
             if all(
-                [(fix_name(x, all_columns) in list_columns) for x in cur_table.columns]
+                [
+                    (fix_name(x, all_columns) in list_columns)
+                    for x in cur_table.columns
+                ]
             )
             else "gene_matrix"
         )
@@ -153,7 +156,10 @@ def fix_headers(cur_table, parameter_type, die):
         rename = {"gene_id": "exp_locus_tag"}
     elif target_setup == "gene_list":
         check_columns = list_columns
-        rename = {"comparison_id": "sampleUserGivenId", "gene_id": "exp_locus_tag"}
+        rename = {
+            "comparison_id": "sampleUserGivenId",
+            "gene_id": "exp_locus_tag",
+        }
     elif target_setup == "template":
         check_columns = template_columns
         rename = {
@@ -168,14 +174,18 @@ def fix_headers(cur_table, parameter_type, die):
         if die:
             assert False
     cur_table.columns = [
-        fix_name(x, all_columns) if fix_name(x, all_columns) in check_columns else x
+        fix_name(x, all_columns)
+        if fix_name(x, all_columns) in check_columns
+        else x
         for x in cur_table.columns
     ]
     columns_ok = True
     for i in check_columns:
         columns_ok = columns_ok and i in cur_table.columns
     if not columns_ok:
-        sys.stderr.write("Missing appropriate column names in " + target_setup + "\n")
+        sys.stderr.write(
+            "Missing appropriate column names in " + target_setup + "\n"
+        )
         if die:
             assert False
     if limit_columns:
@@ -186,7 +196,9 @@ def fix_headers(cur_table, parameter_type, die):
 
 
 # read in the comparisons data and metadata
-def process_table(target_file, param_type, die, target_format="start", tries=0):
+def process_table(
+    target_file, param_type, die, target_format="start", tries=0
+):
     tries += 1
     starting = False
     target_setup = None
@@ -201,7 +213,9 @@ def process_table(target_file, param_type, die, target_format="start", tries=0):
     if starting and not target_format in set(["csv", "tsv", "xls", "xlsx"]):
         # temp_handle=open(target_file, 'rb')
         temp_handle = open(target_file, "r")
-        target_sep = csv.Sniffer().sniff("\n".join(list(islice(temp_handle, 10))))
+        target_sep = csv.Sniffer().sniff(
+            "\n".join(list(islice(temp_handle, 10)))
+        )
         temp_handle.close()
     # target_sep shouldn't be empty, but if it is just use tsv
     if not target_sep:
@@ -227,14 +241,20 @@ def process_table(target_file, param_type, die, target_format="start", tries=0):
             cur_table = pd.io.excel.read_excel(target_file, 0, index_col=None)
         else:
             sys.stderr.write(
-                "unrecognized format " + target_format + " for " + target_setup + "\n"
+                "unrecognized format "
+                + target_format
+                + " for "
+                + target_setup
+                + "\n"
             )
             if die:
                 sys.exit(2)
 
         # assume the first column is "gene_id" for the comparison table and rename it as "gene_id" to handle user misspelled column name for gene_id
         if param_type == "xfile":
-            cur_table = cur_table.rename(columns={cur_table.columns[0]: "gene_id"})
+            cur_table = cur_table.rename(
+                columns={cur_table.columns[0]: "gene_id"}
+            )
         target_setup, cur_table = fix_headers(cur_table, param_type, die)
     except Exception as e:
         sys.stdout.write("failed at reading " + target_format + " format\n")
@@ -256,14 +276,21 @@ def process_table(target_file, param_type, die, target_format="start", tries=0):
 # experiment.json
 # {"origFileName":"filename","geneMapped":4886,"samples":8,"geneTotal":4985,"cdate":"2013-01-28 13:40:47","desc":"user input","organism":"some org","owner":"user name","title":"user input","pmid":"user input","expid":"whatever","collectionType":"ExpressionExperiment","genesMissed":99,"mdate":"2013-01-28 13:40:47"}
 def create_experiment_file(
-    output_path, mapping_dict, sample_dict, expression_dict, form_data, experiment_id
+    output_path,
+    mapping_dict,
+    sample_dict,
+    expression_dict,
+    form_data,
+    experiment_id,
 ):
     experiment_dict = {
         "geneMapped": mapping_dict["mapping"]["mapped_ids"],
         "samples": len(sample_dict["sample"]),
         "geneTotal": mapping_dict["mapping"]["mapped_ids"]
         + mapping_dict["mapping"]["unmapped_ids"],
-        "desc": form_data.get("desc", form_data.get("experiment_description", "")),
+        "desc": form_data.get(
+            "desc", form_data.get("experiment_description", "")
+        ),
         "organism": form_data.get("organism", ""),
         "title": form_data.get("title", form_data.get("experiment_title", "")),
         "pmid": form_data.get("pmid", ""),
@@ -286,7 +313,13 @@ def create_experiment_file(
 
 
 def create_comparison_files(
-    output_path, comparisons_table, mfile, form_data, experiment_id, sig_z, sig_log
+    output_path,
+    comparisons_table,
+    mfile,
+    form_data,
+    experiment_id,
+    sig_z,
+    sig_log,
 ):
     # create dicts for json
     sample_dict = {"sample": []}
@@ -294,8 +327,12 @@ def create_comparison_files(
     # create stats table for sample.json
     grouped = comparisons_table.groupby(["sampleUserGivenId"], sort=False)
     sample_stats = grouped.agg([np.mean, np.std])["log_ratio"]
-    sample_stats = sample_stats.rename_axis("contrast")  # rename index column title
-    sample_stats = sample_stats.rename(columns={"mean": "expmean", "std": "expstddev"})
+    sample_stats = sample_stats.rename_axis(
+        "contrast"
+    )  # rename index column title
+    sample_stats = sample_stats.rename(
+        columns={"mean": "expmean", "std": "expstddev"}
+    )
     sample_stats["genes"] = grouped.count()["exp_locus_tag"]
     sample_stats["pid"] = [
         str(experiment_id) + "S" + str(i) for i in range(0, len(sample_stats))
@@ -305,7 +342,9 @@ def create_comparison_files(
     # get zscore and significance columns
     comparisons_table["z_score"] = grouped.transform(stats.zscore)["log_ratio"]
     comparisons_table["sig_z"] = comparisons_table["z_score"].abs() >= sig_z
-    comparisons_table["sig_log"] = comparisons_table["log_ratio"].abs() >= sig_log
+    comparisons_table["sig_log"] = (
+        comparisons_table["log_ratio"].abs() >= sig_log
+    )
     # store counts in stats
     z_score_breakdown = (
         comparisons_table.groupby(["sampleUserGivenId", "sig_z"], sort=False)
@@ -333,10 +372,14 @@ def create_comparison_files(
     sample_stats["sig_log_ratio"] = (
         sample_stats["sig_log_ratio"].fillna(0).astype("int64")
     )
-    sample_stats["sig_z_score"] = sample_stats["sig_z_score"].fillna(0).astype("int64")
+    sample_stats["sig_z_score"] = (
+        sample_stats["sig_z_score"].fillna(0).astype("int64")
+    )
     # set pid's for expression.json
     comparisons_table = comparisons_table.merge(
-        sample_stats[["pid", "sampleUserGivenId"]], how="left", on="sampleUserGivenId"
+        sample_stats[["pid", "sampleUserGivenId"]],
+        how="left",
+        on="sampleUserGivenId",
     )
     # pull in metadata spreadsheet if provided
     if mfile and mfile.strip():
@@ -348,10 +391,15 @@ def create_comparison_files(
             meta_table = meta_table.set_index("sampleUserGivenId")
             sample_stats.update(meta_table)
             sample_stats = sample_stats.merge(
-                meta_table[to_add], left_index=True, right_index=True, how="left"
+                meta_table[to_add],
+                left_index=True,
+                right_index=True,
+                how="left",
             )
         except:
-            sys.stderr.write("failed to parse user provide metadata template\n")
+            sys.stderr.write(
+                "failed to parse user provide metadata template\n"
+            )
             sys.exit(2)
     # populate json dicts
     sample_stats = sample_stats.fillna("")
@@ -359,7 +407,11 @@ def create_comparison_files(
         sample_stats.to_json(orient="records", date_format="iso")
     )
     # sample_dict['sample']=sample_stats.to_dict(outtype='records')
-    cols = [col for col in comparisons_table.columns if col not in ["sig_z", "sig_log"]]
+    cols = [
+        col
+        for col in comparisons_table.columns
+        if col not in ["sig_z", "sig_log"]
+    ]
     expression_dict["expression"] = json.loads(
         comparisons_table[cols].to_json(orient="records")
     )
@@ -397,7 +449,9 @@ def create_mapping_file(output_path, mapping_table, form_data):
     mapping_dict["mapping"]["unmapped_ids"] = len(
         mapping_dict["mapping"]["unmapped_list"]
     )
-    mapping_dict["mapping"]["mapped_ids"] = len(mapping_dict["mapping"]["mapped_list"])
+    mapping_dict["mapping"]["mapped_ids"] = len(
+        mapping_dict["mapping"]["mapped_list"]
+    )
     output_file = os.path.join(output_path, "mapping.json")
     out_handle = open(output_file, "w")
     json.dump(mapping_dict, out_handle)
@@ -455,13 +509,19 @@ def make_map_query(id_list, form_data, server_setup, chunk_size):
                 int_ids.append(str(id))
         if len(int_ids):
             for s_type in int_types:
-                map_queries.append("(" + s_type + ":(" + " OR ".join(int_ids) + "))")
+                map_queries.append(
+                    "(" + s_type + ":(" + " OR ".join(int_ids) + "))"
+                )
     for s_type in source_types:
         map_queries.append("(" + s_type + ":(" + " OR ".join(id_list) + "))")
     if "host" in form_data and form_data["host"]:
-        current_query["q"] += "(" + " OR ".join(map_queries) + ") AND annotation:RefSeq"
+        current_query["q"] += (
+            "(" + " OR ".join(map_queries) + ") AND annotation:RefSeq"
+        )
     else:
-        current_query["q"] += "(" + " OR ".join(map_queries) + ") AND annotation:PATRIC"
+        current_query["q"] += (
+            "(" + " OR ".join(map_queries) + ") AND annotation:PATRIC"
+        )
     if "genome_id" in form_data and form_data["genome_id"]:
         current_query["q"] += " AND genome_id:" + form_data["genome_id"]
     current_query["fl"] = "feature_id," + ",".join(source_types + int_types)
@@ -502,7 +562,9 @@ def map_gene_ids(cur_table, form_data, server_setup, host=False):
             cur_table["feature_id"][source_id] = source_id
     else:
         for i in chunker(cur_table["exp_locus_tag"], chunk_size):
-            mapping_results = make_map_query(i, form_data, server_setup, chunk_size)
+            mapping_results = make_map_query(
+                i, form_data, server_setup, chunk_size
+            )
             place_ids(mapping_results, cur_table, form_data)
 
 
@@ -513,7 +575,12 @@ def main():
     valid_setups = set(["gene_matrix", "gene_list"])
 
     # req_info=['xformat','xsetup','source_id_type','data_type','experiment_title','experiment_description','organism']
-    req_info = ["data_type", "experiment_title", "experiment_description", "organism"]
+    req_info = [
+        "data_type",
+        "experiment_title",
+        "experiment_description",
+        "organism",
+    ]
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -522,7 +589,9 @@ def main():
     parser.add_argument(
         "--mfile", help="the metadata template if it exists", required=False
     )
-    parser.add_argument("--output_path", help="location for output", required=True)
+    parser.add_argument(
+        "--output_path", help="location for output", required=True
+    )
     parser.add_argument(
         "--host",
         help="host genome, prevent id mapping",
@@ -586,7 +655,9 @@ def main():
     if any(missing):
         sys.stderr.write(
             "Missing required user input data: "
-            + " ".join([req_info[i] for i in range(len(missing)) if missing[i]])
+            + " ".join(
+                [req_info[i] for i in range(len(missing)) if missing[i]]
+            )
             + "\n"
         )
         sys.exit(2)
@@ -612,7 +683,9 @@ def main():
         comparisons_table["log_ratio"] < -1000000, "log_ratio"
     ] = -1000000
     comparisons_table = comparisons_table.dropna()
-    comparisons_table = comparisons_table[comparisons_table.exp_locus_tag != "-"]
+    comparisons_table = comparisons_table[
+        comparisons_table.exp_locus_tag != "-"
+    ]
 
     # map gene ids
     mapping_table = list_to_mapping_table(comparisons_table)
@@ -625,7 +698,13 @@ def main():
     experiment_id = str(uuid.uuid1())
     mapping_dict = create_mapping_file(output_path, mapping_table, form_data)
     (sample_dict, expression_dict) = create_comparison_files(
-        output_path, comparisons_table, mfile, form_data, experiment_id, sig_z, sig_log
+        output_path,
+        comparisons_table,
+        mfile,
+        form_data,
+        experiment_id,
+        sig_z,
+        sig_log,
     )
     experiment_dict = create_experiment_file(
         output_path,

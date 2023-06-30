@@ -92,14 +92,14 @@ if os.path.isfile(opts.input):
         exit(1)
 else:
     # gtfList = False
-    ## Check that opts.input directory exists
+    # Check that opts.input directory exists
     if not os.path.isdir(opts.input):
         parser.print_help()
         print(" ")
         print("Error: sub-directory '%s' not found!" % (opts.input))
         sys.exit(1)
     #####
-    ## Collect all samples file paths and if empty print help message and quit
+    # Collect all samples file paths and if empty print help message and quit
     #####
     samples = []
     for i in next(os.walk(opts.input))[1]:
@@ -113,17 +113,17 @@ if len(samples) == 0:
     print("Error: no GTF files found under base directory %s !" % (opts.input))
     sys.exit(1)
 
-RE_GENE_ID = re.compile('gene_id "([^"]+)"')
-RE_GENE_NAME = re.compile('gene_name "([^"]+)"')
-RE_TRANSCRIPT_ID = re.compile('transcript_id "([^"]+)"')
-RE_COVERAGE = re.compile('cov "([\-\+\d\.]+)"')
+RE_GENE_ID = re.compile(r'gene_id "([^"]+)"')
+RE_GENE_NAME = re.compile(r'gene_name "([^"]+)"')
+RE_TRANSCRIPT_ID = re.compile(r'transcript_id "([^"]+)"')
+RE_COVERAGE = re.compile(r'cov "([\-\+\d\.]+)"')
 RE_STRING = re.compile(re.escape(opts.string))
 
-RE_GFILE = re.compile("\-G\s*(\S+)")  # assume filepath without spaces..
+RE_GFILE = re.compile(r"\-G\s*(\S+)")  # assume filepath without spaces..
 
 
 #####
-## Sort the sample names by the sample ID
+# Sort the sample names by the sample ID
 #####
 
 samples.sort()
@@ -135,8 +135,8 @@ samples.sort()
 
 
 #####
-## Checks whether a given row is a transcript
-## other options: ex. exon, transcript, mRNA, 5'UTR
+# Checks whether a given row is a transcript
+# other options: ex. exon, transcript, mRNA, 5'UTR
 #####
 def is_transcript(x):
     return len(x) > 2 and x[2] == "transcript"
@@ -181,24 +181,24 @@ def t_overlap(
     return False
 
 
-## Average Readlength
+# Average Readlength
 read_len = opts.length
 
-## Variables/Matrices to store t/g_counts
+# Variables/Matrices to store t/g_counts
 t_count_matrix, g_count_matrix = [], []
 
-##Get ready for clustering, stuff is once for all samples##
+# Get ready for clustering, stuff is once for all samples##
 geneIDs = {}  # key=transcript, value=cluster/gene_id
 
 
-## For each of the sorted sample paths
+# For each of the sorted sample paths
 for s in samples:
     badGenes = []  # list of bad genes (just ones that aren't MSTRG)
     try:
-        ## opts.input = parent directory of sample subdirectories
-        ## s = sample currently iterating through
-        ## os.path.join(opts.input,s,"*.gtf") path to current sample's GTF
-        ## split = list of lists: [[chromosome, ...],...]
+        #  opts.input = parent directory of sample subdirectories
+        #  s = sample currently iterating through
+        #  os.path.join(opts.input,s,"*.gtf") path to current sample's GTF
+        #  split = list of lists: [[chromosome, ...],...]
 
         # with open(glob.iglob(os.path.join(opts.input,s,"*.gtf")).next()) as f:
         #    split=[l.split('\t') for l in f.readlines()]
@@ -209,14 +209,16 @@ for s in samples:
         with open(s[1]) as f:
             split = [l.split("\t") for l in f.readlines()]
 
-        ## i = numLine; v = corresponding i-th GTF row
+        # i = numLine; v = corresponding i-th GTF row
         for i, v in enumerate(split):
             if is_transcript(v):
                 t_id = RE_TRANSCRIPT_ID.search(v[8]).group(1)
                 try:
                     g_id = getGeneID(v[8], v[0], t_id)
                 except:
-                    print("Problem parsing file %s at line:\n:%s\n" % (s[1], v))
+                    print(
+                        "Problem parsing file %s at line:\n:%s\n" % (s[1], v)
+                    )
                     sys.exit(1)
                 geneIDs.setdefault(t_id, g_id)
                 if not RE_STRING.match(g_id):
@@ -241,12 +243,14 @@ for s in samples:
                         j += 1
 
     except StopIteration:
-        warnings.warn("Didn't get a GTF in that directory. Looking in another...")
+        warnings.warn(
+            "Didn't get a GTF in that directory. Looking in another..."
+        )
 
     else:  # we found the "bad" genes!
         break
 
-##THE CLUSTERING BEGINS!##
+# THE CLUSTERING BEGINS!##
 if opts.cluster and len(badGenes) > 0:
     clusters = []  # lists of lists (could be sets) or something of transcripts
     badGenes.sort(key=itemgetter(3))  # sort by start coord...?
@@ -282,13 +286,15 @@ if opts.cluster and len(badGenes) > 0:
         )  # my_ID, clustered transcript IDs
         for t in c:
             geneIDs[t] = my_ID
-    ##            geneIDs[t]="|".join(c) #duct-tape transcript IDs together, disregarding ref_gene_names and things like that
+    #             geneIDs[t]="|".join(c) #duct-tape transcript IDs together, disregarding ref_gene_names and things like that
 
     with open(opts.legend, "w") as l_file:
         my_writer = csv.writer(l_file)
         my_writer.writerows(legend)
 
-geneDict = {}  # key=gene/cluster, value=dictionary with key=sample, value=summed counts
+geneDict = (
+    {}
+)  # key=gene/cluster, value=dictionary with key=sample, value=summed counts
 t_dict = {}
 guidesFile = ""  # file given with -G for the 1st sample
 for q, s in enumerate(samples):
@@ -351,9 +357,11 @@ for q, s in enumerate(samples):
                     int(v[4]) - int(v[3]) + 1
                 )  # because end coordinates are inclusive in GTF
 
-        ##            transcriptList.append((g_id, t_id, int(ceil(coverage*transcript_len/read_len))))
+        #            transcriptList.append((g_id, t_id, int(ceil(coverage*transcript_len/read_len))))
         t_dict.setdefault(t_id, {})
-        t_dict[t_id].setdefault(s[0], int(ceil(coverage * transcript_len / read_len)))
+        t_dict[t_id].setdefault(
+            s[0], int(ceil(coverage * transcript_len / read_len))
+        )
 
     except StopIteration:
         #        if not gtfList:
@@ -361,17 +369,18 @@ for q, s in enumerate(samples):
         #        else:
         warnings.warn("No GTF file found in " + s[1])
 
-    ##        transcriptList.sort(key=lambda bla: bla[1]) #gene_id
+    #        transcriptList.sort(key=lambda bla: bla[1]) #gene_id
 
     for i, v in t_dict.items():
-        ##        print i,v
+        #        print i,v
         try:
             geneDict.setdefault(geneIDs[i], {})  # gene_id
             geneDict[geneIDs[i]].setdefault(s[0], 0)
             geneDict[geneIDs[i]][s[0]] += v[s[0]]
         except KeyError:
             print(
-                "Error: could not locate transcript %s entry for sample %s" % (i, s[0])
+                "Error: could not locate transcript %s entry for sample %s"
+                % (i, s[0])
             )
             raise
 
@@ -391,8 +400,8 @@ with open(opts.g, "w") as csvfile:
     my_writer = csv.DictWriter(
         csvfile, fieldnames=["gene_id"] + [x for x, y in samples]
     )
-    ##    my_writer.writerow([""]+samples)
-    ##    my_writer.writerows(geneDict)
+    #    my_writer.writerow([""]+samples)
+    #    my_writer.writerows(geneDict)
     my_writer.writerow(dict((fn, fn) for fn in my_writer.fieldnames))
     for i in geneDict:
         geneDict[i]["gene_id"] = i  # add gene_id to row

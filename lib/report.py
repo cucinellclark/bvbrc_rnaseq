@@ -138,9 +138,7 @@ class ReportManager:
         if workspace_path[-1] != "/":
             workspace_path += "/"
         url = url_base + workspace_path + "multiqc_report.html"
-        link_text = (
-            f'<a href="multiqc_report.html" target="_parent">multiqc report link</a>'
-        )
+        link_text = f'<a href="multiqc_report.html" target="_parent">multiqc report link</a>'
         return link_text
 
     def get_subsystem_figure(self, genome):
@@ -154,7 +152,9 @@ class ReportManager:
                 # subsystem_figure = f'<img src = \"report_images/{genome.get_id()}_Superclass_Distribution.svg\"'
                 return subsystem_figure
             except Exception as e:
-                sys.stderr.write(f"Error reading file: {subsystem_figure_path}\n")
+                sys.stderr.write(
+                    f"Error reading file: {subsystem_figure_path}\n"
+                )
                 return "<p>Error: no subsystem figure found</p>"
         else:
             return "<p>Error: no subsystem figure found</p>"
@@ -195,7 +195,9 @@ class ReportManager:
                 condition_str = condition
             for sample in experiment_dict[condition].get_sample_list():
                 # new_line = f"<tr>\n<td>{condition}</td>\n<td>{sample.get_id()}</td>\n<td>QUALITY</td>\n<td>ALIGNMENT</td>"
-                align_file = sample.get_sample_data(genome.get_id() + "_align_stats")
+                align_file = sample.get_sample_data(
+                    genome.get_id() + "_align_stats"
+                )
                 align_str = "ALIGNMENT"
                 if align_file and os.path.exists(align_file):
                     if sample.get_alignment_status():
@@ -234,7 +236,9 @@ class ReportManager:
                             error_list.append(line)
                             error_list.append("<br>")
                     else:
-                        error_list.append("Error, alignment stats file doesnt exist")
+                        error_list.append(
+                            "Error, alignment stats file doesnt exist"
+                        )
                     error_list.append("</p>")
         return "\n".join(error_list)
 
@@ -251,7 +255,9 @@ class ReportManager:
                     align_list.append(
                         f"<h1>{sample.get_id()} PASSES the alignment check</h1>"
                     )
-                align_file = sample.get_sample_data(genome.get_id() + "_align_stats")
+                align_file = sample.get_sample_data(
+                    genome.get_id() + "_align_stats"
+                )
                 align_list.append("<p>")
                 if os.path.exists(align_file):
                     with open(align_file, "r") as af:
@@ -261,7 +267,9 @@ class ReportManager:
                             align_list.append("<br>")
                         # align_list.append('\n'.join(align_text))
                 else:
-                    align_list.append("Error, alignment stats file doesnt exist")
+                    align_list.append(
+                        "Error, alignment stats file doesnt exist"
+                    )
                 align_list.append("</p>")
         return "\n".join(align_list)
 
@@ -329,7 +337,9 @@ class ReportManager:
 
     def create_html_header(self, genome_name):
         header = "<!DOCTYPE html><html><head>\n"
-        header += "<title>BV-BRC RNASeq Report | {0}</title>\n".format(genome_name)
+        header += "<title>BV-BRC RNASeq Report | {0}</title>\n".format(
+            genome_name
+        )
         header += '<link href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,600,700,800,900" rel="stylesheet">\n'
         header += """
             <style>

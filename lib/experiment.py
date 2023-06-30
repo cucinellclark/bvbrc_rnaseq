@@ -28,7 +28,9 @@ class Genome:
     genome_name = None  # TODO: incorporate into paths
     genome_type = None  # bacteria or host
     genome_dir = None
-    genome_data = None  # Dictionary that holds fasta, annotation, hisat index, etc
+    genome_data = (
+        None  # Dictionary that holds fasta, annotation, hisat index, etc
+    )
     sample_path_dict = None
 
     def __init__(self, gi, gt, session, genome_query=True):
@@ -53,7 +55,9 @@ class Genome:
                 "content-type": "application/rqlquery+x-www-form-urlencoded",
                 "Authorization": session.headers["Authorization"],
             }
-            print("genome_query:\nurl = {0}\n{1}\n".format(base + query, headers))
+            print(
+                "genome_query:\nurl = {0}\n{1}\n".format(base + query, headers)
+            )
             genome_res = bvb.getQueryDataText(base, query, headers)
             # res['response']['docs'][0]['common_name']
             response_json = json.load(io.StringIO(genome_res))
@@ -171,14 +175,21 @@ class Genome:
             self.add_genome_data("bed", bed_file)
         except Exception as e:
             sys.stderr.write(
-                "bed file generation failed for genome {0}\n".format(self.get_id())
+                "bed file generation failed for genome {0}\n".format(
+                    self.get_id()
+                )
             )
             print("error: {0}".format(e))
             return False
 
         # setup gtf file
         # TPMCalculator -g ~/Genomes/9606/GCF_000001405.39_GRCh38.p13_genomic.mod.gtf -b Test_Htseq/9606/avirulent/replicate1/SRR10307420.bam -e
-        gff_to_gtf_cmd = ["gffread", self.get_genome_data("annotation"), "-T", "-o-"]
+        gff_to_gtf_cmd = [
+            "gffread",
+            self.get_genome_data("annotation"),
+            "-T",
+            "-o-",
+        ]
         gtf_output = self.get_genome_data("annotation").replace(".gff", ".gtf")
         try:
             print(" ".join(gff_to_gtf_cmd))
@@ -213,7 +224,9 @@ class Sample:
     sample_type = None  # paired, single, sra
     sample_path = None
     reads_list = None  # list (paired or single) or none (sra)
-    accession = None  # TODO: maybe remove?, string (sra) or none (paired or single)
+    accession = (
+        None  # TODO: maybe remove?, string (sra) or none (paired or single)
+    )
     condition = None
     sample_data = None
     # TODO: sample_output_folder
