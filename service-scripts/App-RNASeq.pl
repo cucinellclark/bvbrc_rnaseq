@@ -606,6 +606,7 @@ sub prepare_ref_data_rocket {
         my @gff_lines = split(/\n/, $out);
         my %unique_accessions;
         foreach my $line (@gff_lines) {
+            next if $line =~ /#/;
             my ($accession) = split(/\t/,$line);
             $unique_accessions{$accession} = 1;
         }
