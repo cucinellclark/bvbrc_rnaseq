@@ -615,15 +615,15 @@ sub prepare_ref_data_rocket {
         $api_url = "$data_url/genome_sequence/?eq(genome_id,$gid)&http_accept=application/sralign+dna+fasta&limit(25000)&in(accession,($accession_str))";
         $ftp_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.fna";
 
-        print "$api_url\n";
-        die;
-	
         $url = $api_url;
         # $url = $ftp_url;
         my $out = curl_text($url);
         # $out = break_fasta_lines($out."\n");
         $out =~ s/\n+/\n/g;
         write_output($out, "$dir/$gid.fna");
+        print "$api_url\n";
+        die;
+	
     }
     
     return $dir;
