@@ -441,7 +441,7 @@ class Quantify:
             sys.stderr.write("Recipe is None: set recipe with set_recipe()")
             return False
         if self.recipe == "HTSeq-DESeq":
-            htseq_ret = self.run_htseq(sample_list, threads)
+            htseq_ret = self.run_htseq(sample_list, threads, output_dir)
             if htseq_ret != 0:
                 return htseq_ret
             return self.run_tpmcalc(sample_list, threads)
