@@ -53,6 +53,8 @@ count_sep = "\t"
 counts.mtx <- read.table(counts.file,sep=count_sep,header=T,row.names=1,stringsAsFactors=FALSE)
 metadata <- read.table(metadata.file,sep="\t",header=T,stringsAsFactors=FALSE)
 system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
+print(counts.mtx)
+stop()
 
 #Filter entries with no system label and get the intersection of patric_ids
 system.map = system.map[!grepl("NONE",system.map[,2]),]
