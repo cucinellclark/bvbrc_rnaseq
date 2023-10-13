@@ -53,6 +53,7 @@ count_sep = "\t"
 counts.mtx <- read.table(counts.file,sep=count_sep,header=T,row.names=1,stringsAsFactors=FALSE)
 metadata <- read.table(metadata.file,sep="\t",header=T,stringsAsFactors=FALSE)
 system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
+print('here1')
 
 #Filter entries with no system label and get the intersection of patric_ids
 system.map = system.map[!grepl("NONE",system.map[,2]),]
@@ -62,6 +63,7 @@ counts.mtx$keep_rows <- rep(FALSE,length.out=nrow(counts.mtx))
 counts.mtx$keep_rows[keep.idx] <- TRUE
 counts.mtx <- subset(counts.mtx,keep_rows == TRUE)
 counts.mtx <- counts.mtx[,-c(ncol(counts.mtx))]
+print('here2')
 # happens when using only one sample
 if (class(counts.mtx) != 'data.frame') {
     counts.mtx <- data.frame(VALS=counts.mtx)
@@ -89,6 +91,7 @@ png_height = num_rows*200
 svg_width = num_columns + num_samples
 svg_height = num_rows + 5
 
+print('here3')
 #create each plot and ad dit to a list of plots: do not render at this step: occurs when calling svglite() and do.call()
 legend <- NULL 
 plot_list = vector("list",length(systems)+1)
@@ -122,6 +125,7 @@ for (i in 1:length(systems)) {
     vln_plot = vln_plot + theme(axis.text.x = element_text(size=4,angle=315,vjust=0.5), legend.position = "none")
     plot_list[[i]] <- vln_plot
 }
+print('here4')
 plot_list[[length(systems)+1]] <- legend
 
 ###Output PNG image
