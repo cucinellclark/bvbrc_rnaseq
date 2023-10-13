@@ -98,21 +98,25 @@ for (i in 1:length(systems)) {
     system.idx <- which(rownames(counts.mtx) %in% system.map[which(system.map[,2] == curr.system),1])
     print(system.idx)
     curr.mtx = counts.mtx[system.idx,] 
+    print('here1')
     # fix one sample issue
     if ((class(curr.mtx) != 'data.frame')&(ncol(counts.mtx) == 1)) {
         curr.mtx <- data.frame(VALS=curr.mtx)
         rownames(curr.mtx) <- rownames(counts.mtx)[system.idx]
         colnames(curr.mtx) <- c(metadata$Sample[1])
     }
+    print('here2')
     curr.mtx = data.frame(curr.mtx)
     curr.mtx$Genes <- rownames(curr.mtx)
     melt.df = melt(curr.mtx,id.vars=c("Genes"),measure.vars=colnames(curr.mtx)[-c(length(colnames(curr.mtx)))]) 
+    print('here3')
     colnames(melt.df) <- c("Gene","Sample","Counts")
     melt.df$LogCounts <- log(melt.df$Counts+1)
     melt.df$Condition <- rep(0,length.out=nrow(melt.df))
     for (c in conditions) {
         melt.df[melt.df$Sample %in% subset(metadata,Condition==c)$Sample,]$Condition = c
     }
+    print('here4')
     x_axis_label = paste(toString(length(curr.mtx$Genes))," Genes",sep="")
     #vln_plot <- ggplot(melt.df,aes(x=Sample,y=LogCounts,fill=Condition))+geom_violin(trim=FALSE)+ylim(min_val,max_val)+ggtitle(curr.system)+ylab("TPM")+xlab(x_axis_label) 
     vln_plot <- ggplot(melt.df,aes(x=Sample,y=LogCounts,fill=Condition))+geom_violin(trim=FALSE)+ggtitle(curr.system)+ylab("TPM")+xlab(x_axis_label) 
