@@ -110,7 +110,7 @@ for (i in 1:length(systems)) {
     colnames(melt.df) <- c("Gene","Sample","Counts")
     melt.df$LogCounts <- log(melt.df$Counts+1)
     melt.df$Condition <- rep(0,length.out=nrow(melt.df))
-    print(head(melt))
+    print(head(melt.df))
     for (c in conditions) {
         print(c)
         melt.df[melt.df$Sample %in% subset(metadata,Condition==c)$Sample,]$Condition = c
