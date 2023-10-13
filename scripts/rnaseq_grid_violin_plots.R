@@ -105,8 +105,8 @@ for (i in 1:length(systems)) {
         colnames(curr.mtx) <- c(metadata$Sample[1])
     }
     curr.mtx = data.frame(curr.mtx)
-    curr.mtx$Genes <- rownames(curr.mtx)
     colnames(curr.mtx) <- colnames(counts.mtx)
+    curr.mtx$Genes <- rownames(curr.mtx)
     print(head(curr.mtx))
     melt.df = melt(curr.mtx,id.vars=c("Genes"),measure.vars=colnames(curr.mtx)[-c(length(colnames(curr.mtx)))]) 
     colnames(melt.df) <- c("Gene","Sample","Counts")
