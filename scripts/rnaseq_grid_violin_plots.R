@@ -50,7 +50,7 @@ if(!interactive()) pdf(NULL)
 count_sep = "\t"
 
 #read tables
-counts.mtx <- read.table(counts.file,sep=count_sep,header=T,row.names=1,stringsAsFactors=FALSE)
+counts.mtx <- read.table(counts.file,sep=count_sep,header=T,row.names=1,stringsAsFactors=FALSE,check.names=FALSE)
 metadata <- read.table(metadata.file,sep="\t",header=T,stringsAsFactors=FALSE)
 system.map <- read.table(mapping.file,sep="\t",header=T,stringsAsFactors=FALSE)
 
@@ -103,6 +103,7 @@ for (i in 1:length(systems)) {
         colnames(curr.mtx) <- c(metadata$Sample[1])
     }
     curr.mtx = data.frame(curr.mtx)
+    colnames(curr.mtx) <- colnames(counts.mtx)
     curr.mtx$Genes <- rownames(curr.mtx)
     melt.df = melt(curr.mtx,id.vars=c("Genes"),measure.vars=colnames(curr.mtx)[-c(length(colnames(curr.mtx)))]) 
     colnames(melt.df) <- c("Gene","Sample","Counts")

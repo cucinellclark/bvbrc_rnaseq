@@ -436,12 +436,12 @@ class Quantify:
     def set_recipe(self, r):
         self.recipe = r
 
-    def run_quantification(self, sample_list, threads):
+    def run_quantification(self, sample_list, threads, output_dir):
         if self.recipe is None:
             sys.stderr.write("Recipe is None: set recipe with set_recipe()")
             return False
         if self.recipe == "HTSeq-DESeq":
-            htseq_ret = self.run_htseq(sample_list, threads)
+            htseq_ret = self.run_htseq(sample_list, threads, output_dir)
             if htseq_ret != 0:
                 return htseq_ret
             return self.run_tpmcalc(sample_list, threads)
@@ -513,7 +513,7 @@ class Quantify:
             return -1
         return 0
 
-    def run_htseq(self, sample_list, threads):
+    def run_htseq(self, sample_list, threads, output_dir):
         # TODO: add strandedness parameter: -s
         # featurey_type: CDS or Gene
         quant_cmd_list = []
