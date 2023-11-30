@@ -26,16 +26,21 @@ def main(
     setup(output_dir, experiment_dict, genome)
     diffexp_flag = comparisons.check_diffexp()
 
+    # get all samples as a list for certain functions 
+    sample_list = []
+    for condition in experiment_dict:
+        samples = experiment_dict[condition].get_sample_list()
+        sample_list = sample_list + samples
+    print("sample_list = {0}".format(sample_list))
+
     # process data independently of genomes
     # assess reads and terminate gracefully if reads are not set up correctly
     # Fastqc
     preprocess = process.Preprocess()
-    reads_all_good = True
     reads_errors = []
+    reads_all_good = preprocess.check_reads(sample_list, reads_errors, 8):
     for condition in experiment_dict:
         for sample in experiment_dict[condition].get_sample_list():
-            if not preprocess.check_reads(sample, reads_errors):
-                reads_all_good = False
             preprocess.run_fastqc(sample)
     if not reads_all_good:
         # report manager and terminate
@@ -126,11 +131,6 @@ def main(
     quantifier = process.Quantify()
     quantifier.set_genome(genome)
     quantifier.set_recipe(map_args.recipe)
-    sample_list = []
-    for condition in experiment_dict:
-        samples = experiment_dict[condition].get_sample_list()
-        sample_list = sample_list + samples
-    print("sample_list = {0}".format(sample_list))
     condition_output_list = quantifier.run_quantification(sample_list, 8, output_dir)
     genome_quant_file = quantifier.create_genome_counts_table(output_dir, sample_list)
     genome.add_genome_data("counts_table", genome_quant_file)
