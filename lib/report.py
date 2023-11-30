@@ -67,6 +67,13 @@ class ReportManager:
         report_lines.append(report_summary)
         report_lines.append("</section>")
 
+        # if failed at reads, add reads failure to report and terminate
+        if 'reads_failure' in report_stats and report_stats['reads_failure']:
+            report_lines.append("<section>\n<h2>Reads Failure</h2>") 
+            failure_summary = self.create_reads_failure_text(report_stats)
+            report_lines.append(failure_summary)
+            report_lines.append("</section>")
+
         # Link to multiqc report for basic sample summary statistics
         report_lines.append("<section>\n<h2>MultiQC Report Link</h2>")
         report_lines.append(self.create_multiqc_link(workspace_dir))
@@ -143,6 +150,11 @@ class ReportManager:
         link_text = '<a href="multiqc_report.html" target="_parent">multiqc report link</a>'
         return link_text
 
+    def create_reads_failure_text(self, report_stats):
+        failure_str = "Some reads failed the preprocessing assessment, please check the errors below:\n"
+        failure_str += '\n'.join(report_stats["reads_failure"])
+        return failure_str
+
     def get_subsystem_figure(self, genome):
         subsystem_figure_path = genome.get_genome_data("superclass_figure")
         if subsystem_figure_path and os.path.exists(subsystem_figure_path):
@@ -189,7 +201,6 @@ class ReportManager:
         table_list.append(
             "<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Alignment</td>\n</tr>"
         )
-        # TODO: store stats in sample objects
         for condition in experiment_dict:
             if condition == "no_condition":
                 condition_str = "None"

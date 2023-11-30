@@ -56,6 +56,8 @@ def main(
         report_stats["num_conditions"] = condition_count
         report_stats["recipe"] = map_args.recipe
         report_stats["reads_errors"] = reads_errors
+        report_stats["read_failure"] = True
+        report_manager.run_multiqc(output_dir)
         report_manager.create_report(
             genome,
             output_dir,
