@@ -1672,6 +1672,9 @@ class Preprocess:
                 r1_ids = {record.id.split()[0] for record in SeqIO.parse(r1,'fastq')}
                 r2_ids = {record.id.split()[0] for record in SeqIO.parse(r2,'fastq')}
 
+                if r1_ids != r2_ids:
+                    
+
                 if len(r1_ids) < minReads:
                     all_good = False
                     reads_errors.append(f'too few reads in file {reads[0]} ')
