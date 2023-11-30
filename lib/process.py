@@ -1670,7 +1670,7 @@ class Preprocess:
         all_good = True
         if len(reads) == 2: # paired
             if reads[0].endswith('.gz'):
-                with gzip.open(reads[0],'rb') as r1, gzip.open(reads[1],'r') as r2:        
+                with gzip.open(reads[0],'rt') as r1, gzip.open(reads[1],'rt') as r2:        
                     r1_ids = {record.id.split()[0] for record in SeqIO.parse(r1,'fastq')}
                     r2_ids = {record.id.split()[0] for record in SeqIO.parse(r2,'fastq')}
             else:
