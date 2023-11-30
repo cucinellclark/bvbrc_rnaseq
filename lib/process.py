@@ -9,6 +9,7 @@ import concurrent.futures
 import glob
 import json
 import tempfile
+import gzip
 from Bio import SeqIO
 from math import log
 
@@ -1668,30 +1669,35 @@ class Preprocess:
         minReads = 2000
         all_good = True
         if len(reads) == 2: # paired
-            with open(reads[0],'r') as r1, open(reads[1],'r') as r2:        
-                r1_ids = {record.id.split()[0] for record in SeqIO.parse(r1,'fastq')}
-                r2_ids = {record.id.split()[0] for record in SeqIO.parse(r2,'fastq')}
+            if reads[0].endswith('.gz'):
+                with gzip.open(reads[0],'rb') as r1, gzip.open(reads[1],'r') as r2:        
+                    r1_ids = {record.id.split()[0] for record in SeqIO.parse(r1,'fastq')}
+                    r2_ids = {record.id.split()[0] for record in SeqIO.parse(r2,'fastq')}
+            else:
+                with open(reads[0],'r') as r1, open(reads[1],'r') as r2:        
+                    r1_ids = {record.id.split()[0] for record in SeqIO.parse(r1,'fastq')}
+                    r2_ids = {record.id.split()[0] for record in SeqIO.parse(r2,'fastq')}
 
-                if r1_ids != r2_ids:
-                    all_good = False
-                    reads_errors.append(f'sample {sample.get_id()} paired reads file is not paired correctly') 
+            if r1_ids != r2_ids:
+                all_good = False
+                reads_errors.append(f'sample {sample.get_id()} paired reads file is not paired correctly') 
 
-                if len(r1_ids) < minReads:
-                    all_good = False
-                    reads_errors.append(f'too few reads in file {reads[0]} ')
-                if len(r2_ids) < minReads:
-                    all_good = False
-                    reads_errors.append(f'too few reads in file {reads[1]}')
+            if len(r1_ids) < minReads:
+                all_good = False
+                reads_errors.append(f'too few reads in file {reads[0]} ')
+            if len(r2_ids) < minReads:
+                all_good = False
+                reads_errors.append(f'too few reads in file {reads[1]}')
 
-                unpaired_r1 = r1_ids - r2_ids
-                unpaired_r2 = r2_ids - r1_ids
-                if unpaired_r1 or unpaired_r2:
-                    print(f'unpaired reads found in sample {sample.get_id()}')
-                    if unpaired_r1:
-                        reads_errors.append(f'unpaired reads found in {reads[0]}')
-                    if unpaired_r2:
-                        reads_errors.append(f'unpaired reads found in {reads[1]}')
-                    all_good = False
+            unpaired_r1 = r1_ids - r2_ids
+            unpaired_r2 = r2_ids - r1_ids
+            if unpaired_r1 or unpaired_r2:
+                print(f'unpaired reads found in sample {sample.get_id()}')
+                if unpaired_r1:
+                    reads_errors.append(f'unpaired reads found in {reads[0]}')
+                if unpaired_r2:
+                    reads_errors.append(f'unpaired reads found in {reads[1]}')
+                all_good = False
         else: # single
             with open(reads[0],'r') as r:
                 read_ids = {record.id.split()[0] for record in SeqIO.parse(r,'fastq')}
