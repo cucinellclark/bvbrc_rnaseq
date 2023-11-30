@@ -38,7 +38,7 @@ def main(
     # Fastqc
     preprocess = process.Preprocess()
     reads_errors = []
-    reads_all_good = preprocess.check_reads(sample_list, reads_errors, 8):
+    reads_all_good = preprocess.check_reads(sample_list, reads_errors, 8)
     for condition in experiment_dict:
         for sample in experiment_dict[condition].get_sample_list():
             preprocess.run_fastqc(sample)
