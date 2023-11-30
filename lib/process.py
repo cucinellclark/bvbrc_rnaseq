@@ -1673,7 +1673,7 @@ class Preprocess:
                 r2_ids = {record.id.split()[0] for record in SeqIO.parse(r2,'fastq')}
 
                 if r1_ids != r2_ids:
-                   all_good = False
+                    all_good = False
                     reads_errors.append(f'sample {sample.get_id()} paired reads file is not paired correctly') 
 
                 if len(r1_ids) < minReads:
