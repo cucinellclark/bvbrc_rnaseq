@@ -1715,7 +1715,7 @@ class Preprocess:
         thread_lock = Lock()
         reads_results = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as pool:
-            future_returns = [pool.submit(check_reads_worker, sample, reads_errors) for sample in sample_list] 
+            future_returns = [pool.submit(self.check_reads_worker, sample, reads_errors) for sample in sample_list] 
             for result in concurrent.futures.as_completed(future_returns):
                 reads_results.append(result)
         return all(reads_results)
