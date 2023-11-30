@@ -9,6 +9,7 @@ import concurrent.futures
 import glob
 import json
 import tempfile
+from Bio import SeqIO
 from math import log
 
 import pandas as pd
@@ -1324,7 +1325,8 @@ class Alignment:
                 return False
             readNum = readNum + 1
         print("sampled reads list:\n{0}".format(sampled_reads_list))
-
+        # make sure sampled reads don't have any issues
+        # reads_check = self.check_reads_status(sample)
         # align sampled reads
         # TODO: enable for host
         sampled_sam = os.path.join(sample_dir, sample.get_id() + "_sample.sam")
@@ -1660,7 +1662,40 @@ class Preprocess:
     def __init__(self):
         print("Creating Preprocess manager")
 
-    # TODO: implement multithreaded?
+    # reads_errors is a list passed in from main
+    def check_reads(self, sample, reads_errors):
+        reads = sample.get_reads_as_list()
+        minReads = 2000
+        all_good = True
+        if len(reads) == 2: # paired
+            with open(reads[0],'r') as r1, open(reads[1],'r') as r2:        
+                r1_ids = {record.id.split()[0] for record in SeqIO.parse(r1,'fastq')}
+                r2_ids = {record.id.split()[0] for record in SeqIO.parse(r2,'fastq')}
+
+                if len(r1_ids) < minReads:
+                    all_good = False
+                    reads_errors.append(f'too few reads in file {reads[0]} ')
+                if len(r2_ids) < minReads:
+                    all_good = False
+                    reads_errors.append(f'too few reads in file {reads[1]}')
+
+                unpaired_r1 = r1_ids - r2_ids
+                unpaired_r2 = r2_ids - r1_ids
+                if unpaired_r1 or unpaired_r2:
+                    print(f'unpaired reads found in sample {sample.get_id()}')
+                    if unpaired_r1:
+                        reads_errors.append(f'unpaired reads found in {reads[0]}')
+                    if unpaired_r2:
+                        reads_errors.append(f'unpaired reads found in {reads[1]}')
+                    all_good = False
+        else: # single
+            with open(reads[0],'r') as r:
+                read_ids = {record.id.split()[0] for record in SeqIO.parse(r,'fastq')}
+                if len(read_ids) < minReads:
+                    all_good = False
+                    reads_errors.append(f'too few reads in file {reads[0]}')
+        return all_good
+
     def run_fastqc(self, sample):
         sample_dir = sample.get_path()
         reads = sample.get_reads_as_list()

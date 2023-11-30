@@ -22,18 +22,44 @@ valid_recipes = ["HTSeq-DESeq", "cufflinks", "Host"]
 def main(
     genome, experiment_dict, tool_params, output_dir, comparisons, session, map_args
 ):
-    # TODO: assess reads and terminate gracefully if reads are not set up correctly
-
     # setup folder structure and genome databases
     setup(output_dir, experiment_dict, genome)
     diffexp_flag = comparisons.check_diffexp()
 
     # process data independently of genomes
+    # assess reads and terminate gracefully if reads are not set up correctly
     # Fastqc
     preprocess = process.Preprocess()
+    reads_all_good = True
+    reads_errors = []
     for condition in experiment_dict:
         for sample in experiment_dict[condition].get_sample_list():
+            if not preprocess.check_reads(sample, reads_errors):
+                reads_all_good = False
             preprocess.run_fastqc(sample)
+    if not reads_all_good:
+        # report manager and terminate
+        report_manager = report.ReportManager()
+        report_stats = {}
+        sample_count = 0
+        condition_count = 0
+        for condition in experiment_dict:
+            sample_count += len(experiment_dict[condition].get_sample_list())
+            if condition != "no_condition":
+                condition_count += 1
+        report_stats["num_samples"] = sample_count
+        report_stats["num_conditions"] = condition_count
+        report_stats["recipe"] = map_args.recipe
+        report_stats["reads_errors"] = reads_errors
+        report_manager.create_report(
+            genome,
+            output_dir,
+            experiment_dict,
+            report_stats,
+            map_args.workspace_dir,
+            diffexp_flag,
+        )
+        sys.exit(0)
 
     # Trimming
     # TODO: replace threads with tool_params value
@@ -48,18 +74,25 @@ def main(
     alignment.set_genome(genome)
     for condition in experiment_dict:
         for sample in experiment_dict[condition].get_sample_list():
-            alignment.run_sample_alignment(sample, 8)
+            try:
+                alignment.run_sample_alignment(sample, 8)
+            except Exception as e:
+                sys.stderr.write(f'Error running sample alignment on sample {sample.get_id()}:\n{e}\n')
 
     # Align against genome
     alignment.set_genome(genome)
     alignment_all_good = True
     for condition in experiment_dict:
         for sample in experiment_dict[condition].get_sample_list():
-            align_complete = alignment.run_alignment(sample, 8)
-            align_result = alignment.check_alignment(sample)
-            if align_complete and align_result:
-                alignment.run_alignment_stats(sample, 8)
-            else:
+            try:
+                align_complete = alignment.run_alignment(sample, 8)
+                align_result = alignment.check_alignment(sample)
+                if align_complete and align_result:
+                    alignment.run_alignment_stats(sample, 8)
+                else:
+                    alignment_all_good = False
+            except Exception as e:
+                sys.stderr.write(f'Error running alignment on sample {sample.get_id()}:\n{e}\n')
                 alignment_all_good = False
 
     if not alignment_all_good:
@@ -126,13 +159,12 @@ def main(
 
     # Queries: subsystems, kegg
     # output files are used in creating figures
-    if True:
-        genome_data = process.GenomeData()
-        genome_data.set_recipe(map_args.recipe)
-        if genome.get_genome_type() == "bacteria":
-            genome_data.set_genome(genome)
-            genome_data.run_queries(output_dir, session)
-            genome_data.create_system_figures(output_dir)
+    genome_data = process.GenomeData()
+    genome_data.set_recipe(map_args.recipe)
+    if genome.get_genome_type() == "bacteria":
+        genome_data.set_genome(genome)
+        genome_data.run_queries(output_dir, session)
+        genome_data.create_system_figures(output_dir)
 
     # call multiqc without any adjustments
     if not map_args.disable_reports:
@@ -296,10 +328,10 @@ if __name__ == "__main__":
             job_data = json.load(job_handle)
     except Exception as e:
         print("Error in opening job json file:\n{0}".format(e))
-        sys.exit(-1)  # Exception: issue in opening job json file
+        sys.exit(0)  # Exception: issue in opening job json file
     if not job_data:
         print("job_data is null")
-        sys.exit(-1)  # Exception: issue with loading job_data
+        sys.exit(0)  # Exception: issue with loading job_data
 
     # Setup session
     s = requests.Session()
@@ -318,8 +350,6 @@ if __name__ == "__main__":
     genome = experiment.Genome(
         job_data["reference_genome_id"], job_data["genome_type"], s
     )
-
-    # DOWNLOAD GENOME DATA: remove from perl side
 
     # Load genome data
     genome_dir = map_args.g.strip()
@@ -473,22 +503,13 @@ if __name__ == "__main__":
                 # TODO: continue or exit??
                 sys.exit(-1)
 
-    # TODO: tool parameters
     tool_params = json.loads(map_args.p)
     print("tool_params = {0}".format(tool_params))
 
-    # TODO:
-    # finish samples object list
-    # load comparisons object: comparison_list
-
-    # TODO:
-    #   - check if diffexp is turned on, turn off if need be
     comparisons = experiment.Comparison()
     for con in job_data["contrasts"]:
         con = [x.replace(" ", "_") for x in con]
         comparisons.add_contrast(con[0], con[1])
-
-    # TODO: Check if job_data contains 'cufflinks' flag: if true, run old pipeline
 
     # change into output directory
     os.chdir(output_dir)

@@ -778,11 +778,11 @@ sub params_to_exps {
 sub remove_localized_params {
     my ($tmpdir, $params) = @_;
     for (@{$params->{paired_end_libs}}) {
-        unlink($_->{read1}) or die "Can't delete $_->{read1}: $!\n";
-        unlink($_->{read2}) or die "Can't delete $_->{read2}: $!\n";
+        unlink($_->{read1}) or warn "Can't delete $_->{read1}: $!\n";
+        unlink($_->{read2}) or warn "Can't delete $_->{read2}: $!\n";
     }
     for (@{$params->{single_end_libs}}) {
-        unlink($_->{read}) or die "Can't delete $_->{read}: $!\n";
+        unlink($_->{read}) or warn "Can't delete $_->{read}: $!\n";
     }
 }
 
