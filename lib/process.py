@@ -10,6 +10,7 @@ import glob
 import json
 import tempfile
 import gzip
+from threading import Lock
 from Bio import SeqIO
 from math import log
 
@@ -1711,7 +1712,7 @@ class Preprocess:
 
     # reads_errors is a list passed in from main
     def check_reads(self, sample_list, reads_errors, threads):
-        thread_lock = concurrent.futures.thread.Lock()
+        thread_lock = Lock()
         reads_results = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as pool:
             future_returns = [pool.submit(check_reads_worker, sample, reads_errors) for sample in sample_list] 
