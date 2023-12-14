@@ -113,7 +113,7 @@ class ReportManager:
                 if not alignment_check:
                     bad_alignment_flag = True
         if bad_alignment_flag:
-            report_lines.append("<section>\n<h2>Alignment Results</h2>")
+            report_lines.append("<section>")
             align_lines = self.create_bad_align_section(experiment_dict, genome)
             report_lines.append(align_lines)
             report_lines.append("</section>")
@@ -124,7 +124,7 @@ class ReportManager:
             report_lines.append("</section>")
 
         # references
-        report_lines.append("<section>\n<h2>References</h2>")
+        report_lines.append("<section>")
         reference_lines = self.create_references()
         report_lines.append(reference_lines)
         report_lines.append("</section>")
@@ -288,6 +288,7 @@ class ReportManager:
 
     def create_references(self):
         reference_list = []
+        reference_list.append("<h2>References</h2>")
         reference_list.append("<ol>")
         # bvbrc
         bvbrc_ref = "Introducing the Bacterial and Viral Bioinformatics Resource Center (BV-BRC): a resource combining PATRIC, IRD and ViPR. \
