@@ -39,8 +39,6 @@ def main(
     preprocess = process.Preprocess()
     reads_errors = []
     reads_all_good = preprocess.check_reads(sample_list, reads_errors, 8)
-    import pdb
-    pdb.set_trace()
     for condition in experiment_dict:
         for sample in experiment_dict[condition].get_sample_list():
             preprocess.run_fastqc(sample)
