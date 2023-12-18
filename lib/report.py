@@ -272,7 +272,7 @@ class ReportManager:
                     genome.get_id() + "_align_stats"
                 )
                 align_list.append("<p>")
-                if os.path.exists(align_file):
+                if align_file and os.path.exists(align_file):
                     with open(align_file, "r") as af:
                         align_text = af.readlines()
                         for line in align_text:
