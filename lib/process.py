@@ -1327,8 +1327,6 @@ class Alignment:
                 return False
             readNum = readNum + 1
         print("sampled reads list:\n{0}".format(sampled_reads_list))
-        # make sure sampled reads don't have any issues
-        # reads_check = self.check_reads_status(sample)
         # align sampled reads
         # TODO: enable for host
         sampled_sam = os.path.join(sample_dir, sample.get_id() + "_sample.sam")
