@@ -38,7 +38,7 @@ my $run_ret_val = 0;
 my $called_localize_params = 0;
 
 # flag for disabling uploading data to a user's workspace
-my $disable_workspace_upload = 1;
+my $disable_workspace_upload = 0;
 
 sub preflight
 {
@@ -129,8 +129,8 @@ sub process_rnaseq {
     my $recipe = $params->{recipe};
     
     # my $tmpdir = File::Temp->newdir();
-    # my $tmpdir = File::Temp->newdir( CLEANUP => 1 );
-    my $tmpdir = File::Temp->newdir( CLEANUP => 0 );
+    my $tmpdir = File::Temp->newdir( CLEANUP => 1 );
+    # my $tmpdir = File::Temp->newdir( CLEANUP => 0 );
     # my $tmpdir = "/tmp/RNApubref";
     # my $tmpdir = "/tmp/RNAuser";
     system("chmod", "755", "$tmpdir");
@@ -165,7 +165,7 @@ sub process_rnaseq {
     if ($called_localize_params) {
         remove_localized_params($tmpdir, $params); 
     }
-    die "here\n"; 
+
     if ($disable_workspace_upload) {
         die "disable_workspace_upload is true: terminating job before upload\n";
     }
