@@ -67,6 +67,13 @@ class ReportManager:
         report_lines.append(report_summary)
         report_lines.append("</section>")
 
+        # if failed at reads, add reads failure to report and terminate
+        if 'reads_failure' in report_stats and report_stats['reads_failure']:
+            report_lines.append("<section>\n<h2>Reads Failure</h2>") 
+            failure_summary = self.create_reads_failure_text(report_stats)
+            report_lines.append(failure_summary)
+            report_lines.append("</section>")
+
         # Link to multiqc report for basic sample summary statistics
         report_lines.append("<section>\n<h2>MultiQC Report Link</h2>")
         report_lines.append(self.create_multiqc_link(workspace_dir))
@@ -106,7 +113,7 @@ class ReportManager:
                 if not alignment_check:
                     bad_alignment_flag = True
         if bad_alignment_flag:
-            report_lines.append("<section>\n<h2>Alignment Results</h2>")
+            report_lines.append("<section>")
             align_lines = self.create_bad_align_section(experiment_dict, genome)
             report_lines.append(align_lines)
             report_lines.append("</section>")
@@ -117,7 +124,7 @@ class ReportManager:
             report_lines.append("</section>")
 
         # references
-        report_lines.append("<section>\n<h2>References</h2>")
+        report_lines.append("<section>")
         reference_lines = self.create_references()
         report_lines.append(reference_lines)
         report_lines.append("</section>")
@@ -142,6 +149,11 @@ class ReportManager:
         url = url_base + workspace_path + "multiqc_report.html"
         link_text = '<a href="multiqc_report.html" target="_parent">multiqc report link</a>'
         return link_text
+
+    def create_reads_failure_text(self, report_stats):
+        failure_str = "Some reads failed the preprocessing assessment, please check the errors below:\n"
+        failure_str += '\n'.join(report_stats["reads_failure"])
+        return failure_str
 
     def get_subsystem_figure(self, genome):
         subsystem_figure_path = genome.get_genome_data("superclass_figure")
@@ -189,7 +201,6 @@ class ReportManager:
         table_list.append(
             "<tr>\n<td>Condition</td>\n<td>Sample</td>\n<td>Alignment</td>\n</tr>"
         )
-        # TODO: store stats in sample objects
         for condition in experiment_dict:
             if condition == "no_condition":
                 condition_str = "None"
@@ -261,7 +272,7 @@ class ReportManager:
                     genome.get_id() + "_align_stats"
                 )
                 align_list.append("<p>")
-                if os.path.exists(align_file):
+                if align_file and os.path.exists(align_file):
                     with open(align_file, "r") as af:
                         align_text = af.readlines()
                         for line in align_text:
@@ -277,6 +288,7 @@ class ReportManager:
 
     def create_references(self):
         reference_list = []
+        reference_list.append("<h2>References</h2>")
         reference_list.append("<ol>")
         # bvbrc
         bvbrc_ref = "Introducing the Bacterial and Viral Bioinformatics Resource Center (BV-BRC): a resource combining PATRIC, IRD and ViPR. \

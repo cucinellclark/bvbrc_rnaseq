@@ -37,6 +37,9 @@ my $run_ret_val = 0;
 # flag for if localize_params is called, will remove the localized params after run finishes and before submitting to users workspace
 my $called_localize_params = 0;
 
+# flag for disabling uploading data to a user's workspace
+my $disable_workspace_upload = 0;
+
 sub preflight
 {
     my($app, $app_def, $raw_params, $params) = @_;
@@ -162,7 +165,11 @@ sub process_rnaseq {
     if ($called_localize_params) {
         remove_localized_params($tmpdir, $params); 
     }
-    
+
+    if ($disable_workspace_upload) {
+        die "disable_workspace_upload is true: terminating job before upload\n";
+    }
+
     #
     # Create folders first.
     #
@@ -778,11 +785,11 @@ sub params_to_exps {
 sub remove_localized_params {
     my ($tmpdir, $params) = @_;
     for (@{$params->{paired_end_libs}}) {
-        unlink($_->{read1}) or die "Can't delete $_->{read1}: $!\n";
-        unlink($_->{read2}) or die "Can't delete $_->{read2}: $!\n";
+        unlink($_->{read1}) or warn "Can't delete $_->{read1}: $!\n";
+        unlink($_->{read2}) or warn "Can't delete $_->{read2}: $!\n";
     }
     for (@{$params->{single_end_libs}}) {
-        unlink($_->{read}) or die "Can't delete $_->{read}: $!\n";
+        unlink($_->{read}) or warn "Can't delete $_->{read}: $!\n";
     }
 }
 

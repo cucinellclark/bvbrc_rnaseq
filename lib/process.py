@@ -9,6 +9,9 @@ import concurrent.futures
 import glob
 import json
 import tempfile
+import gzip
+from threading import Lock
+from Bio import SeqIO
 from math import log
 
 import pandas as pd
@@ -1324,7 +1327,6 @@ class Alignment:
                 return False
             readNum = readNum + 1
         print("sampled reads list:\n{0}".format(sampled_reads_list))
-
         # align sampled reads
         # TODO: enable for host
         sampled_sam = os.path.join(sample_dir, sample.get_id() + "_sample.sam")
@@ -1660,7 +1662,62 @@ class Preprocess:
     def __init__(self):
         print("Creating Preprocess manager")
 
-    # TODO: implement multithreaded?
+    def check_reads_worker(self,sample,reads_errors):
+        reads = sample.get_reads_as_list()
+        minReads = 2000
+        all_good = True
+        curr_errors = []
+        if len(reads) == 2: # paired
+            if reads[0].endswith('.gz'):
+                with gzip.open(reads[0],'rt') as r1, gzip.open(reads[1],'rt') as r2:        
+                    r1_ids = {record.id.split()[0] for record in SeqIO.parse(r1,'fastq')}
+                    r2_ids = {record.id.split()[0] for record in SeqIO.parse(r2,'fastq')}
+            else:
+                with open(reads[0],'r') as r1, open(reads[1],'r') as r2:        
+                    r1_ids = {record.id.split()[0] for record in SeqIO.parse(r1,'fastq')}
+                    r2_ids = {record.id.split()[0] for record in SeqIO.parse(r2,'fastq')}
+
+            if r1_ids != r2_ids:
+                all_good = False
+                curr_errors.append(f'sample {sample.get_id()} paired reads file is not paired correctly') 
+
+            if len(r1_ids) < minReads:
+                all_good = False
+                curr_errors.append(f'too few reads in file {reads[0]} ')
+            if len(r2_ids) < minReads:
+                all_good = False
+                curr_errors.append(f'too few reads in file {reads[1]}')
+
+            unpaired_r1 = r1_ids - r2_ids
+            unpaired_r2 = r2_ids - r1_ids
+            if unpaired_r1 or unpaired_r2:
+                print(f'unpaired reads found in sample {sample.get_id()}')
+                if unpaired_r1:
+                    curr_errors.append(f'unpaired reads found in {reads[0]}')
+                if unpaired_r2:
+                    curr_errors.append(f'unpaired reads found in {reads[1]}')
+                all_good = False
+        else: # single
+            with open(reads[0],'r') as r:
+                read_ids = {record.id.split()[0] for record in SeqIO.parse(r,'fastq')}
+                if len(read_ids) < minReads:
+                    all_good = False
+                    curr_errors.append(f'too few reads in file {reads[0]}')
+        if len(curr_errors) > 0:
+            with thread_lock:
+                reads_list += curr_errors
+        return all_good
+
+    # reads_errors is a list passed in from main
+    def check_reads(self, sample_list, reads_errors, threads):
+        thread_lock = Lock()
+        reads_results = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as pool:
+            future_returns = [pool.submit(self.check_reads_worker, sample, reads_errors) for sample in sample_list] 
+            for result in concurrent.futures.as_completed(future_returns):
+                reads_results.append(result)
+        return all(reads_results)
+
     def run_fastqc(self, sample):
         sample_dir = sample.get_path()
         reads = sample.get_reads_as_list()
