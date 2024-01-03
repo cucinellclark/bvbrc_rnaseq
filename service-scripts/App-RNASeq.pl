@@ -165,7 +165,7 @@ sub process_rnaseq {
     if ($called_localize_params) {
         remove_localized_params($tmpdir, $params); 
     }
-    die 'here\n';
+
     if ($disable_workspace_upload) {
         die "disable_workspace_upload is true: terminating job before upload\n";
     }
