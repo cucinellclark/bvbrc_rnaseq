@@ -767,16 +767,20 @@ sub run_cmd {
 
 sub params_to_exps {
     my ($params) = @_;
-    my @exps;
+    my %exps;
     for (@{$params->{paired_end_libs}}) {
-        my $index = $_->{condition} - 1;
-        $index = 0 if $index < 0;
-        push @{$exps[$index]}, [ $_->{read1}, $_->{read2} ];
+        my $condition = $_->{condition};
+        if (!exists($exps{$condition})) {
+            $exps{$condition} = [];
+        }
+        push @{$exps[$condition]}, [ $_->{read1}, $_->{read2} ];
     }
     for (@{$params->{single_end_libs}}) {
-        my $index = $_->{condition} - 1;
-        $index = 0 if $index < 0;
-        push @{$exps[$index]}, [ $_->{read} ];
+        my $condition = $_->{condition};
+        if (!exists($exps{$condition})) {
+            $exps{$condition} = [];
+        }
+        push @{$exps[$condition]}, [ $_->{read} ];
     }
     return \@exps;
 }
