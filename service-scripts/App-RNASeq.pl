@@ -316,8 +316,6 @@ sub run_bvbrc_rnaseq {
     
     print "Run rna_rocket ", Dumper(%exps, $labels, $tmpdir);
     
-    die "here\n";
-    
     # my $rocket = "/home/fangfang/programs/Prok-tuxedo/prok_tuxedo.py";
     my $rocket = "run_rnaseq";
     verify_cmd($rocket);
