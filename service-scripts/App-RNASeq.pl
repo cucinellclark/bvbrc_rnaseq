@@ -302,7 +302,7 @@ sub run_bvbrc_rnaseq {
     
     my $outdir = "$tmpdir";
     
-    my $exps     = params_to_exps($params);
+    my %exps     = params_to_exps($params);
     my $labels   = $params->{experimental_conditions};
     my $ref_id   = $params->{reference_genome_id} or die "Reference genome is required\n";
     my $output_name = $params->{output_file} or die "Output name is required\n";
@@ -314,7 +314,7 @@ sub run_bvbrc_rnaseq {
     my $ref_dir  = prepare_ref_data_rocket($ref_id, $tmpdir, $host, $host_ftp);
     #my $unit_test = defined($params->{unit_test}) ? $params->{unit_test} : undef;
     
-    print "Run rna_rocket ", Dumper($exps, $labels, $tmpdir);
+    print "Run rna_rocket ", Dumper(%exps, $labels, $tmpdir);
     
     # my $rocket = "/home/fangfang/programs/Prok-tuxedo/prok_tuxedo.py";
     my $rocket = "run_rnaseq";
