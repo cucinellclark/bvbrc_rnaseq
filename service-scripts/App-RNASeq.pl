@@ -782,7 +782,7 @@ sub params_to_exps {
         }
         push @{$exps[$condition]}, [ $_->{read} ];
     }
-    return \@exps;
+    return %exps;
 }
 
 # TODO: add removing srr libs
