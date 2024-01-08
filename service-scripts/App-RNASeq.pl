@@ -773,14 +773,14 @@ sub params_to_exps {
         if (!exists($exps{$condition})) {
             $exps{$condition} = [];
         }
-        push @{$exps[$condition]}, [ $_->{read1}, $_->{read2} ];
+        push @{$exps{$condition}}, [ $_->{read1}, $_->{read2} ];
     }
     for (@{$params->{single_end_libs}}) {
         my $condition = $_->{condition};
         if (!exists($exps{$condition})) {
             $exps{$condition} = [];
         }
-        push @{$exps[$condition]}, [ $_->{read} ];
+        push @{$exps{$condition}}, [ $_->{read} ];
     }
     return %exps;
 }
