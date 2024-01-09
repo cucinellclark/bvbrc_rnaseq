@@ -1527,7 +1527,7 @@ class DiffExpImport:
                 "gmx_file is null, exiting differential expression import\n"
             )
             return False
-        if os.path.exists(gmx_file):
+        if gmx_file and os.path.exists(gmx_file):
             experiment_path = os.path.join(output_dir, map_args.d)
             print(f"experiment_path={experiment_path}")
             subprocess.call(["mkdir", "-p", experiment_path])
