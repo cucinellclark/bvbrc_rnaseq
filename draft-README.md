@@ -20,6 +20,7 @@ This module provides the following application specfication(s):
 
 ## See also
 
+* [RNA-Seq Analysis Service Quick Reference](https://www.bv-brc.org/docs/quick_references/services/rna_seq_analysis_service.html)
 * [RNA-Seq Analysis Service](https://www.bv-brc.org/docs/https://bv-brc.org/app/Rnaseq.html)
 * [RNA-Seq Analysis Service Tutorial](https://www.bv-brc.org/docs//tutorial/rna_seq/rna_seq.html)
 
