@@ -767,7 +767,7 @@ sub run_cmd {
 
 sub params_to_exps {
     my ($params) = @_;
-    my $exps;
+    my @exps;
     for (@{$params->{paired_end_libs}}) {
         my $index = $_->{condition} - 1;
         $index = 0 if $index < 0;
