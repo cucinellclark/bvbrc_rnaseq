@@ -202,8 +202,6 @@ class Genome:
                 line = line.strip() 
                 if 'gene_id' in line:
                     gtf_text.append(line)
-            # gtf_text.replace('gene_name','gene_id')
-            # gtf_text = '\n'.join(gtf_text).replace("CDS", "transcript")
             gtf_text = '\n'.join(gtf_text).replace("\ttranscript\t", "\texon\t")
             with open(gtf_output, "w") as o:
                 o.write(gtf_text)
