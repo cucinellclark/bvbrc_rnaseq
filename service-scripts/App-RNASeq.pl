@@ -130,13 +130,14 @@ sub process_rnaseq {
     
     # my $tmpdir = File::Temp->newdir();
     #my $tmpdir = File::Temp->newdir( CLEANUP => 1 );
-    my $tmpdir = File::Temp->newdir( CLEANUP => 0 );
+    #my $tmpdir = File::Temp->newdir( CLEANUP => 0 );
+    my $tmpdir = "/tmp/hd0KndqZIv";
     system("chmod", "755", "$tmpdir");
     print STDERR "$tmpdir\n";
     ###localize_params for regular script
     #localize_params_local for testing: will not download files
-    $params = localize_params($tmpdir, $params);
-    #$params = localize_params_local($tmpdir, $params);
+    #$params = localize_params($tmpdir, $params);
+    $params = localize_params_local($tmpdir, $params);
 
 
     # 
