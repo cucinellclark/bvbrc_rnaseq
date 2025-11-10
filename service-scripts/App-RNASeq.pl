@@ -23,6 +23,8 @@ our $shock_cutoff = 10_000;
 my $data_url = Bio::KBase::AppService::AppConfig->data_api_url;
 # my $data_url = "http://www.alpha.patricbrc.org/api";
 
+my $ftp_base_url = "ftp://ftp.bv-brc.org";
+
 my $script = Bio::KBase::AppService::AppScript->new(\&process_rnaseq, \&preflight);
 my $rc = $script->run(\@ARGV);
 exit $rc;
@@ -588,11 +590,11 @@ sub prepare_ref_data_rocket {
             $out = curl_ftp($gff_url, "$dir/$out_file");
         }
         else{
-            my $tar_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.RefSeq.ht2.tar";
+            my $tar_url = "$ftp_base_url/genomes/$gid/$gid.RefSeq.ht2.tar";
             my $out = curl_ftp($tar_url,"$dir/$gid.RefSeq.ht2.tar");
-            my $fna_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.RefSeq.fna";
+            my $fna_url = "$ftp_base_url/genomes/$gid/$gid.RefSeq.fna";
             $out = curl_ftp($fna_url,"$dir/$gid.RefSeq.fna");
-            my $gff_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.RefSeq.gff";
+            my $gff_url = "$ftp_base_url/genomes/$gid/$gid.RefSeq.gff";
             $out = curl_ftp($gff_url,"$dir/$gid.RefSeq.gff");
         }
     }
@@ -600,7 +602,7 @@ sub prepare_ref_data_rocket {
     else{
         my $api_url = "$data_url/genome_feature/?and(eq(genome_id,$gid),eq(annotation,PATRIC),eq(feature_type,CDS))&sort(+accession,+start,+end)&http_accept=application/cufflinks+gff&limit(25000)";
         #my $api_url = "$data_url/genome_feature/?and(eq(genome_id,$gid),eq(annotation,PATRIC),or(eq(feature_type,CDS),eq(feature_type,tRNA),eq(feature_type,rRNA)))&sort(+accession,+start,+end)&http_accept=application/cufflinks+gff&limit(25000)";
-        my $ftp_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.PATRIC.gff";
+        my $ftp_url = "$ftp_base_url/genomes/$gid/$gid.PATRIC.gff";
 	
         my $url = $api_url;
         # my $url = $ftp_url;
@@ -618,7 +620,7 @@ sub prepare_ref_data_rocket {
         my $accession_str = join(",", keys %unique_accessions);
 
         $api_url = "$data_url/genome_sequence/?eq(genome_id,$gid)&http_accept=application/sralign+dna+fasta&limit(25000)&in(accession,($accession_str))";
-        $ftp_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.fna";
+        $ftp_url = "$ftp_base_url/genomes/$gid/$gid.fna";
 
         $url = $api_url;
         # $url = $ftp_url;
@@ -732,8 +734,20 @@ sub curl_file {
 
 sub curl_ftp {
     my ($url, $outfile) = @_;
-    my @cmd = ("curl", "-o", $outfile, $url);
-    print STDERR join(" ", @cmd)."\n";
+
+    my @cmd = (
+        "curl",
+        "--ssl-reqd",          
+        "--ftp-pasv",          
+        "--disable-epsv",      
+        "--fail", "--show-error",
+        "--retry", "3",
+        "--user", "anonymous:guest",
+        "-o", $outfile,
+        $url,
+    );
+
+    warn join(" ", @cmd), "\n";
     my ($out) = run_cmd(\@cmd);
     return $out;
 }
