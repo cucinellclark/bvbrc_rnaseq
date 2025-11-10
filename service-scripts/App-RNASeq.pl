@@ -735,6 +735,9 @@ sub curl_file {
 sub curl_ftp {
     my ($url, $outfile) = @_;
 
+    # --- Normalize host but keep the ftp:// scheme for explicit FTPS ---
+    $url =~ s{ftp\.patricbrc\.org}{ftp.bv-brc.org}i;
+
     my @cmd = (
         "curl",
         "--ssl-reqd",          
