@@ -23,6 +23,8 @@ our $shock_cutoff = 10_000;
 my $data_url = Bio::KBase::AppService::AppConfig->data_api_url;
 # my $data_url = "http://www.alpha.patricbrc.org/api";
 
+my $ftp_base_url = "ftp://ftp.bv-brc.org";
+
 my $script = Bio::KBase::AppService::AppScript->new(\&process_rnaseq, \&preflight);
 my $rc = $script->run(\@ARGV);
 exit $rc;
@@ -30,9 +32,6 @@ exit $rc;
 # use JSON;
 # my $temp_params = JSON::decode_json(`cat /home/fangfang/P3/dev_container/modules/app_service/test_data/rna.inp`);
 # process_rnaseq('RNASeq', undef, undef, $temp_params);
-
-# Return value: moved to global scope to work properly
-my $run_ret_val = 0;
 
 # flag for if localize_params is called, will remove the localized params after run finishes and before submitting to users workspace
 my $called_localize_params = 0;
@@ -146,18 +145,19 @@ sub process_rnaseq {
     $params->{experimental_conditions} //= [];
     $params->{contrasts} //= [];
     
-    my @outputs;
+    my $outputs;
+    my $run_succeeded;
     my $prefix = $recipe;
     my $host = 0;
     if ($recipe eq 'cufflinks' || $recipe eq 'HTSeq-DESeq') {
-        @outputs = run_bvbrc_rnaseq($params, $tmpdir, $host, $parallel);
+        ($outputs, $run_succeeded) = run_bvbrc_rnaseq($params, $tmpdir, $host, $parallel);
     } elsif ($recipe eq 'Host') {
         $host = 1;
-        @outputs = run_bvbrc_rnaseq($params, $tmpdir, $host, $parallel);
+        ($outputs, $run_succeeded) = run_bvbrc_rnaseq($params, $tmpdir, $host, $parallel);
     } else {
         die "Unrecognized recipe: $recipe \n";
     }
-    print STDERR '\@outputs = '. Dumper(\@outputs);
+    print STDERR 'run_succeeded=$run_succeeded outputs = '. Dumper($outputs);
 
     # remove localized params (just the downloaded read files)
     if ($called_localize_params) {
@@ -172,7 +172,7 @@ sub process_rnaseq {
     #
     # Create folders first.
     #
-    for my $fent (grep { $_->[1] eq 'folder' } @outputs)
+    for my $fent (grep { $_->[1] eq 'folder' } @$outputs)
     {
 	my $folder = $fent->[0];
 	my $file = basename($folder);
@@ -209,7 +209,7 @@ sub process_rnaseq {
 	    }
 	}
     }
-    for my $output (@outputs)
+    for my $output (@$outputs)
     {
 	my($ofile, $type) = @$output;
 	next if $type eq 'folder';
@@ -259,8 +259,8 @@ sub process_rnaseq {
     save_output_files($app,$outdir);
     write_output("Start: $time1"."End:   $time2", "$tmpdir/DONE");
 
-    if (!$run_ret_val) {
-	    die "Error running prok_tuxedo.py: saved any output to user's workspace\n";
+    if (!$run_succeeded) {
+	die "RNAseq processing failed: saved any output to user's workspace\n";
     }
 }
 
@@ -336,19 +336,21 @@ sub run_bvbrc_rnaseq {
     #push @cmd, ("-L", join(",", map { s/^\W+//; s/\W+$//; s/\W+/_/g; $_ } @$labels)) if $labels && @$labels;
     #push @cmd, map { my @s = @$_; join(",", map { join("%", @$_) } @s) } @$exps;
     
-    print STDERR "cmd = ", join(" ", @cmd) . "\n\n";
+    print STDERR "Starting RNASeq run: @cmd\n";
     
     #
     # Run directly with IPC::Run so that stdout/stderr can flow in realtime to the
     # output collection infrastructure.
     #
-    #my $ok = run(\@cmd);
-    $run_ret_val = run(\@cmd);
+
+    my $run_ret_val = run(\@cmd);
     if (!$run_ret_val)
     {
-	    print "Error $? running @cmd\n";
+	print "Error $? running @cmd\n";
     }
-    
+
+    print STDERR "Finished RNAseq run. Success=$run_ret_val\n";
+
     #    my ($rc, $out, $err) = run_cmd(\@cmd);
     #    print STDERR "STDOUT:\n$out\n";
     #    print STDERR "STDERR:\n$err\n";
@@ -405,7 +407,7 @@ sub run_bvbrc_rnaseq {
     push @outputs, [ $diffexp_file, 'job_result' ] if -s $diffexp_file;
     push @outputs, [ $diffexp_folder, 'folder' ] if -e $diffexp_folder and -d $diffexp_folder;
     
-    return @outputs;
+    return (\@outputs, $run_ret_val);
 }
 
 sub run_rockhopper {
@@ -589,11 +591,11 @@ sub prepare_ref_data_rocket {
             $out = curl_ftp($gff_url, "$dir/$out_file");
         }
         else{
-            my $tar_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.RefSeq.ht2.tar";
+            my $tar_url = "$ftp_base_url/genomes/$gid/$gid.RefSeq.ht2.tar";
             my $out = curl_ftp($tar_url,"$dir/$gid.RefSeq.ht2.tar");
-            my $fna_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.RefSeq.fna";
+            my $fna_url = "$ftp_base_url/genomes/$gid/$gid.RefSeq.fna";
             $out = curl_ftp($fna_url,"$dir/$gid.RefSeq.fna");
-            my $gff_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.RefSeq.gff";
+            my $gff_url = "$ftp_base_url/genomes/$gid/$gid.RefSeq.gff";
             $out = curl_ftp($gff_url,"$dir/$gid.RefSeq.gff");
         }
     }
@@ -601,7 +603,7 @@ sub prepare_ref_data_rocket {
     else{
         my $api_url = "$data_url/genome_feature/?and(eq(genome_id,$gid),eq(annotation,PATRIC),eq(feature_type,CDS))&sort(+accession,+start,+end)&http_accept=application/cufflinks+gff&limit(25000)";
         #my $api_url = "$data_url/genome_feature/?and(eq(genome_id,$gid),eq(annotation,PATRIC),or(eq(feature_type,CDS),eq(feature_type,tRNA),eq(feature_type,rRNA)))&sort(+accession,+start,+end)&http_accept=application/cufflinks+gff&limit(25000)";
-        my $ftp_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.PATRIC.gff";
+        my $ftp_url = "$ftp_base_url/genomes/$gid/$gid.PATRIC.gff";
 	
         my $url = $api_url;
         # my $url = $ftp_url;
@@ -619,7 +621,7 @@ sub prepare_ref_data_rocket {
         my $accession_str = join(",", keys %unique_accessions);
 
         $api_url = "$data_url/genome_sequence/?eq(genome_id,$gid)&http_accept=application/sralign+dna+fasta&limit(25000)&in(accession,($accession_str))";
-        $ftp_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.fna";
+        $ftp_url = "$ftp_base_url/genomes/$gid/$gid.fna";
 
         $url = $api_url;
         # $url = $ftp_url;
@@ -733,8 +735,23 @@ sub curl_file {
 
 sub curl_ftp {
     my ($url, $outfile) = @_;
-    my @cmd = ("curl", "-o", $outfile, $url);
-    print STDERR join(" ", @cmd)."\n";
+
+    # --- Normalize host but keep the ftp:// scheme for explicit FTPS ---
+    $url =~ s{ftp\.patricbrc\.org}{ftp.bv-brc.org}i;
+
+    my @cmd = (
+        "curl",
+        "--ssl-reqd",          
+        "--ftp-pasv",          
+        "--disable-epsv",      
+        "--fail", "--show-error",
+        "--retry", "3",
+        "--user", "anonymous:guest",
+        "-o", $outfile,
+        $url,
+    );
+
+    warn join(" ", @cmd), "\n";
     my ($out) = run_cmd(\@cmd);
     return $out;
 }
