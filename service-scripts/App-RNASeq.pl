@@ -128,8 +128,8 @@ sub process_rnaseq {
     my $recipe = $params->{recipe};
     
     # my $tmpdir = File::Temp->newdir();
-    # my $tmpdir = File::Temp->newdir( CLEANUP => 1 );
-    my $tmpdir = File::Temp->newdir( CLEANUP => 0 );
+    my $tmpdir = File::Temp->newdir( CLEANUP => 1 );
+    # my $tmpdir = File::Temp->newdir( CLEANUP => 0 );
     system("chmod", "755", "$tmpdir");
     print STDERR "$tmpdir\n";
     ###localize_params for regular script
